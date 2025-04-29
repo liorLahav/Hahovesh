@@ -4,7 +4,7 @@ export default function Index() {
   return (
     <View
     >
-      <Text className="text-lg">Edit app/index.tsx to edit this screen.</Text>
+      <Text className="text-2xl">Edit app/index.tsx to edit this screen.</Text>
     </View>
   );
 }
