@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { View, Text } from "react-native";
 import { Button } from "../components/Button";
+import { collection, addDoc } from "firebase/firestore"; 
+import { db } from "../FirebaseConfig"; // Adjust the import path as necessary
 
 export default function App() {
   const [count, setCount] = useState(0);
@@ -18,9 +20,17 @@ export default function App() {
         labelClasses="text-pink-400" 
 
         label={"Tap if Omer gay"}
-        onPress={() => {
-          setCount((c) => c + 1);
-          setClicked(true);
+        onPress={async () => {
+          try {
+            const docRef = await addDoc(collection(db, "yogev"), {
+                first: "yogev",
+                last: "Solomon",
+                born: 2000
+              });
+              console.log("Document written with ID: ", docRef.id);
+            } catch (e) {
+              console.error("Error adding document: ", e);
+            }
         }}
         variant="default"
         size="default"
