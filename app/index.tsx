@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { View, Text } from "react-native";
 import { Button } from "../components/Button";
-import { Input } from "@/components/Input";
 
 export default function App() {
   const [count, setCount] = useState(0);
