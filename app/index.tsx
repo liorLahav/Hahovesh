@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { View, Text } from "react-native";
 import { Button } from "../components/Button";
+import { Input } from "@/components/Input";
 
 export default function App() {
   const [count, setCount] = useState(0);
   const [clicked, setClicked] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+
 
   return (
     <View className="flex-1 items-center justify-center gap-4">
@@ -25,6 +28,7 @@ export default function App() {
       />
 
       <Text className="text-3xl font-bold mb-4 text-pink-400">{count}</Text>
+
     </View>
   );
 }
