@@ -1,17 +1,15 @@
 // Import the functions you need from the SDKs you need
-import dotenv from 'dotenv';
 import { initializeApp } from "firebase/app";
 import { initializeAuth} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-
-dotenv.config();
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
+  apiKey: FIREBASE_API_KEY,
   authDomain: "hahovesh-project.firebaseapp.com",
   projectId: "hahovesh-project",
   storageBucket: "hahovesh-project.firebasestorage.app",
