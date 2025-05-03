@@ -1,16 +1,20 @@
-// HomePageHeader.js
 import { SafeAreaView, View, Text, Image, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Button } from "@/components/Button";
-import { User } from "lucide-react-native";
+import { Ionicons } from "@expo/vector-icons";
+import type { DrawerNavigationProp } from "@react-navigation/drawer";
+import type { ParamListBase } from "@react-navigation/native";
 
 export default function HomePageHeader() {
+  const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
+
   return (
     <SafeAreaView>
       <View className="w-full flex-wrap flex-row items-center justify-between px-2 h-[55px] bg-gray-100 shadow-sm">
-        <Pressable className="w-12 h-12 ml-1 rounded-full bg-black items-center justify-center flex-row gap-1">
-          {/* <User color="white" size={28} /> */}
-          <Text className="text-sm text-white">Guest</Text>
+        <Pressable
+          onPress={() => navigation.openDrawer()}
+          className="p-2"
+        >
+          <Ionicons name="menu" size={30} color="black" />
         </Pressable>
 
         <View className="flex-row items-center space-x-2">
