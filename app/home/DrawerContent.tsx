@@ -1,76 +1,81 @@
 import { DrawerContentScrollView } from "@react-navigation/drawer";
 import { SafeAreaView, View, Text, Pressable } from "react-native";
 import type { DrawerContentComponentProps } from "@react-navigation/drawer";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function DrawerContent(
   props: DrawerContentComponentProps & { userRole: string[] }
 ) {
-  const roleNumbers: number[] = [];
-
-  if (props.userRole.includes("Volunteer")) {
-    roleNumbers.push(0);
-  }
-  if (props.userRole.includes("Dispatcher")) {
-    roleNumbers.push(1);
-  }
+  let userRole = 0;
   if (props.userRole.includes("Admin")) {
-    roleNumbers.push(2);
+    userRole = 2;
+  } else if (props.userRole.includes("Dispatcher")) {
+    userRole = 1;
   }
+  
 
-  let userRole: number = -1;
-  for (let i = 0; i < roleNumbers.length; i++) {
-    userRole = roleNumbers[i];
-  }
-  userRole = 1; // default to -1 if no roles are found
-
-  if (userRole === -1) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-lg text-gray-800">
-          אין הרשאות - פנה למנהל מערכת
-        </Text>
-      </View>
-    );
-  }
-
-  // debugging
-  console.log("highest role", userRole);
   return (
-      <DrawerContentScrollView
-        {...props}
-        className="flex-1 bg-white p-4 items-end"
-      >
-        {userRole >= 0 && (
-          <>
-            <Text className="w-full text-right mb-2 text-xl border-b border-gray-300 px-2 py-4">
-              פעולות
-            </Text>
+    <DrawerContentScrollView
+      {...props}
+      className="flex-1 bg-white p-4 items-end"
+    >
+      <Text className="w-full text-right mb-2 text-xl border-b border-gray-500 px-2 py-4">
+        פעולות
+      </Text>
+      {menuItems
+        .filter((item) => userRole >= item.minRole)
+        .map((item) => (
+          <Pressable
+            key={item.label}
+            onPress={() => props.navigation.navigate(item.route)}
+            className="p-3 rounded-lg hover:bg-gray-200 mt-2 w-full border-b border-gray-200"
+          >
+            <View className="flex-row-reverse items-center gap-4 p-2 mr-4">
+              <Ionicons name={item.icon as any} size={24} color="gray" />
+              <Text className="text-lg text-gray-800 text-right">
+                {item.label}
+              </Text>
+            </View>
+          </Pressable>
+        ))}
 
-            <Pressable
-              onPress={() => {
-                console.log("נלחץ כפתור דף הבית");
-                props.navigation.navigate("index");
-              }}
-              className="p-3 rounded-lg hover:bg-gray-200 mt-2 w-full"
-            >
-              <Text className="text-lg text-gray-800 text-right">דף הבית</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => props.navigation.navigate("home/profile")}
-              className="p-3 rounded-lg hover:bg-gray-200 mt-2 w-full"
-            >
-              <Text className="text-lg text-gray-800 text-right">פרופיל</Text>
-            </Pressable>
-          </>
-        )}
-
-        <Pressable
-          onPress={() => console.log("התנתקות")}
-          className="p-3 rounded-lg hover:bg-red-100 mt-12 w-full"
-        >
+      <Pressable className="p-3 rounded-lg hover:bg-gray-200 mt-2 w-full border-b border-gray-200">
+        <View className="flex-row-reverse items-center gap-4 p-2 mr-4">
+          <Ionicons name="log-out" size={24} color="gray" />
           <Text className="text-lg text-red-600 text-right">התנתק</Text>
-        </Pressable>
-      </DrawerContentScrollView>
+        </View>
+      </Pressable>
+    </DrawerContentScrollView>
   );
 }
+
+const menuItems = [
+  { label: "דף הבית", icon: "home", route: "index", minRole: 0 },
+  { label: "פרופיל", icon: "person", route: "home/profile", minRole: 0 },
+  { label: "הודעות", icon: "chatbubbles", route: "messages", minRole: 0 },
+  { label: "אירועים פעילים", icon: "calendar", route: "events", minRole: 0 },
+  {
+    label: "סטטיסטיקה אישית",
+    icon: "stats-chart",
+    route: "personalStats",
+    minRole: 0,
+  },
+  {
+    label: "צפייה בכל הסטטיסטיקות",
+    icon: "analytics",
+    route: "allStats",
+    minRole: 2,
+  },
+  {
+    label: "צפייה בדוחות סיכום",
+    icon: "document-text",
+    route: "summaryReports",
+    minRole: 2,
+  },
+  {
+    label: "ניהול כוננים",
+    icon: "people",
+    route: "volunteerManagement",
+    minRole: 2,
+  },
+];
