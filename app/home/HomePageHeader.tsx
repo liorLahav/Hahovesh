@@ -9,26 +9,29 @@ export default function HomePageHeader() {
 
   return (
     <SafeAreaView>
-      <View className="w-full flex-wrap flex-row items-center justify-between px-2 h-[55px] bg-gray-100 shadow-sm">
-        <Pressable
-          onPress={() => navigation.openDrawer()}
-          className="p-2"
-        >
-          <Ionicons name="menu" size={30} color="black" />
-        </Pressable>
-
-        <View className="flex-row items-center space-x-2">
-          <View>
-            <Text className="text-2xl font-bold text-blue-700">
-              החובש הר נוף
-            </Text>
-            <Text className="text-base text-blue-700">ארגון ההצלה השכונתי</Text>
+      <View className="w-full bg-gray-100 shadow-sm p-2">
+        {/* שורה עליונה עם טקסט ותמונה בצד ימין */}
+        <View className="flex-row-reverse items-center justify-between mb-2">
+          <View className="flex-row-reverse items-center space-x-reverse space-x-2">
+            <Image
+              source={require("../../assets/images/logo.png")}
+              style={{ width: 45, height: 45 }}
+              resizeMode="contain"
+            />
+            <View>
+              <Text className="text-2xl font-bold text-blue-700">
+                החובש הר נוף
+              </Text>
+              <Text className="text-base text-blue-700">ארגון ההצלה השכונתי</Text>
+            </View>
           </View>
-          <Image
-            source={require("../../assets/images/logo.png")}
-            style={{ width: 45, height: 45 }}
-            resizeMode="contain"
-          />
+        </View>
+
+        {/* שורה תחתונה עם כפתור התפריט */}
+        <View className="flex-row justify-end">
+          <Pressable onPress={() => navigation.openDrawer()} className="p-2">
+            <Ionicons name="menu" size={30} color="black" />
+          </Pressable>
         </View>
       </View>
     </SafeAreaView>

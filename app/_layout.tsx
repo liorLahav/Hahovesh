@@ -6,7 +6,7 @@ export default function RootLayout() {
   return (
     <Drawer
     drawerContent={(props) => <DrawerContent {...props} />}
-    screenOptions={{ headerShown: false }} // drawerPosition: 'right'
+    screenOptions={{ headerShown: false, drawerPosition: 'right' }} 
   ></Drawer>
   );
 }
