@@ -36,8 +36,8 @@ export default function Register() {
   // Validation handlers
   const validateName = (value: string, setError: React.Dispatch<React.SetStateAction<string>>, fieldName: string) => {
     // Only allow alphabetic characters (support for international characters)
-    if (!/^[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]*$/.test(value)) {
-      setError(`${fieldName} can only contain alphabetic characters`);
+    if (!/^[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s\u0590-\u05FF]*$/.test(value)) {
+      setError(`${fieldName} יכול להכיל רק אותיות`);
       return false;
     }
     setError("");
@@ -47,7 +47,7 @@ export default function Register() {
   const validateId = (value: string) => {
     // Check if ID is exactly 9 digits
     if (!/^\d{9}$/.test(value)) {
-      setIdError("ID must be exactly 9 digits");
+      setIdError("תעודת זהות חייבת להכיל 9 ספרות בדיוק");
       return false;
     }
     setIdError("");
@@ -57,7 +57,7 @@ export default function Register() {
   const validatePhone = (value: string) => {
     // Check if phone starts with 05 and has exactly 10 digits
     if (!/^05\d{8}$/.test(value)) {
-      setPhoneError("Phone must start with 05 and be exactly 10 digits");
+      setPhoneError("מספר הטלפון חייב להתחיל ב-05 ולהכיל 10 ספרות בדיוק");
       return false;
     }
     setPhoneError("");
@@ -73,9 +73,9 @@ export default function Register() {
     }
     
     // Filter out non-alphabetic characters
-    const filteredText = text.replace(/[^A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]/g, '');
+    const filteredText = text.replace(/[^A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s\u0590-\u05FF]/g, '');
     setFirstName(filteredText.toLowerCase());
-    validateName(filteredText, setFirstNameError, "First name");
+    validateName(filteredText, setFirstNameError, "שם פרטי");
   };
 
   const handleLastNameChange = (text: string) => {
@@ -86,9 +86,9 @@ export default function Register() {
     }
     
     // Filter out non-alphabetic characters
-    const filteredText = text.replace(/[^A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]/g, '');
+    const filteredText = text.replace(/[^A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s\u0590-\u05FF]/g, '');
     setLastName(filteredText.toLowerCase());
-    validateName(filteredText, setLastNameError, "Last name");
+    validateName(filteredText, setLastNameError, "שם משפחה");
   };
 
   const handleIdChange = (text: string) => {
@@ -117,31 +117,33 @@ export default function Register() {
     validatePhone(filteredText);
   };
 
+  // ...existing code...
+
   const handleRegister = async () => {
     // Clear any previous conflict messages
     setConflictMessage("");
     setConflictDetails("");
     
     // Validate all fields before submission
-    const isFirstNameValid = validateName(firstName, setFirstNameError, "First name");
-    const isLastNameValid = validateName(lastName, setLastNameError, "Last name");
+    const isFirstNameValid = validateName(firstName, setFirstNameError, "שם פרטי");
+    const isLastNameValid = validateName(lastName, setLastNameError, "שם משפחה");
     const isIdValid = validateId(identifier);
     const isPhoneValid = validatePhone(phone);
   
     if (!isFirstNameValid || !isLastNameValid || !isIdValid || !isPhoneValid) {
-      Alert.alert("Validation Error", "Please fix all form errors before submitting.");
+      Alert.alert("שגיאת אימות", "אנא תקן את כל שגיאות הטופס לפני השליחה.");
       return;
     }
   
     if (!firstName || !lastName || !identifier || !phone) {
-      Alert.alert("Missing fields", "Please fill in all the details.");
+      Alert.alert("שדות חסרים", "אנא מלא את כל הפרטים.");
       return;
     }
     
     setIsLoading(true);
   
     try {
-      console.log("Checking for existing records...");
+      console.log("בודק רשומות קיימות...");
       
       // Check if ID already exists in database
       const idDocRef = doc(db, "volunteers", identifier);
@@ -150,9 +152,9 @@ export default function Register() {
       if (idDocSnap.exists()) {
         const existingData = idDocSnap.data();
         // Set conflict message with details about the existing record
-        setConflictMessage("ID Already Registered");
-        setConflictDetails(`The ID ${identifier} is already registered to ${existingData.first_name} ${existingData.last_name}. If this is you, please try logging in instead.`);
-        setIdError("ID already in use");
+        setConflictMessage("תעודת זהות רשומה כבר");
+        setConflictDetails(`תעודת זהות ${identifier} כבר רשומה למתנדב ${existingData.first_name} ${existingData.last_name}. אם זה אתה, אנא נסה להתחבר במקום זאת.`);
+        setIdError("תעודת זהות כבר בשימוש");
         setIsLoading(false);
         return;
       }
@@ -165,14 +167,20 @@ export default function Register() {
       if (!phoneQuerySnapshot.empty) {
         const existingData = phoneQuerySnapshot.docs[0].data();
         // Set conflict message with details about the existing record
-        setConflictMessage("Phone Already Registered");
-        setConflictDetails(`The phone number ${phone} is already registered to ${existingData.first_name} ${existingData.last_name}. If this is you, please try logging in instead.`);
-        setPhoneError("Phone number already in use");
+        setConflictMessage("מספר טלפון רשום כבר");
+        setConflictDetails(`מספר הטלפון ${phone} כבר רשום למתנדב ${existingData.first_name} ${existingData.last_name}. אם זה אתה, אנא נסה להתחבר במקום זאת.`);
+        setPhoneError("מספר טלפון כבר בשימוש");
         setIsLoading(false);
         return;
       }
       
-      console.log("No duplicates found, proceeding with registration...");
+      console.log("לא נמצאו כפילויות, ממשיך ברישום...");
+      
+      // Create a local copy of values before they might be cleared
+      const savedFirstName = firstName;
+      const savedLastName = lastName;
+      const savedIdentifier = identifier;
+      const savedPhone = phone;
       
       // Use the user‑supplied id as the document key for quick look‑up
       await setDoc(doc(db, "volunteers", identifier), {
@@ -181,43 +189,49 @@ export default function Register() {
         id: identifier,
         phone: phone,
         permissions: ["volunteer"],
-        created_at: new Date().toISOString(),
       });
   
-      console.log("Registration successful, showing welcome message");
+      console.log("ההרשמה הצליחה, מציג הודעת ברוך הבא");
+
+      // Clear form fields immediately after successful registration
+      setFirstName("");
+      setLastName("");
+      setIdentifier("");
+      setPhone("");
+      setFirstNameError("");
+      setLastNameError("");
+      setIdError("");
+      setPhoneError("");
+      setIsLoading(false);
       
       // Show enhanced success message with login instructions
-      Alert.alert(
-        "Registration Successful!", 
-        `Thank you ${firstName.charAt(0).toUpperCase() + firstName.slice(1)}, your volunteer account has been created successfully.\n\nPlease use your phone number (${phone}) and ID (${identifier}) to log in.`,
-        [
-          {
-            text: "Log In Now",
-            onPress: () => {
-              // Clear form fields
-              setFirstName("");
-              setLastName("");
-              setIdentifier("");
-              setPhone("");
-              setFirstNameError("");
-              setLastNameError("");
-              setIdError("");
-              setPhoneError("");
-              
-              // Navigate to login with the credentials as params
-              router.push({
-                pathname: '/login',
-                params: { phone: phone, id: identifier }
-              });
+      // Use setTimeout to ensure this runs after the state updates
+      setTimeout(() => {
+        Alert.alert(
+          "ההרשמה הצליחה!", 
+          `תודה ${savedFirstName.charAt(0).toUpperCase() + savedFirstName.slice(1)}, חשבון המתנדב שלך נוצר בהצלחה.\n\nאנא השתמש במספר הטלפון שלך (${savedPhone}) ובמספר תעודת הזהות (${savedIdentifier}) להתחברות.`,
+          [
+            {
+              text: "התחבר עכשיו",
+              onPress: () => {
+                // Navigate to login with the credentials as params
+                router.push({
+                  pathname: '/login',
+                  params: { phone: savedPhone, id: savedIdentifier }
+                });
+              }
+            },
+            {
+              text: "חזרה לדף הבית",
+              onPress: () => router.push('/')
             }
-          }
-        ]
-      );
+          ]
+        );
+      }, 100);
       
     } catch (err) {
-      console.error("Registration error:", err);
-      Alert.alert("Error", "Something went wrong while registering. Please try again.");
-    } finally {
+      console.error("שגיאת רישום:", err);
+      Alert.alert("שגיאה", "משהו השתבש בעת ההרשמה. אנא נסה שוב.");
       setIsLoading(false);
     }
   };
@@ -225,7 +239,7 @@ export default function Register() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>Volunteer Registration</Text>
+        <Text style={styles.title}>רישום מתנדבים</Text>
 
         {conflictMessage ? (
           <View style={styles.conflictContainer}>
@@ -235,42 +249,42 @@ export default function Register() {
               style={styles.loginButton}
               onPress={() => router.push('/login')}
             >
-              <Text style={styles.loginButtonText}>Go to Login</Text>
+              <Text style={styles.loginButtonText}>עבור להתחברות</Text>
             </TouchableOpacity>
           </View>
         ) : null}
 
         <Input 
-          label="First Name" 
+          label="שם פרטי" 
           value={firstName} 
           onChangeText={handleFirstNameChange} 
           error={firstNameError}
-          placeholder="Enter first name (letters only)"
+          placeholder="הכנס שם פרטי (אותיות בלבד)"
         />
         <Input 
-          label="Last Name" 
+          label="שם משפחה" 
           value={lastName} 
           onChangeText={handleLastNameChange} 
           error={lastNameError} 
-          placeholder="Enter last name (letters only)"
+          placeholder="הכנס שם משפחה (אותיות בלבד)"
         />
         <Input 
-          label="ID" 
+          label="תעודת זהות" 
           keyboardType="numeric" 
           value={identifier} 
           onChangeText={handleIdChange} 
           maxLength={9}
           error={idError}
-          placeholder="Enter 9-digit ID"
+          placeholder="הכנס תעודת זהות בת 9 ספרות"
         />
         <Input 
-          label="Phone" 
+          label="טלפון" 
           keyboardType="phone-pad" 
           value={phone} 
           onChangeText={handlePhoneChange} 
           maxLength={10}
           error={phoneError}
-          placeholder="Enter phone (05xxxxxxxx)"
+          placeholder="הכנס טלפון (05xxxxxxxx)"
         />
 
         <TouchableOpacity 
@@ -287,10 +301,10 @@ export default function Register() {
           {isLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator color="#fff" size="small" />
-              <Text style={styles.buttonText}> Checking...</Text>
+              <Text style={styles.buttonText}> בודק...</Text>
             </View>
           ) : (
-            <Text style={styles.buttonText}>Register</Text>
+            <Text style={styles.buttonText}>הרשמה</Text>
           )}
         </TouchableOpacity>
 
@@ -298,7 +312,7 @@ export default function Register() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Text style={styles.backButtonText}>Back to Home</Text>
+          <Text style={styles.backButtonText}>חזרה לדף הבית</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -338,6 +352,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 24,
     textAlign: "center",
+    writingDirection: "rtl",
   },
   inputGroup: {
     marginBottom: 16,
@@ -345,6 +360,8 @@ const styles = StyleSheet.create({
   label: {
     color: "#ccc",
     marginBottom: 4,
+    textAlign: "right",
+    writingDirection: "rtl",
   },
   input: {
     backgroundColor: "#1e1e1e",
@@ -355,6 +372,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: "#333",
+    textAlign: "right",
   },
   inputError: {
     borderColor: "#e53935",
@@ -364,6 +382,8 @@ const styles = StyleSheet.create({
     color: "#e53935",
     fontSize: 12,
     marginTop: 4,
+    textAlign: "right",
+    writingDirection: "rtl",
   },
   button: {
     backgroundColor: "#3b82f6",
@@ -404,12 +424,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 8,
+    textAlign: "right",
   },
   conflictText: {
     color: "#f8f9fa",
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 12,
+    textAlign: "right",
+    writingDirection: "rtl",
   },
   loginButton: {
     backgroundColor: "#20203a",
