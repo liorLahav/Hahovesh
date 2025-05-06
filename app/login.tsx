@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Alert, 
-  SafeAreaView,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -28,7 +17,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!phone || !identifier) {
-      Alert.alert("Missing fields", "Please enter both phone number and ID.");
+      Alert.alert("שדות חסרים", "אנא מלא את כל השדות");
       return;
     }
 
@@ -51,7 +40,7 @@ export default function Login() {
       
       if (querySnapshot.empty) {
         // Show error message on the page
-        setLoginError("Phone number or ID is wrong. Please try again.");
+        setLoginError("מספר הטלפון או תעודת הזהות שגויים. אנא נסה שוב.");
         return;
       }
 
@@ -59,7 +48,7 @@ export default function Login() {
       const volunteerData = querySnapshot.docs[0].data();
       
       // Show success message on the page
-      setLoginStatus("Login successful!");
+      setLoginStatus("התחברות הצליחה!");
       setWelcomeName(volunteerData.first_name);
       
     // Use setTimeout to give the user time to see the success message before navigation
@@ -68,8 +57,8 @@ export default function Login() {
       console.log("Navigation logic will be implemented here.");
     }, 1500); // 1.5 second delay
     } catch (err) {
-      console.error("Login error:", err);
-      setLoginError("Something went wrong while logging in. Please try again.");
+      console.error("שגיאת התחברות:", err);
+      setLoginError("משהו השתבש במהלך ההתחברות. אנא נסה שוב.");
     } finally {
       setIsLoading(false);
     }
@@ -82,14 +71,14 @@ export default function Login() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.formContainer}
       >
-        <Text style={styles.title}>Login</Text>
-        <Text style={styles.subtitle}>Access your volunteer account</Text>
+        <Text style={styles.title}>התחברות</Text>
+        <Text style={styles.subtitle}>התחבר למשתמש שלך</Text>
         
         {/* Show success message if login was successful */}
         {loginStatus ? (
           <View style={styles.statusContainer}>
             <Text style={styles.successText}>{loginStatus}</Text>
-            <Text style={styles.welcomeText}>Welcome, {welcomeName}!</Text>
+            <Text style={styles.welcomeText}>ברוך הבא, {welcomeName}!</Text>
           </View>
         ) : null}
         
@@ -101,10 +90,10 @@ export default function Login() {
         ) : null}
         
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput
+          <Text style={styles.label}>מספר טלפון</Text>
+            <TextInput
             style={styles.input}
-            placeholder="Enter your phone number"
+            placeholder="הכנס את מספר הטלפון שלך"
             placeholderTextColor="#666"
             keyboardType="phone-pad"
             value={phone}
@@ -113,14 +102,15 @@ export default function Login() {
               // Clear error message when user starts typing
               if (loginError) setLoginError("");
             }}
+            textAlign="right"
           />
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>ID Number</Text>
-          <TextInput
+          <Text style={styles.label}>מספר תעודת זהות</Text>
+            <TextInput
             style={styles.input}
-            placeholder="Enter your ID"
+            placeholder="הכנס את תעודת הזהות שלך"
             placeholderTextColor="#666"
             value={identifier}
             onChangeText={(text) => {
@@ -128,35 +118,39 @@ export default function Login() {
               // Clear error message when user starts typing
               if (loginError) setLoginError("");
             }}
+            textAlign="right"
             secureTextEntry
           />
         </View>
 
-        <TouchableOpacity
-          style={[styles.button, isLoading ? styles.buttonDisabled : null]}
-          onPress={handleLogin}
-          disabled={isLoading || loginStatus !== ""}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Login</Text>
-          )}
-        </TouchableOpacity>
-        
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account?</Text>
-          <TouchableOpacity onPress={() => router.push('/register')}>
-            <Text style={styles.link}>Register here</Text>
-          </TouchableOpacity>
-        </View>
 
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>Back to Home</Text>
-        </TouchableOpacity>
+
+<TouchableOpacity
+  style={[styles.button, isLoading ? styles.buttonDisabled : null]}
+  onPress={handleLogin}
+  disabled={isLoading || loginStatus !== ""}
+>
+  {isLoading ? (
+    <ActivityIndicator color="#fff" />
+  ) : (
+    <Text style={styles.buttonText}>התחבר</Text>
+  )}
+</TouchableOpacity>
+
+{/* Modified footer structure */}
+<View style={styles.footer}>
+  <Text style={styles.footerText}>אין לך חשבון?</Text>
+</View>
+<TouchableOpacity onPress={() => router.push('/register')} style={styles.registerLink}>
+  <Text style={styles.link}>הרשמה כאן</Text>
+</TouchableOpacity>
+
+<TouchableOpacity 
+  style={styles.backButton}
+  onPress={() => router.back()}
+>
+  <Text style={styles.backButtonText}>חזרה לדף הבית</Text>
+</TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -179,12 +173,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 8,
     alignSelf: 'center',
+    writingDirection: 'rtl',
   },
   subtitle: {
     fontSize: 18,
     color: '#aaa',
     marginBottom: 32,
     alignSelf: 'center',
+    writingDirection: 'rtl',
   },
   statusContainer: {
     backgroundColor: '#1c1c1c',
@@ -199,17 +195,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
+    writingDirection: 'rtl',
+    textAlign: 'center',
   },
   welcomeText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+    writingDirection: 'rtl',
+    textAlign: 'center',
   },
   errorText: {
     color: '#ef4444',
     fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',
+    writingDirection: 'rtl',
   },
   inputContainer: {
     width: '100%',
@@ -219,6 +220,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     marginBottom: 8,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   input: {
     backgroundColor: '#1c1c1c',
@@ -229,6 +232,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#333',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   button: {
     backgroundColor: '#3b82f6',
@@ -252,20 +257,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '500',
+    writingDirection: 'rtl',
   },
   footer: {
-    flexDirection: 'row',
     marginTop: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   footerText: {
     color: '#aaa',
-    marginRight: 6,
+    fontSize: 14,
+    textAlign: 'center',
+    writingDirection: 'rtl',
+  },
+  registerLink: {
+    marginTop: 8,
+    alignItems: 'center',
   },
   link: {
     color: '#3b82f6',
     fontWeight: '500',
+    fontSize: 16,
+    writingDirection: 'rtl',
   },
   backButton: {
     marginTop: 40,
@@ -274,5 +287,6 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#aaa',
     fontSize: 16,
+    writingDirection: 'rtl',
   }
 });
