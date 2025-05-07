@@ -5,6 +5,7 @@ import type { DrawerNavigationProp } from "@react-navigation/drawer";
 import type { ParamListBase } from "@react-navigation/native";
 import NotificationIcon from "./NotificationIcon"; // Import the NotificationIcon component
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function HomePageHeader() {
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
@@ -12,7 +13,8 @@ export default function HomePageHeader() {
 
   return (
     <SafeAreaView>
-      <View className="w-full bg-gray-100 shadow-sm p-2">
+      <View className="w-full h-1 bg-red-500 rounded-t-xl" />
+      <View className="w-full bg-blue-100 shadow-sm p-2">
         {/* שורה עליונה עם טקסט ותמונה בצד ימין */}
         <View className="flex-row-reverse items-center justify-between mb-2">
           <View className="flex-row-reverse items-center space-x-reverse space-x-2">
@@ -38,7 +40,8 @@ export default function HomePageHeader() {
             onPress={() => router.push("/home/profile")}
             className="p-3"
           >
-          <NotificationIcon unreadCount={11} /> {/* Replace with actual unread count */}
+            <NotificationIcon unreadCount={11} />{" "}
+            {/* Replace with actual unread count */}
           </Pressable>
           <Pressable onPress={() => navigation.openDrawer()} className="p-2">
             <Ionicons name="menu" size={30} color="black" />

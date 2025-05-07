@@ -1,12 +1,14 @@
 import { Button } from "@/components/Button";
 import HomePageHeader from "./HomePageHeader";
-import Buttons from "./Buttons";
+import UserStatus from "./userStatus";
+import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomePage() {
   return (
-    <>
+    <SafeAreaView className="flex-1 bg-blue-200 ">
       <HomePageHeader />
-      <Buttons />
-    </>
+      <UserStatus userId="Sy79iRZBzqaUey6elxmT" />
+    </SafeAreaView>
   );
 }
