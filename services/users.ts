@@ -1,4 +1,4 @@
-import { deleteDoc, DocumentData, Firestore, updateDoc, doc, collection, getDocs } from "firebase/firestore";
+import { deleteDoc, DocumentData, updateDoc, doc, collection, getDocs } from "firebase/firestore";
 import { db } from "../FirebaseConfig";
 
 export const deleteUser = async (user_id : string) => {
@@ -15,6 +15,7 @@ export const deleteUser = async (user_id : string) => {
         }
     }
 }
+
 export const updatePermissions = async (user_id: string, newPermissions: string[]) => {
     try {
         const userRef = doc(db, "volunteers", user_id);
@@ -29,14 +30,31 @@ export const updatePermissions = async (user_id: string, newPermissions: string[
         }
     }
 }
+
 export const getAllUsers = async () : Promise<DocumentData[]>  => {
     try {
+        console.log("Getting all users from Firestore...");
         const usersRef = collection(db, "volunteers");
         const snapshot = await getDocs(usersRef);
-        const usersData = snapshot.docs.map(doc => doc.data());
+        
+        if (snapshot.empty) {
+            console.log("No users found in database");
+            return [];
+        }
+        
+        // Get both the data and the ID
+        const usersData = snapshot.docs.map(doc => {
+            return {
+                ...doc.data(),
+                id: doc.id // Make sure ID is included
+            };
+        });
+        
+        console.log(`Retrieved ${usersData.length} users from Firestore`);
         return usersData;
     }
     catch (error : unknown) {
+        console.error("Error in getAllUsers:", error);
         if (error instanceof Error) {
             throw new Error("Error fetching users: " + error.message);
         }
