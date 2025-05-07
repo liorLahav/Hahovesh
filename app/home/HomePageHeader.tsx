@@ -3,9 +3,12 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import type { DrawerNavigationProp } from "@react-navigation/drawer";
 import type { ParamListBase } from "@react-navigation/native";
+import NotificationIcon from "./NotificationIcon"; // Import the NotificationIcon component
+import { useRouter } from "expo-router";
 
 export default function HomePageHeader() {
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
+  const router = useRouter();
 
   return (
     <SafeAreaView>
@@ -22,13 +25,21 @@ export default function HomePageHeader() {
               <Text className="text-2xl font-bold text-blue-700">
                 החובש הר נוף
               </Text>
-              <Text className="text-base text-blue-700">ארגון ההצלה השכונתי</Text>
+              <Text className="text-base text-blue-700">
+                ארגון ההצלה השכונתי
+              </Text>
             </View>
           </View>
         </View>
 
         {/* שורה תחתונה עם כפתור התפריט */}
-        <View className="flex-row justify-end">
+        <View className="flex-row justify-end gap-4 items-center">
+          <Pressable
+            onPress={() => router.push("/home/profile")}
+            className="p-3"
+          >
+          <NotificationIcon unreadCount={11} /> {/* Replace with actual unread count */}
+          </Pressable>
           <Pressable onPress={() => navigation.openDrawer()} className="p-2">
             <Ionicons name="menu" size={30} color="black" />
           </Pressable>

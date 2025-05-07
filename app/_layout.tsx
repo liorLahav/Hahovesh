@@ -36,7 +36,7 @@ export default function RootLayout() {
   if (!roles || roles.length === 0) {
     return (
       <View className="flex-1 items-center justify-center">
-        <Text>טוען הרשאות...</Text>
+        <Text>טוען...</Text>
       </View>
     );
   }
@@ -44,7 +44,11 @@ export default function RootLayout() {
   return (
     <Drawer
       drawerContent={(props) => <DrawerContent {...props} userRole={roles} />}
-      screenOptions={{ headerShown: false, drawerPosition: "right" }}
+      screenOptions={{
+        headerShown: false,
+        drawerPosition: "right",
+        // drawerStyle: { backgroundColor: "#3498db" },
+      }}
     >
       <Drawer.Screen name="index" options={{ title: "בית" }} />
       <Drawer.Screen name="home/profile" options={{ title: "פרופיל" }} />
