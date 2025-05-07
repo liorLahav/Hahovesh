@@ -1,133 +1,71 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { useState } from "react";
-import { Text, StyleSheet } from "react-native";
-import {updatePermissions} from "../../services/users";
-import { DocumentData } from "firebase/firestore";
+import { updatePermissions } from "../../services/users";
 
 type PermissionsPanelProps = {
-    refresh: () => void;
-    user_id : string;
-    premissions: string[];
-}
+  refresh: () => void;
+  user_id: string;
+  premissions: string[];
+};
 
-const PermissionsPanel = (props : PermissionsPanelProps) => {
-    const [currentPermistion, setcurrentPermistion] = useState<string[]>(props.premissions);
+const ROLES = {
+  Volunteer: ["Volunteer"],
+  Dispatcher: ["Volunteer", "Dispatcher"],
+  Admin: ["Volunteer", "Dispatcher", "Admin"],
+};
 
-    const handleRoleSelection = (role: string) => {
-        console.log("User ID: ", props.user_id);
-        let permistionsArray = ["Volunteer", "Dispatcher", "Admin"];
-        if (role === "Volunteer"){
-            permistionsArray = ["Volunteer"];
-        } else if (role === "Dispatcher"){
-            permistionsArray = ["Volunteer", "Dispatcher"];
-        }
-        console.log("Selected role: ", permistionsArray);
-        setcurrentPermistion(permistionsArray);
-        updatePermissions(props.user_id,permistionsArray).then(
-            () => {
-                props.refresh();
-            }
-        ).catch((error: Error) => {
-            console.error("Error updating permissions: ", error);
-        }
-        );
-    };
-    
+const PermissionsPanel = ({ refresh, user_id, premissions }: PermissionsPanelProps) => {
+  const [currentPermissions, setCurrentPermissions] = useState<string[]>(premissions);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleRoleSelection = async (role: keyof typeof ROLES) => {
+    if (isUpdating) return;
+    setIsUpdating(true);
+    try {
+      const selectedPermissions = ROLES[role];
+      setCurrentPermissions(selectedPermissions);
+      await updatePermissions(user_id, selectedPermissions);
+      requestAnimationFrame(() => {
+        refresh();
+      });
+    } catch (error) {
+      console.error("Error updating permissions: ", error);
+      setCurrentPermissions(premissions);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const renderButton = (role: keyof typeof ROLES, label: string) => {
+    const isSelected = currentPermissions.includes(role);
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>הגדרת הרשאות:</Text>
-            <View style={styles.buttonsContainer}>
-                <TouchableOpacity 
-                    style={[
-                        styles.button, 
-                        currentPermistion.includes('Volunteer') && styles.buttonPressed
-                    ]}
-                    onPress={() => handleRoleSelection('Volunteer')}
-                >
-                    <Text style={[
-                        styles.buttonText,
-                        currentPermistion.includes('Volunteer') && styles.buttonTextPressed
-                    ]}>כונן</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                    style={[
-                        styles.button, 
-                        currentPermistion.includes('Dispatcher') && styles.buttonPressed
-                    ]}
-                    onPress={() => handleRoleSelection('Dispatcher')}
-                >
-                    <Text style={[
-                        styles.buttonText,
-                        currentPermistion.includes('Dispatcher') && styles.buttonTextPressed
-                    ]}>מוקדן</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                    style={[
-                        styles.button, 
-                        currentPermistion.includes('Admin') && styles.buttonPressed
-                    ]}
-                    onPress={() => handleRoleSelection('Admin')}
-                >
-                    <Text style={[
-                        styles.buttonText,
-                        currentPermistion.includes('Admin') && styles.buttonTextPressed
-                    ]}>מנהל</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+      <TouchableOpacity
+        className={`py-2.5 px-2 rounded-lg border items-center flex-1 mx-[2px]
+          ${isSelected ? 'bg-blue-50 border-blue-500' : 'bg-gray-50 border-gray-300'}
+          ${isUpdating ? 'opacity-50' : 'opacity-100'}`}
+        onPress={() => handleRoleSelection(role)}
+        key={user_id + role}
+        disabled={isUpdating}
+      >
+        <Text
+          className={`text-xs ${isSelected ? 'text-blue-500 font-bold' : 'text-gray-600 font-normal'}`}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
     );
+  };
+
+  return (
+    <View className="p-2 h-full justify-center bg-white">
+      <Text className="text-base font-bold mb-2 text-center text-gray-800">הגדרת הרשאות:</Text>
+      <View className="flex-row justify-around items-center space-x-1.5 px-0.5">
+        {renderButton("Volunteer", "כונן")}
+        {renderButton("Dispatcher", "מוקדן")}
+        {renderButton("Admin", "מנהל")}
+      </View>
+    </View>
+  );
 };
 
 export default PermissionsPanel;
-
-const styles = StyleSheet.create({
-    container: {
-        padding: 15,
-        height: '100%',
-        justifyContent: 'center',
-        backgroundColor: 'white',
-    },
-    title: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        textAlign: 'center',
-        color: '#333',
-    },
-    buttonsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    button: {
-        backgroundColor: '#f0f0f0',
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        alignItems: 'center',
-        flex: 1,
-        marginHorizontal: 4,
-    },
-    buttonPressed: {
-        backgroundColor: '#e6f7ff',
-        borderColor: '#1890ff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 1.5,
-        elevation: 2,
-    },
-    buttonText: {
-        color: '#555',
-        fontSize: 14,
-        fontWeight: '500',
-    },
-    buttonTextPressed: {
-        color: '#1890ff',
-        fontWeight: 'bold',
-    },
-});

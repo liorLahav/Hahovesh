@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
 import { useState, useEffect } from 'react';
 import { updatePermissions, deleteUser } from '@/services/users';
 
@@ -29,74 +29,26 @@ const ApprovePanel = (props : ApprovePanelProps) => {
         );
     }
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>אישור משתמש:</Text>
-            <View style={styles.buttonsContainer}>
+        <View className="p-4 h-full justify-center bg-white">
+            <Text className="text-base font-bold mb-2.5 text-center text-gray-800">אישור משתמש:</Text>
+            <View className="flex-row justify-between items-center">
                 <TouchableOpacity 
-                    style={[
-                        styles.button,
-                        styles.approveButton
-                    ]}
+                    className="py-2 px-3 rounded-lg border border-green-500 bg-green-50 items-center flex-1 mx-1"
                     onPress={() => onAprove()}
                 >
-                    <Text style={styles.buttonText}>אשר</Text>
+                    <Text className="text-sm font-medium">אשר</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                    style={[
-                        styles.button,
-                        styles.denyButton
-                    ]}
+                    className="py-2 px-3 rounded-lg border border-red-500 bg-red-50 items-center flex-1 mx-1"
                     onPress={() => onDeny()}
                 >
-                    <Text style={styles.buttonText}>דחה</Text>
+                    <Text className="text-sm font-medium">דחה</Text>
                 </TouchableOpacity>
             </View>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        padding: 15,
-        height: '100%',
-        justifyContent: 'center',
-        backgroundColor: 'white',
-    },
-    title: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        textAlign: 'center',
-        color: '#333',
-    },
-    buttonsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    button: {
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 8,
-        borderWidth: 1,
-        alignItems: 'center',
-        flex: 1,
-        marginHorizontal: 4,
-    },
-    approveButton: {
-        backgroundColor: '#f6ffed',
-        borderColor: '#52c41a',
-    },
-    denyButton: {
-        backgroundColor: '#fff1f0',
-        borderColor: '#ff4d4f',
-    },
-    buttonText: {
-        fontSize: 14,
-        fontWeight: '500',
-    }
-});
 
 export default ApprovePanel;
 
