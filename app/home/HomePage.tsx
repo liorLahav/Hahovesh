@@ -3,12 +3,14 @@ import HomePageHeader from "./HomePageHeader";
 import UserStatus from "./userStatus";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ActiveEvents from "./ActiveEvents";
 
 export default function HomePage() {
   return (
-    <SafeAreaView className="flex-1 bg-blue-200 ">
+    <SafeAreaView className="flex-1 bg-blue-200">
       <HomePageHeader />
       <UserStatus userId="Sy79iRZBzqaUey6elxmT" />
+      <ActiveEvents />
     </SafeAreaView>
   );
 }

@@ -15,7 +15,7 @@ export default function DrawerContent(
     userRole = 1;
   }
 
-  userRole = 2; // TODO: remove this line to enable user role checking
+  userRole = 0; // Debugging 
 
   return (
     <DrawerContentScrollView
