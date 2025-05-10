@@ -16,7 +16,7 @@ export default function DrawerContent(
   }
   console.log("User Role:", userRole);
 
-  userRole = 2; // Debugging 
+  // userRole = 2; // Debugging 
 
 
   return (

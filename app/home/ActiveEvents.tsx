@@ -1,11 +1,10 @@
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // אייקונים של expo
-import { useRoles } from "@/hooks/useRoles";
-type ActiveEventsProps = {
-  userRole: string[];
-};
+import { useRolesContext } from "@/services/RolesContext";
 
-export default function ActiveEvents({ userRole }: ActiveEventsProps) {
+
+export default function ActiveEvents() {
+  const { roles, loading } = useRolesContext();
   // דוגמה לנתונים – תחליף בנתונים מהדאטהבייס
   const events = [
     { id: 1, title: "אירוע 1", description: "גדגשדג" },
@@ -16,6 +15,14 @@ export default function ActiveEvents({ userRole }: ActiveEventsProps) {
     { id: 6, title: "אירוע 6", description: "גדגשדג" },
   ];
 
+    if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>טוען...</Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-white">
       <View className="items-center justify-center bg-blue-600 py-5 rounded-b-2xl shadow-md">
@@ -24,7 +31,7 @@ export default function ActiveEvents({ userRole }: ActiveEventsProps) {
         </Text>
         <View className="w-16 h-1 bg-white mt-2 rounded-full" />
 
-        {userRole.includes("Dispatcher") || userRole.includes("Admin") ? (
+        {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <Pressable
             className="absolute  right-1 bg-red-600 px-3 rounded-full flex-row items-center shadow-2xl w-[100px] h-[50px] justify-center mr-1"
             onPress={() => console.log("אירוע חדש נלחץ")}
