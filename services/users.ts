@@ -5,6 +5,7 @@ import {
   doc,
   collection,
   getDocs,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../FirebaseConfig";
 
@@ -79,3 +80,20 @@ export const updateUserStatus = async (userId: string, status: string) => {
     console.error("Error updating status: ", error);
   }
 };
+
+export const getRoles = async (userId: string): Promise<string[]> => {
+  try {
+    const docRef = doc(db, "volunteers", userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const userData = docSnap.data();
+      return Array.isArray(userData.permissions) ? userData.permissions : [];
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+    throw error;
+  }
+};
+
