@@ -6,7 +6,7 @@ import { collection, getDocs, DocumentData, Firestore, doc as firestoreDoc, upda
 import { getAllUsers } from "../../services/users";
 import { Button } from "@/components/Button";
 
-const UserManegmentScreen = () => {
+const UserManagementScreen = () => {
     const [activeUsers, setactiveUsers] = useState<DocumentData[] | null>(null);
     const [pendingUsers, setpendingUsers] = useState<DocumentData[] | null>(null);
     const [dataChanged, setDataChanged] = useState(false);
@@ -83,5 +83,5 @@ const UserManegmentScreen = () => {
     );
 }
 
-export default UserManegmentScreen;
+export default UserManagementScreen;
 
