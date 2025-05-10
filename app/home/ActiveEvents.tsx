@@ -1,7 +1,11 @@
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // אייקונים של expo
+import { useRoles } from "@/hooks/useRoles";
+type ActiveEventsProps = {
+  userRole: string[];
+};
 
-export default function ActiveEvents() {
+export default function ActiveEvents({ userRole }: ActiveEventsProps) {
   // דוגמה לנתונים – תחליף בנתונים מהדאטהבייס
   const events = [
     { id: 1, title: "אירוע 1", description: "גדגשדג" },
@@ -19,12 +23,15 @@ export default function ActiveEvents() {
           אירועים פעילים
         </Text>
         <View className="w-16 h-1 bg-white mt-2 rounded-full" />
-        <Pressable
-          className="absolute  right-1 bg-red-600 px-3 rounded-full flex-row items-center shadow-2xl w-[100px] h-[50px] justify-center mr-1"
-          onPress={() => console.log("אירוע חדש נלחץ")}
-        >
-          <Text className="text-white text-lg font-bold">אירוע חדש</Text>
-        </Pressable>
+
+        {userRole.includes("Dispatcher") || userRole.includes("Admin") ? (
+          <Pressable
+            className="absolute  right-1 bg-red-600 px-3 rounded-full flex-row items-center shadow-2xl w-[100px] h-[50px] justify-center mr-1"
+            onPress={() => console.log("אירוע חדש נלחץ")}
+          >
+            <Text className="text-white text-lg font-bold">אירוע חדש</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       {/* ScrollView עם Cards */}
@@ -40,10 +47,10 @@ export default function ActiveEvents() {
                 key={event.id}
                 className="bg-white rounded-xl shadow-md mb-4 border border-blue-300 p-4"
               >
-                <Text className="text-xl font-bold text-blue-800 mb-2">
+                <Text className="text-xl font-bold text-blue-800 mb-2 text-right">
                   {event.title}
                 </Text>
-                <Text className="text-base text-gray-700 mb-4">
+                <Text className="text-base text-gray-700 mb-4 text-right">
                   {event.description}
                 </Text>
 
