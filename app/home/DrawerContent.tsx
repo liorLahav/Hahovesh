@@ -14,8 +14,10 @@ export default function DrawerContent(
   } else if (props.userRole.includes("Dispatcher")) {
     userRole = 1;
   }
+  console.log("User Role:", userRole);
 
   userRole = 0; // Debugging 
+
 
   return (
     <DrawerContentScrollView
@@ -72,7 +74,7 @@ export default function DrawerContent(
 }
 
 const accountItems = [
-  { label: "דף הבית", icon: "home", route: "index", minRole: 0 },
+  { label: "דף הבית", icon: "home", route: "home/HomePage", minRole: 0 },
   { label: "פרופיל", icon: "person", route: "home/profile", minRole: 0 },
 ];
 
