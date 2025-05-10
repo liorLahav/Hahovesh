@@ -16,7 +16,7 @@ export default function DrawerContent(
   }
   console.log("User Role:", userRole);
 
-  // userRole = 0; // Debugging 
+  userRole = 2; // Debugging 
 
 
   return (
@@ -102,7 +102,7 @@ const menuItems = [
   {
     label: "ניהול כוננים",
     icon: "people",
-    route: "volunteerManagement",
+    route: "UserManagement",
     minRole: 2,
   },
 ];

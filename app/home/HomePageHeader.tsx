@@ -14,7 +14,6 @@ export default function HomePageHeader() {
     <>
       <View className="w-full h-1 bg-red-500 rounded-t-xl" />
       <View className="w-full bg-blue-100 shadow-sm p-2">
-        {/* שורה עליונה עם טקסט ותמונה בצד ימין */}
         <View className="flex-row-reverse items-center justify-between mb-2">
           <View className="flex-row-reverse items-center space-x-reverse space-x-2">
             <Image
@@ -33,7 +32,6 @@ export default function HomePageHeader() {
           </View>
         </View>
 
-        {/* שורה תחתונה עם כפתור התפריט */}
         <View className="flex-row justify-end gap-4 items-center">
           <Pressable
             onPress={() => router.push("/home/profile")}

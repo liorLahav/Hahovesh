@@ -1,8 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { initializeAuth} from "firebase/auth";
+import { initializeAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
+import { getDatabase } from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
@@ -11,6 +12,7 @@ const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
   authDomain: "hahovesh-project.firebaseapp.com",
+  databaseURL: "https://hahovesh-project-default-rtdb.europe-west1.firebasedatabase.app", // Updated URL from error message
   projectId: "hahovesh-project",
   storageBucket: "hahovesh-project.firebasestorage.app",
   messagingSenderId: "259653569192",
@@ -21,3 +23,4 @@ const firebaseConfig = {
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const realtimeDb = getDatabase(app); // Initialize Realtime Database
