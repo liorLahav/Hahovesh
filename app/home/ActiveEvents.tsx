@@ -1,21 +1,38 @@
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // אייקונים של expo
 import { useRolesContext } from "@/services/RolesContext";
-
+import { useEffect, useState } from "react";
+import { getEvents } from "@/services/events"; // פונקציה שמביאה את האירועים מהשרת
 
 export default function ActiveEvents() {
-  const { roles, loading } = useRolesContext();
-  // דוגמה לנתונים – תחליף בנתונים מהדאטהבייס
-  const events = [
-    { id: 1, title: "אירוע 1", description: "גדגשדג" },
-    { id: 2, title: "אירוע 2", description: "גדגשדג" },
-    { id: 3, title: "אירוע 3", description: "גדגשדג" },
-    { id: 4, title: "אירוע 4", description: "גדגשדג" },
-    { id: 5, title: "אירוע 5", description: "גדגשדג" },
-    { id: 6, title: "אירוע 6", description: "גדגשדג" },
-  ];
+  type Event = {
+    id: string;
+    title: string;
+    description: string;
+    createdAt: string;
+    anamnesis: string;
+    street: string;
+  };
 
-    if (loading) {
+  const { roles, loading } = useRolesContext();
+  const [events, setEvents] = useState<Event[]>([]);
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await getEvents();
+        setEvents(response);
+        console.log("Fetched events:", response); // Debugging
+
+        setEvents(response);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+
+    fetchEvents();
+  }, [events]);
+
+  if (loading) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text>טוען...</Text>
@@ -29,6 +46,7 @@ export default function ActiveEvents() {
         <Text className="text-3xl font-bold text-white tracking-widest">
           אירועים פעילים
         </Text>
+
         <View className="w-16 h-1 bg-white mt-2 rounded-full" />
 
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
@@ -49,16 +67,16 @@ export default function ActiveEvents() {
               לא נמצאו אירועים פעילים
             </Text>
           ) : (
-            events.map((event) => (
+            Object.values(events).map((event, index) => (
               <View
-                key={event.id}
+                key={event["createdAt"]}
                 className="bg-white rounded-xl shadow-md mb-4 border border-blue-300 p-4"
               >
                 <Text className="text-xl font-bold text-blue-800 mb-2 text-right">
-                  {event.title}
+                  {event.anamnesis}
                 </Text>
                 <Text className="text-base text-gray-700 mb-4 text-right">
-                  {event.description}
+                  {event.street}
                 </Text>
 
                 <View className="flex-row justify-between">

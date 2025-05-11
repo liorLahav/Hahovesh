@@ -4,6 +4,7 @@ import UserStatus from "./userStatus";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ActiveEvents from "./ActiveEvents";
+import { useEffect } from "react";
 
 export default function HomePage() {
   const userId = "Sy79iRZBzqaUey6elxmT";
