@@ -25,20 +25,24 @@ export default function DynamicForm({ schema, onSubmit }: Props) {
     setValues(prev => ({ ...prev, [key]: val }));
 
   return (
-    <ScrollView
-      style={{ flex: 1, padding: 16, backgroundColor: '#fff' }}
-      contentContainerStyle={{ paddingBottom: 50 }}
-    >
+    <ScrollView /* ... */>
       {schema.map(field => (
         <View key={field.key} style={{ marginBottom: 16 }}>
           <Text style={{ marginBottom: 4 }}>{field.label}</Text>
 
-          {/* Free-text field */}
           {field.type === 'text' && (
             <TextInput
               placeholder={field.placeholder}
               value={values[field.key]}
-              onChangeText={text => setVal(field.key, text)}
+              // מקלדת מתאימה (ברירת מחדל default)
+              keyboardType={field.keyboardType ?? 'default'}
+              onChangeText={text => {
+                // אם numericOnly, נוסיף סינון אוטומטי של כל תו שאינו ספרה
+                const finalText = field.numericOnly
+                  ? text.replace(/[^0-9]/g, '')
+                  : text;
+                setVal(field.key, finalText);
+              }}
               style={{
                 borderWidth: 1,
                 borderColor: '#ccc',
@@ -51,7 +55,6 @@ export default function DynamicForm({ schema, onSubmit }: Props) {
             />
           )}
 
-          {/* Picker field */}
           {field.type === 'picker' && Array.isArray(field.options) && (
             <Select
               value={values[field.key]}
@@ -62,12 +65,7 @@ export default function DynamicForm({ schema, onSubmit }: Props) {
         </View>
       ))}
 
-      {/* Submit button – inside the form for tight coupling */}
-      <Button
-        label="שלח"
-        onPress={() => onSubmit(values)}
-        className="mt-4"
-      />
+      <Button label="שלח" onPress={() => onSubmit(values)} className="mt-4" />
     </ScrollView>
   );
 }
