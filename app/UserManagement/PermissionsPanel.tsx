@@ -1,8 +1,7 @@
 import { View, TouchableOpacity, Text } from "react-native";
 import { useState } from "react";
 import { updatePermissions } from "../../services/users";
-import { useRolesContext } from "@/services/RolesContext";
-
+import { useRolesContext } from "@/hooks/RolesContext";
 
 type PermissionsPanelProps = {
   refresh: () => void;
@@ -86,4 +85,3 @@ const PermissionsPanel = ({
 };
 
 export default PermissionsPanel;
-

@@ -1,5 +1,6 @@
-// DELETE THIS FILE
-// This file is not used in the project.
+/** 
+ * Not used in the app, but keep it yet
+ */
 
 import { useEffect, useState } from "react";
 import { getRoles } from "@/services/users";

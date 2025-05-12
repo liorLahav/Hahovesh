@@ -5,7 +5,7 @@ type RolesContextType = {
   roles: string[];
   setRoles: (roles: string[]) => void;
   refreshRoles: () => Promise<void>;
-  loading: boolean; 
+  rolesLoading: boolean; 
 };
 
 const RolesContext = createContext<RolesContextType | null>(null);
@@ -13,12 +13,12 @@ const RolesContext = createContext<RolesContextType | null>(null);
 export const RolesProvider = ({ children }: { children: React.ReactNode }) => {
   const userId = "Sy79iRZBzqaUey6elxmT"; // או מתוך auth
   const [roles, setRoles] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [rolesLoading, setRolesLoading] = useState(true);
 
   const refreshRoles = async () => {
     const fetched = await getRoles(userId);
     setRoles(fetched);
-    setLoading(false);
+    setRolesLoading(false);
   };
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export const RolesProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <RolesContext.Provider value={{ roles, setRoles, refreshRoles, loading }}>
+    <RolesContext.Provider value={{ roles, setRoles, refreshRoles, rolesLoading }}>
       {children}
     </RolesContext.Provider>
   );

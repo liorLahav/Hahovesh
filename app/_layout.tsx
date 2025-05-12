@@ -1,12 +1,12 @@
-import { Drawer } from "expo-router/drawer";
-import DrawerContent from "./home/DrawerContent";
-import { useEffect, useState } from "react";
-import { getDoc, doc } from "firebase/firestore";
-import { db } from "../FirebaseConfig";
+/**
+ * @fileoverview This file is the root layout for the application.
+ * It wraps the entire application in a context provider for user roles and includes the AppDrawer component.
+ * need to include common components
+ */ 
+
 import "../global.css";
-import { View, Text } from "react-native";
-import { RolesProvider, } from "@/services/RolesContext";
-import AppDrawer from "./AppDrawer";
+import { RolesProvider } from "@/hooks/RolesContext";
+import AppDrawer from "./sideBar/AppDrawer";
 
 export default function RootLayout() {
   return (

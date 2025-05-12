@@ -1,8 +1,7 @@
 import { View, Text, ScrollView, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // אייקונים של expo
-import { useRolesContext } from "@/services/RolesContext";
+import { useRolesContext } from "@/hooks/RolesContext";
 import { useEffect, useState } from "react";
-import { getEvents } from "@/services/events"; // פונקציה שמביאה את האירועים מהשרת
+import { subscribeToEvents } from "@/services/events";
 
 export default function ActiveEvents() {
   type Event = {
@@ -14,25 +13,20 @@ export default function ActiveEvents() {
     street: string;
   };
 
-  const { roles, loading } = useRolesContext();
+  const { roles, rolesLoading } = useRolesContext();
   const [events, setEvents] = useState<Event[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await getEvents();
-        setEvents(response);
-        console.log("Fetched events:", response); // Debugging
+    const unsubscribe = subscribeToEvents((fetchedEvents) => {
+      setEvents(fetchedEvents);
+      setLoadingEvents(false);
+    });
 
-        setEvents(response);
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      }
-    };
+    return () => unsubscribe();
+  }, []);
 
-    fetchEvents();
-  }, [events]);
-
-  if (loading) {
+  if (rolesLoading || loadingEvents) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text>טוען...</Text>
@@ -42,8 +36,8 @@ export default function ActiveEvents() {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="items-center justify-center bg-blue-600 py-5 rounded-b-2xl shadow-md">
-        <Text className="text-3xl font-bold text-white tracking-widest">
+      <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
+        <Text className="text-3xl font-bold text-white tracking-wide">
           אירועים פעילים
         </Text>
 
@@ -51,49 +45,49 @@ export default function ActiveEvents() {
 
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <Pressable
-            className="absolute  right-1 bg-red-600 px-3 rounded-full flex-row items-center shadow-2xl w-[100px] h-[50px] justify-center mr-1"
+            className="absolute right-3 top-5 bg-red-600 px-4 py-3 rounded-full shadow-md h-[40px]"
             onPress={() => console.log("אירוע חדש נלחץ")}
           >
-            <Text className="text-white text-lg font-bold">אירוע חדש</Text>
+            <Text className="text-white font-bold text-base">אירוע חדש</Text>
           </Pressable>
         ) : null}
       </View>
 
-      {/* ScrollView עם Cards */}
-      <ScrollView contentContainerStyle={{ padding: 6, paddingBottom: 100 }}>
-        <View className="">
-          {events.length === 0 ? (
-            <Text className="text-center text-lg text-blue-700">
-              לא נמצאו אירועים פעילים
-            </Text>
-          ) : (
-            Object.values(events).map((event, index) => (
-              <View
-                key={event["createdAt"]}
-                className="bg-white rounded-xl shadow-md mb-4 border border-blue-300 p-4"
-              >
-                <Text className="text-xl font-bold text-blue-800 mb-2 text-right">
-                  {event.anamnesis}
-                </Text>
-                <Text className="text-base text-gray-700 mb-4 text-right">
-                  {event.street}
-                </Text>
+      <ScrollView contentContainerStyle={{ padding: 10, paddingBottom: 100 }}>
+        {events.length === 0 ? (
+          <Text className="text-center text-lg text-blue-700 mt-8">
+            לא נמצאו אירועים פעילים
+          </Text>
+        ) : (
+          events.map((event) => (
+            <View
+              key={event.createdAt}
+              className="bg-blue-50 border border-blue-300 rounded-xl shadow-sm mb-4 p-4"
+            >
+              <Text className="text-xl font-bold text-blue-800 mb-2 text-right">
+                {event.anamnesis}
+              </Text>
+              <Text className="text-base text-gray-700 mb-4 text-right">
+                {event.street}
+              </Text>
 
-                <View className="flex-row justify-between">
-                  <Pressable className="bg-blue-600 px-4 py-2 rounded-lg">
-                    <Text className="text-white font-semibold">
-                      פרטים נוספים
-                    </Text>
-                  </Pressable>
+              <View className="flex-row justify-between">
+                <Pressable className="bg-blue-600 px-4 py-2 rounded-lg">
+                  <Text className="text-white font-semibold">
+                    פרטים נוספים
+                  </Text>
+                </Pressable>
 
-                  <Pressable className="bg-red-600 px-4 py-2 rounded-lg">
-                    <Text className="text-white font-semibold">קבל אירוע</Text>
-                  </Pressable>
-                </View>
+                <Pressable
+                  className="bg-red-600 px-4 py-2 rounded-lg"
+                  onPress={() => console.log("קבל אירוע נלחץ")}
+                >
+                  <Text className="text-white font-semibold">קבל אירוע</Text>
+                </Pressable>
               </View>
-            ))
-          )}
-        </View>
+            </View>
+          ))
+        )}
       </ScrollView>
     </View>
   );

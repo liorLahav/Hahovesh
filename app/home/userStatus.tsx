@@ -3,7 +3,9 @@ import { useState } from "react";
 import { updateUserStatus } from "@/services/users";
 
 export default function UserStatus({ userId }: { userId: string }) {
-  const [userStatus, setUserStatus] = useState<"available" | "unavailable">("available");
+  const [userStatus, setUserStatus] = useState<"available" | "unavailable">(
+    "available"
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePress = async () => {
@@ -16,7 +18,7 @@ export default function UserStatus({ userId }: { userId: string }) {
   };
 
   return (
-    <View className="bg-blue-100 rounded-xl shadow-sm border border-blue-100 px-5 py-4 mt-6 w-full">
+    <View className="bg-blue-50 rounded-t-2xl shadow-sm border border-blue-50 px-5 py-4 mt-6 w-full">
       <View className="flex-row-reverse items-center justify-between">
         <View className="flex-row-reverse items-center gap-2">
           <Text className="text-xl font-semibold text-gray-800">סטטוס</Text>
