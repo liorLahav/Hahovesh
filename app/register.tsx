@@ -208,7 +208,7 @@ export default function Register() {
       // Use setTimeout to ensure this runs after the state updates
       setTimeout(() => {
         Alert.alert(
-          "ההרשמה הצליחה!", 
+          "ההרשמה הצליחה, מנהל יבדוק את הבקשה שלך בהקדם", 
           `תודה ${savedFirstName.charAt(0).toUpperCase() + savedFirstName.slice(1)}, חשבון המתנדב שלך נוצר בהצלחה.\n\nאנא השתמש במספר הטלפון שלך (${savedPhone}) ובמספר תעודת הזהות (${savedIdentifier}) להתחברות.`,
           [
             {
