@@ -47,15 +47,23 @@ export default function Login() {
       // Get the volunteer data from the first matching document
       const volunteerData = querySnapshot.docs[0].data();
       
-      // Show success message on the page
+      // Check if user's account is pending approval
+      if (volunteerData.permissions && 
+          (volunteerData.permissions.includes("pending") || volunteerData.permissions.includes("Pending"))) {
+        // Show pending approval message
+        setLoginError("חשבונך עדיין בבדיקה וממתין לאישור מנהל. נא לנסות שוב מאוחר יותר.");
+        return;
+      }
+      
+      // User has proper permissions, proceed with login
       setLoginStatus("התחברות הצליחה!");
       setWelcomeName(volunteerData.first_name);
       
-    // Use setTimeout to give the user time to see the success message before navigation
-    setTimeout(() => {
-      // Placeholder for future navigation logic
-      console.log("Navigation logic will be implemented here.");
-    }, 1500); // 1.5 second delay
+      // Use setTimeout to give the user time to see the success message before navigation
+      setTimeout(() => {
+        // Placeholder for future navigation logic
+        console.log("Navigation logic will be implemented here.");
+      }, 1500); // 1.5 second delay
     } catch (err) {
       console.error("שגיאת התחברות:", err);
       setLoginError("משהו השתבש במהלך ההתחברות. אנא נסה שוב.");
@@ -123,34 +131,32 @@ export default function Login() {
           />
         </View>
 
+        <TouchableOpacity
+          style={[styles.button, isLoading ? styles.buttonDisabled : null]}
+          onPress={handleLogin}
+          disabled={isLoading || loginStatus !== ""}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>התחבר</Text>
+          )}
+        </TouchableOpacity>
 
+        {/* Modified footer structure */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>אין לך חשבון?</Text>
+        </View>
+        <TouchableOpacity onPress={() => router.push('/register')} style={styles.registerLink}>
+          <Text style={styles.link}>הרשמה כאן</Text>
+        </TouchableOpacity>
 
-<TouchableOpacity
-  style={[styles.button, isLoading ? styles.buttonDisabled : null]}
-  onPress={handleLogin}
-  disabled={isLoading || loginStatus !== ""}
->
-  {isLoading ? (
-    <ActivityIndicator color="#fff" />
-  ) : (
-    <Text style={styles.buttonText}>התחבר</Text>
-  )}
-</TouchableOpacity>
-
-{/* Modified footer structure */}
-<View style={styles.footer}>
-  <Text style={styles.footerText}>אין לך חשבון?</Text>
-</View>
-<TouchableOpacity onPress={() => router.push('/register')} style={styles.registerLink}>
-  <Text style={styles.link}>הרשמה כאן</Text>
-</TouchableOpacity>
-
-<TouchableOpacity 
-  style={styles.backButton}
-  onPress={() => router.back()}
->
-  <Text style={styles.backButtonText}>חזרה לדף הבית</Text>
-</TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backButtonText}>חזרה לדף הבית</Text>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
