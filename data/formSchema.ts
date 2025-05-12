@@ -4,6 +4,9 @@ export type SchemaField = {
     label: string;
     placeholder?: string;
     options?: { label: string; value: string }[];
+
+     keyboardType?: 'default' | 'numeric' | 'phone-pad';
+     numericOnly?: boolean;
   };
   
   const formSchema: SchemaField[] = [
@@ -19,6 +22,8 @@ export type SchemaField = {
       key:  'house_number',
       label:'מספר בית',
       placeholder:'מספר בית',
+      keyboardType: 'numeric',
+      numericOnly: true,
     },
     {
       type: 'text',
@@ -274,6 +279,8 @@ export type SchemaField = {
       key:  'patient_age',
       label:'גיל המטופל',
       placeholder:'גיל המטופל',
+      keyboardType: 'numeric',
+      numericOnly: true,
     },
     
 
@@ -283,12 +290,16 @@ export type SchemaField = {
       key:  'phone_number1',
       label:'מספר טלפון',
       placeholder:'מספר טלפון ראשי',
+      keyboardType: 'phone-pad',
+      numericOnly: true,
     },
     {
       type: 'text',
       key:  'phone_number2',
       label:'טלפון נוסף',
       placeholder:'מספר טלפון נוסף (לא חובה)',
+      keyboardType: 'phone-pad',
+      numericOnly: true,
     },
     {
       type: 'picker',
