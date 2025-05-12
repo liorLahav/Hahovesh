@@ -13,7 +13,7 @@ export default function DrawerContent(
   let roleLevel = 0;
   if (props.userRole.includes("Admin")) roleLevel = 2;
   else if (props.userRole.includes("Dispatcher")) roleLevel = 1;
-  // roleLevel = 0; // debug 
+  roleLevel = 2; // debug 
 
   const filteredItems = drawerItems.filter((item) => roleLevel >= item.minRole);
 

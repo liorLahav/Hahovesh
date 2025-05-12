@@ -11,7 +11,7 @@ type RolesContextType = {
 const RolesContext = createContext<RolesContextType | null>(null);
 
 export const RolesProvider = ({ children }: { children: React.ReactNode }) => {
-  const userId = "Sy79iRZBzqaUey6elxmT"; // או מתוך auth
+  const userId = "Sy79iRZBzqaUey6elxmT"; // Replace with actual user ID.. need firebase auth
   const [roles, setRoles] = useState<string[]>([]);
   const [rolesLoading, setRolesLoading] = useState(true);
 
