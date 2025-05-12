@@ -143,7 +143,7 @@ export default function Register() {
     setIsLoading(true);
   
     try {
-      console.log("בודק רשומות קיימות...");
+      console.log("Checking existing entries");
       
       // Check if ID already exists in database
       const idDocRef = doc(db, "volunteers", identifier);
@@ -174,7 +174,7 @@ export default function Register() {
         return;
       }
       
-      console.log("לא נמצאו כפילויות, ממשיך ברישום...");
+      console.log("No duplicates found, continue in regstiration");
       
       // Create a local copy of values before they might be cleared
       const savedFirstName = firstName;
@@ -188,10 +188,10 @@ export default function Register() {
         last_name: lastName,
         id: identifier,
         phone: phone,
-        permissions: ["volunteer"],
+        permissions: ["pending"],
       });
   
-      console.log("ההרשמה הצליחה, מציג הודעת ברוך הבא");
+      console.log("Registration successful, displaying welcome message");
 
       // Clear form fields immediately after successful registration
       setFirstName("");
