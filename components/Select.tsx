@@ -1,7 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { useState } from 'react';
 
-/** אפשרויות לתיבת הבחירה */
 type Option = { label: string; value: string };
 
 interface Props {
@@ -10,24 +9,23 @@ interface Props {
   options: Option[];
 }
 
-/** קומפוננטת בחירה בסיסית */
 export default function Select({ value, onChange, options }: Props) {
   const [open, setOpen] = useState(false);
 
-  // תווית הערך הנבחר (או ברירת‑מחדל)
+
   const selectedLabel =
     options.find(o => o.value === value)?.label ?? 'בחר';
 
   return (
     <View style={{ borderWidth: 1, borderColor: '#ccc', padding: 6 }}>
-      {/* כותרת הפתיחה / הערך הנבחר */}
+      {/* title/value */}
       <Pressable onPress={() => setOpen(prev => !prev)}>
         <Text style={{ textAlign: 'right', writingDirection: 'rtl' }}>
           {selectedLabel}
           </Text>
       </Pressable>
 
-      {/* רשימת אפשרויות */}
+      {/* list of options*/}
       {open &&
         options.map(o => (
           <Pressable
