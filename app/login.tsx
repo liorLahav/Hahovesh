@@ -17,7 +17,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!phone || !identifier) {
-      Alert.alert("שדות חסרים", "אנא מלא את כל השדות");
+      Alert.alert("Missing Fields", "Please fill in all the fields");
       return;
     }
 
