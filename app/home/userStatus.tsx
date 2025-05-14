@@ -11,10 +11,17 @@ export default function UserStatus({ userId }: { userId: string }) {
   const handlePress = async () => {
     if (isLoading) return;
     setIsLoading(true);
-    const newStatus = userStatus === "available" ? "unavailable" : "available";
-    await updateUserStatus(userId, newStatus);
-    setUserStatus(newStatus);
-    setIsLoading(false);
+
+    try {
+      const newStatus =
+        userStatus === "available" ? "unavailable" : "available";
+      await updateUserStatus(userId, newStatus);
+      setUserStatus(newStatus);
+    } catch (error) {
+      console.error("Error updating user status:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -5,7 +5,7 @@ type RolesContextType = {
   roles: string[];
   setRoles: (roles: string[]) => void;
   refreshRoles: () => Promise<void>;
-  rolesLoading: boolean; 
+  rolesLoading: boolean;
 };
 
 const RolesContext = createContext<RolesContextType | null>(null);
@@ -16,9 +16,14 @@ export const RolesProvider = ({ children }: { children: React.ReactNode }) => {
   const [rolesLoading, setRolesLoading] = useState(true);
 
   const refreshRoles = async () => {
-    const fetched = await getRoles(userId);
-    setRoles(fetched);
-    setRolesLoading(false);
+    try {
+      const fetched = await getRoles(userId);
+      setRoles(fetched);
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+    } finally {
+      setRolesLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -26,7 +31,9 @@ export const RolesProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <RolesContext.Provider value={{ roles, setRoles, refreshRoles, rolesLoading }}>
+    <RolesContext.Provider
+      value={{ roles, setRoles, refreshRoles, rolesLoading }}
+    >
       {children}
     </RolesContext.Provider>
   );

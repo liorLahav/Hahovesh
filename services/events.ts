@@ -31,19 +31,33 @@ const onChildAppend = (callback: (data: any) => void) => {
   });
 };
 
-const subscribeToEvents = (callback: (events: any[]) => void) => {
+const subscribeToEvents = (
+  callback: (events: any[] | null, error?: Error) => void
+) => {
   const eventsRef = ref(realtimeDb, "events");
 
-  const unsubscribe = onValue(eventsRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data && typeof data === "object") {
-      callback(Object.values(data));
-    } else {
-      callback([]);
+  const unsubscribe = onValue(
+    eventsRef,
+    (snapshot) => {
+      try {
+        const data = snapshot.val();
+        if (data && typeof data === "object") {
+          callback(Object.values(data));
+        } else {
+          callback([]);
+        }
+      } catch (err) {
+        callback(null, err as Error);
+      }
+    },
+    (error) => {
+      // טיפול בשגיאה של Firebase עצמה (לא snapshot)
+      callback(null, error);
     }
-  });
+  );
 
   return unsubscribe;
 };
+
 
 export { getEvents, onChildAppend, subscribeToEvents };

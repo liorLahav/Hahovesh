@@ -9,7 +9,7 @@ import ActiveEvents from "./ActiveEvents";
 export default function HomePage() {
   {
     /* userId should be dynamic (need the firebase auth) */
-  }
+  } 
   const userId = "Sy79iRZBzqaUey6elxmT";
   return (
     <SafeAreaView className="flex-1 bg-blue-200">

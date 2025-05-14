@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function NotificationIcon({ unreadCount }: { unreadCount: number }) {
+export default function NotificationButton({ unreadCount }: { unreadCount: number }) {
   return (
     <View className="relative">
       <Ionicons name="notifications-outline" size={28} color="gray" />

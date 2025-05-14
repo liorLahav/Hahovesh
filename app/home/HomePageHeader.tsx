@@ -3,8 +3,9 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import type { DrawerNavigationProp } from "@react-navigation/drawer";
 import type { ParamListBase } from "@react-navigation/native";
-import NotificationIcon from "./NotificationIcon";
+import NotificationButton from "./NotificationIcon";
 import { useRouter } from "expo-router";
+import logo from "../../assets/images/logo.png"; 
 
 export default function HomePageHeader() {
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>(); // Use the navigation prop to open the drawer only (not the router)
@@ -17,7 +18,7 @@ export default function HomePageHeader() {
         <View className="flex-row-reverse items-center justify-between mb-2">
           <View className="flex-row-reverse items-center space-x-reverse space-x-2">
             <Image
-              source={require("../../assets/images/logo.png")}
+              source={logo}
               style={{ width: 45, height: 45 }}
               resizeMode="contain"
             />
@@ -38,7 +39,7 @@ export default function HomePageHeader() {
             className="p-3"
           >
             {/*unreadCount prop should be dynamic (fix later) */}
-            <NotificationIcon unreadCount={11} />
+            <NotificationButton unreadCount={11} />
           </Pressable>
           <Pressable onPress={() => navigation.openDrawer()} className="p-2">
             <Ionicons name="menu" size={30} color="black" />

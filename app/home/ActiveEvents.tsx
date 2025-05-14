@@ -18,10 +18,22 @@ export default function ActiveEvents() {
   const [loadingEvents, setLoadingEvents] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = subscribeToEvents((fetchedEvents) => {
-      setEvents(fetchedEvents);
-      setLoadingEvents(false);
-    });
+    const unsubscribe = subscribeToEvents((fetchedEvents, error) => {
+  if (error) {
+    console.error("שגיאה בשליפת אירועים:", error);
+    setLoadingEvents(false);
+    return;
+  }
+
+  if (fetchedEvents) {
+    setEvents(fetchedEvents);
+  } else {
+    setEvents([]); 
+  }
+
+  setLoadingEvents(false);
+});
+
 
     return () => unsubscribe();
   }, []);
@@ -61,7 +73,7 @@ export default function ActiveEvents() {
         ) : (
           events.map((event) => (
             <View
-              key={event.createdAt}
+              key={event.id}
               className="bg-blue-50 border border-blue-300 rounded-xl shadow-sm mb-4 p-4"
             >
               <Text className="text-xl font-bold text-blue-800 mb-2 text-right">

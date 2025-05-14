@@ -74,10 +74,12 @@ export const getAllUsers = async (): Promise<DocumentData[]> => {
 export const updateUserStatus = async (userId: string, status: string) => {
   try {
     const userRef = doc(db, "volunteers", userId);
-    await updateDoc(userRef, { status: status });
-    console.log("Status :", status);
-  } catch (error) {
-    console.error("Error updating status: ", error);
+    await updateDoc(userRef, { status });
+    console.log("Status:", status);
+  } catch (error: any) {
+    throw new Error(
+      "Error updating status: " + (error?.message || JSON.stringify(error))
+    );
   }
 };
 
@@ -85,15 +87,17 @@ export const getRoles = async (userId: string): Promise<string[]> => {
   try {
     const docRef = doc(db, "volunteers", userId);
     const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const userData = docSnap.data();
-      return Array.isArray(userData.permissions) ? userData.permissions : [];
-    } else {
-      return [];
+
+    if (!docSnap.exists()) {
+      throw new Error("User not found in database");
     }
-  } catch (error) {
-    console.error("Error fetching roles:", error);
-    throw error;
+
+    const userData = docSnap.data();
+    
+    return Array.isArray(userData.permissions) ? userData.permissions : [];
+  } catch (error: any) {
+    throw new Error(
+      "Error fetching roles: " + (error?.message || JSON.stringify(error))
+    );
   }
 };
-
