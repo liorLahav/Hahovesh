@@ -1,5 +1,5 @@
 
-import { ScrollView, Text, Alert } from 'react-native';
+import { ScrollView, Text, Alert, View } from 'react-native';
 import { ref, push, set, serverTimestamp } from 'firebase/database';
 
 import { realtimeDb } from '../FirebaseConfig';
@@ -26,12 +26,19 @@ export default function NewEventScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 16 }}>
-        טופס אירוע
-      </Text>
+    <View className="flex-1 bg-white">
+       <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
+        <Text className="text-3xl font-bold text-white tracking-wide">טופס אירוע</Text>
+        <View className="w-16 h-1 bg-white mt-2 rounded-full" /> 
+    </View>
+    
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+      <Text className="text-2xl font-bold mb-6 text-right text-blue-700"> {/* פה שיניתי */}
+          פרטי האירוע
+        </Text>
 
       <DynamicForm schema={formSchema} onSubmit={handleSubmit} />
     </ScrollView>
+    </View>
   );
 }

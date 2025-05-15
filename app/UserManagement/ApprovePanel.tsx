@@ -31,12 +31,12 @@ const ApprovePanel = (props : ApprovePanelProps) => {
     return (
         <View className="p-4 h-full justify-center bg-white">
             <Text className="text-base font-bold mb-2.5 text-center text-gray-800">אישור משתמש:</Text>
-            <View className="flex-row justify-between items-center">
+            <View className="flex-row-reverse justify-between items-center">
                 <TouchableOpacity 
                     className="py-2 px-3 rounded-lg border border-green-500 bg-green-50 items-center flex-1 mx-1"
                     onPress={() => onAprove()}
                 >
-                    <Text className="text-sm font-medium">אשר</Text>
+                    <Text className="text-sm font-medium tect-center">אשר</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
