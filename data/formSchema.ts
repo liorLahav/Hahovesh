@@ -1,12 +1,14 @@
 export type SchemaField = {
-    type: 'text' | 'picker';
+    type: 'text' | 'picker' |  'textarea';
     key: string;
     label: string;
     placeholder?: string;
     options?: { label: string; value: string }[];
 
-     keyboardType?: 'default' | 'numeric' | 'phone-pad';
-     numericOnly?: boolean;
+    keyboardType?: 'default' | 'numeric' | 'phone-pad';
+    numericOnly?: boolean;
+
+    rows?: number;
   };
   
   const formSchema: SchemaField[] = [
@@ -252,10 +254,11 @@ export type SchemaField = {
       ],
     },
     {
-      type: 'text',
+      type: 'textarea',
       key:  'anamnesis',
       label:'אנמנזה',
       placeholder:'תיאור קצר של המקרה',
+      rows:6,
     },
 
     /* ────── Patient details ────── */
