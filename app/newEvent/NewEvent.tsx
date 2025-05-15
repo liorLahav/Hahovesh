@@ -1,12 +1,12 @@
 
 import { ScrollView, Text, Alert, View } from 'react-native';
 
-import formSchema from '../data/formSchema';
-import DynamicForm from '../components/DynamicForm';
+import formSchema from '../../data/formSchema';
+import DynamicForm from '../../components/DynamicForm';
 import { useState } from 'react';
-import { handleSubmit } from './newEvent/handleSubmit'; 
+import { handleSubmit } from './handleSubmit'; 
 
-import HomePageHeader from "./home/HomePageHeader";
+import HomePageHeader from "../home/HomePageHeader";
 
 export default function NewEventScreen() {
   const [formKey, setFormKey] = useState(0);   
@@ -29,7 +29,7 @@ export default function NewEventScreen() {
           פרטי האירוע
         </Text>
 
-      <DynamicForm key={formKey} schema={formSchema} onSubmit={handleSubmit} />
+      <DynamicForm key={formKey} schema={formSchema} onSubmit={onSubmit} />
     </ScrollView>
     </View>
   );
