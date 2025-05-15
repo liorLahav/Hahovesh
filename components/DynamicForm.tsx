@@ -1,6 +1,5 @@
-import { View, Text, TextInput, ScrollView } from 'react-native';
+import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
 import Select from './Select';
-import { Button } from './Button';
 import { useState } from 'react';
 import type { SchemaField } from '../data/formSchema';
 
@@ -27,8 +26,10 @@ export default function DynamicForm({ schema, onSubmit }: Props) {
   return (
     <ScrollView /* ... */>
       {schema.map(field => (
-        <View key={field.key} style={{ marginBottom: 16 }}>
-          <Text style={{ marginBottom: 4 }}>{field.label}</Text>
+        <View key={field.key} className="mb-6">
+          <Text className="mb-2 font-semibold text-right text-gray-800">
+            {field.label}
+          </Text>
 
           {field.type === 'text' && (
             <TextInput
@@ -41,15 +42,22 @@ export default function DynamicForm({ schema, onSubmit }: Props) {
                   : text;
                 setVal(field.key, finalText);
               }}
-              style={{
-                borderWidth: 1,
-                borderColor: '#ccc',
-                borderRadius: 8,
-                padding: 10,
-                width: '100%',
-                textAlign: 'right',
-                writingDirection: 'rtl',
-              }}
+              className="border border-blue-300 rounded-lg p-3 w-full text-right bg-blue-50"
+              style={{ writingDirection: 'rtl' }}
+            />
+          )}
+
+          {/* ---------- textarea ---------- */} 
+          {field.type === 'textarea' && (
+            <TextInput
+              placeholder={field.placeholder}
+              value={values[field.key]}
+              onChangeText={text => setVal(field.key, text)}
+              multiline                     
+              numberOfLines={field.rows ?? 4} 
+              textAlignVertical="top"        
+              className="border border-blue-300 rounded-lg p-3 w-full text-right bg-blue-50 min-h-[120px]" 
+              style={{ writingDirection: 'rtl', minHeight: (field.rows ?? 4) * 24}}
             />
           )}
 
@@ -62,8 +70,13 @@ export default function DynamicForm({ schema, onSubmit }: Props) {
           )}
         </View>
       ))}
-
-      <Button label="שלח" onPress={() => onSubmit(values)} className="mt-4" />
+      <View className="mt-8">
+        <Pressable
+          onPress={() => onSubmit(values)}
+          className="w-full rounded-full h-14 bg-blue-600 shadow-md items-center justify-center">
+          <Text className="text-white font-bold text-xl">שלח</Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
