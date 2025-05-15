@@ -37,9 +37,17 @@ export default function DynamicForm({ schema, onSubmit }: Props) {
               value={values[field.key]}
               keyboardType={field.keyboardType ?? 'default'}
               onChangeText={text => {
-                const finalText = field.numericOnly
-                  ? text.replace(/[^0-9]/g, '')
-                  : text;
+                let finalText = text;
+
+                if (field.lettersOnly) {
+                  finalText = finalText.replace(/[^A-Za-z\u05D0-\u05EA ]/g, '');
+                }
+                else if (field.numericOnly) {
+                  finalText = finalText.replace(/[^0-9]/g, '');
+                }
+                if (typeof field.maxLength === 'number') {
+                  finalText = finalText.slice(0, field.maxLength);
+                }
                 setVal(field.key, finalText);
               }}
               className="border border-blue-300 rounded-lg p-3 w-full text-right bg-blue-50"

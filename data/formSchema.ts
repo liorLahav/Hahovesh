@@ -7,7 +7,9 @@ export type SchemaField = {
 
     keyboardType?: 'default' | 'numeric' | 'phone-pad';
     numericOnly?: boolean;
+    lettersOnly?: boolean;
 
+    maxLength?: number; 
     rows?: number;
   };
   
@@ -267,6 +269,7 @@ export type SchemaField = {
       key:  'patient_name',
       label:'שם המטופל',
       placeholder:'שם המטופל',
+      lettersOnly: true,
     },
     {
       type: 'picker',
@@ -284,6 +287,7 @@ export type SchemaField = {
       placeholder:'גיל המטופל',
       keyboardType: 'numeric',
       numericOnly: true,
+       maxLength: 3,
     },
     
 
@@ -295,6 +299,7 @@ export type SchemaField = {
       placeholder:'מספר טלפון ראשי',
       keyboardType: 'phone-pad',
       numericOnly: true,
+      maxLength: 10,
     },
     {
       type: 'text',
@@ -303,6 +308,7 @@ export type SchemaField = {
       placeholder:'מספר טלפון נוסף (לא חובה)',
       keyboardType: 'phone-pad',
       numericOnly: true,
+      maxLength: 10,
     },
     {
       type: 'picker',
