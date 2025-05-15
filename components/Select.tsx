@@ -17,10 +17,10 @@ export default function Select({ value, onChange, options }: Props) {
     options.find(o => o.value === value)?.label ?? 'בחר';
 
   return (
-    <View style={{ borderWidth: 1, borderColor: '#ccc', padding: 6 }}>
+    <View className="border border-blue-300 rounded-lg bg-blue-50 px-3 py-2">
       {/* title/value */}
       <Pressable onPress={() => setOpen(prev => !prev)}>
-        <Text style={{ textAlign: 'right', writingDirection: 'rtl' }}>
+        <Text className="text-right text-gray-800">
           {selectedLabel}
           </Text>
       </Pressable>
@@ -34,9 +34,9 @@ export default function Select({ value, onChange, options }: Props) {
               onChange(o.value);
               setOpen(false);
             }}
-            style={{ paddingVertical: 4 }}
+            className="py-2"
           >
-            <Text style={{ textAlign: 'right', writingDirection: 'rtl' }}>
+            <Text className="text-right text-gray-700">
               {o.label}
               </Text>
           </Pressable>
