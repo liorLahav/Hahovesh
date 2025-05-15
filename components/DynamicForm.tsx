@@ -34,10 +34,8 @@ export default function DynamicForm({ schema, onSubmit }: Props) {
             <TextInput
               placeholder={field.placeholder}
               value={values[field.key]}
-              // מקלדת מתאימה (ברירת מחדל default)
               keyboardType={field.keyboardType ?? 'default'}
               onChangeText={text => {
-                // אם numericOnly, נוסיף סינון אוטומטי של כל תו שאינו ספרה
                 const finalText = field.numericOnly
                   ? text.replace(/[^0-9]/g, '')
                   : text;
