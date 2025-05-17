@@ -4,7 +4,7 @@ import { ScrollView, Text, Alert, View } from 'react-native';
 import formSchema from '../../data/formSchema';
 import DynamicForm from '../../components/DynamicForm';
 import { useState } from 'react';
-import { handleSubmit } from './handleSubmit'; 
+import { handleSubmit } from '../../services/handleSubmit'; 
 
 import HomePageHeader from "../home/HomePageHeader";
 
