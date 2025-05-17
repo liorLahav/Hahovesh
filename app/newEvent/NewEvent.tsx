@@ -10,10 +10,16 @@ import HomePageHeader from "../home/HomePageHeader";
 
 export default function NewEventScreen() {
   const [formKey, setFormKey] = useState(0);   
-
   /** Push a new event object to RTDB */
-  const onSubmit = (values: Record<string, string>) => {
-    handleSubmit(values, () => setFormKey(k => k + 1));
+  const onSubmit = async (values: Record<string, string>) => {
+    try {
+      await handleSubmit(values, () => setFormKey(k => k + 1));
+    } catch (error: any) {
+      Alert.alert(
+        'Error saving the event',
+        error.message || 'Unexpected error event',
+      );
+    }
   };
 
   return (

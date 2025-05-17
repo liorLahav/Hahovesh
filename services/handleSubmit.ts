@@ -1,6 +1,6 @@
 import { Alert } from 'react-native';
 import { push, ref, set, serverTimestamp } from 'firebase/database';
-import { realtimeDb } from '../../FirebaseConfig';
+import { realtimeDb } from '../FirebaseConfig';
 
 /**
  * Pushes a new event to the Realtime Database,
@@ -17,10 +17,11 @@ export async function handleSubmit(
       createdAt: serverTimestamp(),
     });
     console.log('✅ Saved event:', values);
-    Alert.alert('Success', 'Event saved to database ✅');
     onReset();
-  } catch (err: any) {
-    console.error('❌ RTDB error:', err);
-    Alert.alert('Error', err?.message ?? 'Could not save the event');
+  } catch (error: any) {
+    // Propagate error with context
+    throw new Error(
+      'Error saving event: ' + (error?.message || JSON.stringify(error))
+    );
   }
 }
