@@ -2,6 +2,7 @@ import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRolesContext } from "@/hooks/RolesContext";
 import { useEffect, useState } from "react";
 import { subscribeToEvents } from "@/services/events";
+import { router } from "expo-router";
 
 export default function ActiveEvents() {
   type Event = {
@@ -58,7 +59,7 @@ export default function ActiveEvents() {
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <Pressable
             className="absolute right-3 top-5 bg-red-600 px-4 py-3 rounded-full shadow-md h-[40px]"
-            onPress={() => console.log("אירוע חדש נלחץ")}
+            onPress={() => router.push("/newEvent/NewEvent")}
           >
             <Text className="text-white font-bold text-base">אירוע חדש</Text>
           </Pressable>
