@@ -3,10 +3,21 @@ import { get, onChildAdded, onValue, ref } from "firebase/database";
 
 type Event = {
   id: string;
-  title: string;
-  description: string;
   createdAt: string;
   anamnesis: string;
+  apartment: string; 
+  haznkCode: string;
+  houseNumber: string;
+  informatLocation: string;
+  location: string;
+  medicalCode: string;
+  patientAge: string;
+  patientName: string;
+  patientSex: string;
+  phone1: string;
+  phone2: string;
+  recipient: string;
+  urgencyType: string;
   street: string;
 };
 
@@ -21,6 +32,9 @@ const subscribeToEvents = (
       try {
         const data = snapshot.val();
         if (data && typeof data === "object") {
+          for (const [key, value] of Object.entries(data)) {
+            (value as any)['id'] = key;
+          }
           callback(Object.values(data));
         } else {
           callback([]);
@@ -30,10 +44,10 @@ const subscribeToEvents = (
       }
     },
     (error) => {
+      // טיפול בשגיאה של Firebase עצמה (לא snapshot)
       callback(null, error);
     }
   );
-
   return unsubscribe;
 };
 
