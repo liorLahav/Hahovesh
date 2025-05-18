@@ -1,34 +1,13 @@
 import { realtimeDb } from "@/FirebaseConfig";
 import { get, onChildAdded, onValue, ref } from "firebase/database";
 
-/**
- * 
- * getEvents useless now using subscribeToEvents
- * onChildAppend useless now using subscribeToEvents
- */
-
-const getEvents = async () => {
-  try {
-    const eventsRef = ref(realtimeDb, "events");
-    const data = await get(eventsRef);
-    if (!data.exists()) {
-      return null;
-    }
-    return data.val();
-  } catch (error) {
-    console.error("Error fetching events: ", error);
-    return null;
-  }
-};
-
-const onChildAppend = (callback: (data: any) => void) => {
-  const eventsRef = ref(realtimeDb, "events");
-  onChildAdded(eventsRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      callback(data);
-    }
-  });
+type Event = {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  anamnesis: string;
+  street: string;
 };
 
 const subscribeToEvents = (
@@ -51,7 +30,6 @@ const subscribeToEvents = (
       }
     },
     (error) => {
-      // טיפול בשגיאה של Firebase עצמה (לא snapshot)
       callback(null, error);
     }
   );
@@ -59,5 +37,4 @@ const subscribeToEvents = (
   return unsubscribe;
 };
 
-
-export { getEvents, onChildAppend, subscribeToEvents };
+export { Event, subscribeToEvents };

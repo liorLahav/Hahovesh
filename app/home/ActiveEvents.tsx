@@ -1,40 +1,30 @@
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRolesContext } from "@/hooks/RolesContext";
 import { useEffect, useState } from "react";
-import { subscribeToEvents } from "@/services/events";
 import { router } from "expo-router";
+import { subscribeToEvents, Event } from "@/services/events";
 
 export default function ActiveEvents() {
-  type Event = {
-    id: string;
-    title: string;
-    description: string;
-    createdAt: string;
-    anamnesis: string;
-    street: string;
-  };
-
   const { roles, rolesLoading } = useRolesContext();
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
 
   useEffect(() => {
     const unsubscribe = subscribeToEvents((fetchedEvents, error) => {
-  if (error) {
-    console.error("שגיאה בשליפת אירועים:", error);
-    setLoadingEvents(false);
-    return;
-  }
+      if (error) {
+        console.error("שגיאה בשליפת אירועים:", error);
+        setLoadingEvents(false);
+        return;
+      }
 
-  if (fetchedEvents) {
-    setEvents(fetchedEvents);
-  } else {
-    setEvents([]); 
-  }
+      if (fetchedEvents) {
+        setEvents(fetchedEvents);
+      } else {
+        setEvents([]);
+      }
 
-  setLoadingEvents(false);
-});
-
+      setLoadingEvents(false);
+    });
 
     return () => unsubscribe();
   }, []);
@@ -50,7 +40,10 @@ export default function ActiveEvents() {
   return (
     <View className="flex-1 bg-white">
       <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
-        <Text className="text-3xl font-bold text-white tracking-wide">
+        <Text
+          className="text-3xl text-white tracking-wide"
+          style={{ fontFamily: "Assistant-Bold" }}
+        >
           אירועים פעילים
         </Text>
 
@@ -74,7 +67,7 @@ export default function ActiveEvents() {
         ) : (
           events.map((event) => (
             <View
-              key={event.id}
+              key={event.createdAt.toString()}
               className="bg-blue-50 border border-blue-300 rounded-xl shadow-sm mb-4 p-4"
             >
               <Text className="text-xl font-bold text-blue-800 mb-2 text-right">
@@ -86,9 +79,7 @@ export default function ActiveEvents() {
 
               <View className="flex-row justify-between">
                 <Pressable className="bg-blue-600 px-4 py-2 rounded-lg">
-                  <Text className="text-white font-semibold">
-                    פרטים נוספים
-                  </Text>
+                  <Text className="text-white font-semibold">פרטים נוספים</Text>
                 </Pressable>
 
                 <Pressable
