@@ -42,6 +42,9 @@ const subscribeToEvents = (
       try {
         const data = snapshot.val();
         if (data && typeof data === "object") {
+          for (const [key, value] of Object.entries(data)) {
+            (value as any)['id'] = key;
+          }
           callback(Object.values(data));
         } else {
           callback([]);
@@ -55,7 +58,6 @@ const subscribeToEvents = (
       callback(null, error);
     }
   );
-
   return unsubscribe;
 };
 
