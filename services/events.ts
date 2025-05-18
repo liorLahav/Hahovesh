@@ -1,5 +1,5 @@
 import { realtimeDb } from "@/FirebaseConfig";
-import { get, onChildAdded, onValue, ref } from "firebase/database";
+import { get, onChildAdded, onValue, push, ref, serverTimestamp, set } from "firebase/database";
 
 type Event = {
   id: string;
@@ -37,4 +37,24 @@ const subscribeToEvents = (
   return unsubscribe;
 };
 
-export { Event, subscribeToEvents };
+const createEvent = async (
+  values: Record<string, string>,
+  onReset: () => void
+): Promise<void>  => {
+  try {
+    const node = push(ref(realtimeDb, 'events'));
+    await set(node, {
+      ...values,
+      createdAt: serverTimestamp(),
+    });
+    onReset();
+    return;
+  } catch (error: any) {
+    // Propagate error with context
+    throw new Error(
+      'Error saving event: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
+
+export { Event, subscribeToEvents,createEvent };
