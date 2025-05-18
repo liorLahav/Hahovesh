@@ -2,14 +2,17 @@ import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRolesContext } from "@/hooks/RolesContext";
 import { useEffect, useState } from "react";
 import { subscribeToEvents, Event } from "@/services/events";
+import { useRouter } from "expo-router";
 
 export default function ActiveEvents() {
   const { roles, rolesLoading } = useRolesContext();
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
+  const route = useRouter();
 
   useEffect(() => {
     const unsubscribe = subscribeToEvents((fetchedEvents, error) => {
+      console.log("אירועים:", fetchedEvents);
       if (error) {
         console.error("שגיאה בשליפת אירועים:", error);
         setLoadingEvents(false);
@@ -36,6 +39,8 @@ export default function ActiveEvents() {
     );
   }
 
+  
+
   return (
     <View className="flex-1 bg-white">
       <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
@@ -51,7 +56,7 @@ export default function ActiveEvents() {
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <Pressable
             className="absolute right-3 top-5 bg-red-600 px-4 py-3 rounded-full shadow-md h-[40px]"
-            onPress={() => console.log("אירוע חדש נלחץ")}
+            onPress={() => route}
           >
             <Text className="text-white font-bold text-base">אירוע חדש</Text>
           </Pressable>
@@ -66,7 +71,7 @@ export default function ActiveEvents() {
         ) : (
           events.map((event) => (
             <View
-              key={event.createdAt.toString()}
+              key={event.id}
               className="bg-blue-50 border border-blue-300 rounded-xl shadow-sm mb-4 p-4"
             >
               <Text className="text-xl font-bold text-blue-800 mb-2 text-right">
@@ -77,7 +82,15 @@ export default function ActiveEvents() {
               </Text>
 
               <View className="flex-row justify-between">
-                <Pressable className="bg-blue-600 px-4 py-2 rounded-lg">
+                <Pressable
+                  className="bg-blue-600 px-4 py-2 rounded-lg"
+                  onPress={() =>
+                    route.push({
+                      pathname: "/home/events/[id]",
+                      params: { id: event.id },
+                    })
+                  }
+                >
                   <Text className="text-white font-semibold">פרטים נוספים</Text>
                 </Pressable>
 
