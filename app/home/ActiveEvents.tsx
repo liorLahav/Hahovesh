@@ -78,7 +78,7 @@ export default function ActiveEvents() {
                 {event.anamnesis}
               </Text>
               <Text className="text-base text-gray-700 mb-4 text-right">
-                {event.street}
+                {event.street + " " + event.house_number}
               </Text>
 
               <View className="flex-row justify-between">
@@ -86,7 +86,7 @@ export default function ActiveEvents() {
                   className="bg-blue-600 px-4 py-2 rounded-lg"
                   onPress={() =>
                     route.push({
-                      pathname: "/home/events/[id]",
+                      pathname: "/events/[id]",
                       params: { id: event.id },
                     })
                   }
