@@ -5,20 +5,20 @@ type Event = {
   id: string;
   createdAt: string;
   anamnesis: string;
-  apartment: string; 
-  haznkCode: string;
-  houseNumber: string;
-  informatLocation: string;
-  location: string;
-  medicalCode: string;
-  patientAge: string;
-  patientName: string;
-  patientSex: string;
-  phone1: string;
-  phone2: string;
+  haznk_code: string;
+  house_number: string;
+  informat_location: string;
+  location_type: string;
+  medical_code: string;
+  patient_age: string;
+  patient_name: string;
+  patient_sex: string;
+  phone_number1: string;
+  phone_number2: string;
   recipient: string;
-  urgencyType: string;
+  urgency: string;
   street: string;
+  apartment_details: string;
 };
 
 const subscribeToEvents = (
