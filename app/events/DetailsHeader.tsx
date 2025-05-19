@@ -15,15 +15,12 @@ export default function DetailsHeader() {
       <View className="w-full h-1 bg-red-500 rounded-t-xl" />
       <View className="bg-blue-50 border-b border-blue-300 py-4 px-4 rounded-b-2xl shadow-sm">
         <View className="flex-row items-center justify-between">
-          {/* חץ אחורה */}
           <Pressable onPress={() => router.push("/home/HomePage")}>
             <Ionicons name="arrow-back" size={28} color="#1e3a8a" />
           </Pressable>
 
-          {/* כותרת */}
           <Text className="text-xl font-bold text-blue-800">פרטים נוספים</Text>
 
-          {/* תפריט צד */}
           <Image
             source={logo}
             style={{ width: 35, height: 35 }}
