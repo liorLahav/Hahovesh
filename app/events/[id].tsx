@@ -1,14 +1,19 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { subscribeToEvents, Event } from "@/services/events";
+import { subscribeToEvents, Event, deleteEvent } from "@/services/events";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRolesContext } from "@/hooks/RolesContext";
+import { useRouter } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import DetailsHeader from "./DetailsHeader";
 
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const { roles, rolesLoading } = useRolesContext();
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = subscribeToEvents((events, error) => {
@@ -26,13 +31,14 @@ export default function EventDetails() {
     return () => unsubscribe();
   }, [id]);
 
-  if (loading) {
+  if (loading || rolesLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text>טוען פרטי אירוע...</Text>
       </View>
     );
   }
+  console.log("roles:", roles);
 
   if (!event) {
     return (
@@ -81,8 +87,37 @@ export default function EventDetails() {
             </Text>
           </View>
         ))}
+        {roles.includes("Dispatcher") || roles.includes("Admin") ? (
+          <View className="items-end mt-2">
+            <Pressable
+              className=" bg-red-600 p-2 rounded-full shadow-md h-[40px] w-full"
+              onPress={() => {
+                console.log("נלחץ ביטול");
+                {
+                  event.id && deleteEvent(event.id);
+                }
+                router.push("/home/HomePage");
+              }}
+            >
+              <Text className="text-white font-bold text-base text-center">
+                ביטול אירוע
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+// Alert.alert("אישור", "האם אתה בטוח שברצונך לבטל את האירוע?", [
+//                   { text: "לא", style: "cancel" },
+//                   {
+//                     text: "כן",
+//                     onPress: async () => {
+//                       console.log("מוחק אירוע");
+//                       await deleteEvent(event.id);
+//                       router.push("/home/HomePage");
+//                     },
+//                   },
+//                 ])
