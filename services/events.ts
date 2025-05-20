@@ -1,5 +1,5 @@
 import { realtimeDb } from "@/FirebaseConfig";
-import { get, onChildAdded, onValue, ref } from "firebase/database";
+import { get, onChildAdded, onValue, ref, push } from "firebase/database";
 
 /**
  * 
@@ -59,5 +59,25 @@ const subscribeToEvents = (
   return unsubscribe;
 };
 
+const sendEventOperation = async (
+  eventId: string,
+  data: {
+    option: string;
+    text?: string | null;
+    timestamp: number;
+  }
+): Promise<boolean> => {
+  try {
+    const opsRef = ref(realtimeDb, `events/${eventId}/operations`);
+    await push(opsRef, data);
+    return true;
+  } catch (error) {
+    console.error("Error sending event operation:", error);
+    return false;
+  }
+};
 
-export { getEvents, onChildAppend, subscribeToEvents };
+
+
+
+export { getEvents, onChildAppend, subscribeToEvents, sendEventOperation };
