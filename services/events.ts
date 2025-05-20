@@ -1,5 +1,12 @@
 import { realtimeDb } from "@/FirebaseConfig";
-import { get, onChildAdded, onValue, ref, remove } from "firebase/database";
+import {
+  get,
+  onChildAdded,
+  onValue,
+  ref,
+  remove,
+  set,
+} from "firebase/database";
 
 type Event = {
   id: string;
@@ -22,7 +29,6 @@ type Event = {
 };
 
 const deleteEvent = async (eventId: string) => {
-
   try {
     const eventRef = ref(realtimeDb, `events/${eventId}`);
     await remove(eventRef);
@@ -33,6 +39,11 @@ const deleteEvent = async (eventId: string) => {
       throw new Error("Unknown error deleting event: " + JSON.stringify(error));
     }
   }
+};
+
+const updateEvent = async (eventId: string, updatedEvent: Event) => {
+  const eventRef = ref(realtimeDb, `events/${eventId}`);
+  await set(eventRef, updatedEvent);
 };
 
 const subscribeToEvents = (
@@ -65,4 +76,4 @@ const subscribeToEvents = (
   return unsubscribe;
 };
 
-export { Event, subscribeToEvents, deleteEvent };
+export { Event, subscribeToEvents, deleteEvent, updateEvent };
