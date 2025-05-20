@@ -1,5 +1,5 @@
 import { realtimeDb } from "@/FirebaseConfig";
-import { get, onChildAdded, onValue, ref } from "firebase/database";
+import { get, onChildAdded, onValue, ref, remove } from "firebase/database";
 
 type Event = {
   id: string;
@@ -21,6 +21,20 @@ type Event = {
   apartment_details: string;
 };
 
+const deleteEvent = async (eventId: string) => {
+
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}`);
+    await remove(eventRef);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error("Error deleting event: " + error.message);
+    } else {
+      throw new Error("Unknown error deleting event: " + JSON.stringify(error));
+    }
+  }
+};
+
 const subscribeToEvents = (
   callback: (events: any[] | null, error?: Error) => void
 ) => {
@@ -33,7 +47,7 @@ const subscribeToEvents = (
         const data = snapshot.val();
         if (data && typeof data === "object") {
           for (const [key, value] of Object.entries(data)) {
-            (value as any)['id'] = key;
+            (value as any)["id"] = key;
           }
           callback(Object.values(data));
         } else {
@@ -51,4 +65,4 @@ const subscribeToEvents = (
   return unsubscribe;
 };
 
-export { Event, subscribeToEvents };
+export { Event, subscribeToEvents, deleteEvent };
