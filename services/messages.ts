@@ -1,5 +1,14 @@
-import { ref, push, set } from "firebase/database";
-import { realtimeDb } from "@/FirebaseConfig"; 
+import { ref, push, set, onValue } from "firebase/database";
+import { realtimeDb } from "@/FirebaseConfig";
+
+export type Message = {
+  message_id: string;
+  message_description: string;
+  distribution_by_role: string;
+  date: string;
+  time: string;
+  sender_id: string;
+};
 
 const sendMessageToDB = async (messageData: { [key: string]: string }) => {
   const now = new Date();
@@ -19,7 +28,42 @@ const sendMessageToDB = async (messageData: { [key: string]: string }) => {
     sender_id: "admin123", // replace with actual sender ID
     message_id: newMessageRef.key,
   };
+  console.log("fullMessage:", fullMessage);
 
   await set(newMessageRef, fullMessage);
 };
-export { sendMessageToDB };
+
+const subscribeToMessages = (
+  callback: (messages: Message[] | null, error?: Error) => void
+) => {
+  const messagesRef = ref(realtimeDb, "messages");
+
+  const unsubscribe = onValue(
+    messagesRef,
+    (snapshot) => {
+      try {
+        const data = snapshot.val();
+        if (data && typeof data === "object") {
+          // ממיר את ה־object לרשימה רגילה + מוסיף את ה־message_id מתוך המפתח
+          const messages: Message[] = Object.entries(data).map(
+            ([key, value]) => ({
+              ...(value as any),
+              message_id: key,
+            })
+          );
+          callback(messages);
+        } else {
+          callback([]);
+        }
+      } catch (err) {
+        callback(null, err as Error);
+      }
+    },
+    (error) => {
+      callback(null, error);
+    }
+  );
+
+  return unsubscribe;
+};
+export { sendMessageToDB, subscribeToMessages };
