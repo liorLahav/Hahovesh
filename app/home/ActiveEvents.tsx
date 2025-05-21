@@ -18,6 +18,8 @@ export default function ActiveEvents() {
 
       if (fetchedEvents) {
         setEvents(fetchedEvents);
+        console.log("אירועים שנמצאו:", fetchedEvents);
+        console.log("אירועים :", events);
       } else {
         setEvents([]);
       }
