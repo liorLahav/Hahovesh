@@ -11,7 +11,7 @@ const messageFormSchema: MessageField[] = [
     key: "message_description",
     label: "תוכן ההודעה",
     type: "text",
-    placeholder: "כתוב כאן את תוכן ההודעה...",
+    placeholder: "...כתוב כאן את תוכן ההודעה",
   },
   {
     key: "distribution_by_role",
