@@ -114,7 +114,7 @@ export default function EventDetails() {
   ];
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1 bg-black">
       <DetailsHeader />
       <ScrollView
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
@@ -144,7 +144,7 @@ export default function EventDetails() {
                 >
                   <View className="flex-row items-center gap-1">
                     <Ionicons name="create-outline" size={18} color="black" />
-                    <Text>עריכה</Text>
+                    <Text></Text>
                   </View>
                 </Pressable>
               </View>
@@ -205,14 +205,3 @@ export default function EventDetails() {
   );
 }
 
-// Alert.alert("אישור", "האם אתה בטוח שברצונך לבטל את האירוע?", [
-//                   { text: "לא", style: "cancel" },
-//                   {
-//                     text: "כן",
-//                     onPress: async () => {
-//                       console.log("מוחק אירוע");
-//                       await deleteEvent(event.id);
-//                       router.push("/home/HomePage");
-//                     },
-//                   },
-//                 ])
