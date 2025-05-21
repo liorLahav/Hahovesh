@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useState } from "react";
 import { MessageField } from "@/services/MessagesSchema";
+import { sendMessageToDB } from "@/services/messages";
 
 export default function MessagesForm() {
   const [form, setForm] = useState<{ [key: string]: string }>({});
@@ -55,7 +56,7 @@ export default function MessagesForm() {
           </View>
         ))}
         <Pressable
-          onPress={() => console.log("Sending message:", form)}
+          onPress={sendMessageToDB(form)}
           className="bg-green-600 mx-5 my-6 py-3 rounded-full items-center"
         >
           <Text className="text-white font-bold text-lg">שלח הודעה</Text>
