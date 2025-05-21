@@ -3,11 +3,11 @@ import MessagesHeader from "./MessagesHeader";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MessagesForm from "./MessagesForm";
 
-export default function MessagesScreen() {
+export default function MessagesPage() {
   return (
     <SafeAreaView>
-      <MessagesForm />
-      {/* תוכן נוסף */}
+      <MessagesHeader />
+      
     </SafeAreaView>
   );
 }
