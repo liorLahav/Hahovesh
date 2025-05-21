@@ -114,7 +114,7 @@ export default function EventDetails() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-grey-200">
       <DetailsHeader />
       <ScrollView
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
@@ -144,7 +144,7 @@ export default function EventDetails() {
                 >
                   <View className="flex-row items-center gap-1">
                     <Ionicons name="create-outline" size={18} color="black" />
-                    <Text></Text>
+                    <Text>עריכה</Text>
                   </View>
                 </Pressable>
               </View>
