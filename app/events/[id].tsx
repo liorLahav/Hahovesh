@@ -132,7 +132,7 @@ export default function EventDetails() {
               {detail.value == "" ? "-" : detail.value}
             </Text>
             {roles.includes("Dispatcher") || roles.includes("Admin") ? (
-              <View className="absolute mt-2">
+              <View className="absolute">
                 <Pressable
                   onPress={() => {
                     setFieldToEdit(detail.key);
@@ -140,15 +140,12 @@ export default function EventDetails() {
                     setFieldLabel(detail.label);
                     setEditModalVisible(true);
                   }}
-                  className=" bg-blue-100 p-2 rounded-full shadow-sm h-[40px] w-[80px] items-center flex-row gap-2"
+                  className=" bg-blue-100 p-2 rounded-full shadow-sm h-[40px] w-[80px] items-center flex-row gap-1"
                 >
-                  <Text>עריכה</Text>
-                  <Ionicons
-                    name="create-outline"
-                    size={20}
-                    color="black"
-                    className="absolute right-2 top-2"
-                  />
+                  <View className="flex-row items-center gap-1">
+                    <Ionicons name="create-outline" size={18} color="black" />
+                    <Text>עריכה</Text>
+                  </View>
                 </Pressable>
               </View>
             ) : null}
