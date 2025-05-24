@@ -1,7 +1,7 @@
 import { Text } from "react-native";
 import * as Font from "expo-font";
 import { useFonts } from "expo-font";
-import HomePage from "./home/HomePage";
+import HomePage from "./home";
 
 export default function App() {
   const [fontsLoaded] = useFonts({

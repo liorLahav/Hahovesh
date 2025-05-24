@@ -6,12 +6,18 @@
 
 import "../global.css";
 import { RolesProvider } from "@/hooks/RolesContext";
+import { EventProvider } from "@/hooks/EventContext";
+import { OnlineProvider } from "@/hooks/OnlineContext";
 import AppDrawer from "./sideBar/AppDrawer";
 
 export default function RootLayout() {
   return (
-    <RolesProvider>
-      <AppDrawer />
-    </RolesProvider>
+    <OnlineProvider>
+      <RolesProvider>
+        <EventProvider>
+            <AppDrawer />
+        </EventProvider>
+      </RolesProvider>
+    </OnlineProvider>
   );
 }

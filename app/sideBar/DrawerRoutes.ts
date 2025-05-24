@@ -13,7 +13,7 @@ export type DrawerItem = {
 };
 
 export const drawerItems: DrawerItem[] = [
-  { label: "דף הבית", icon: "home", route: "home/HomePage", minRole: 0, section: "account" },
+  { label: "דף הבית", icon: "home", route: "home", minRole: 0, section: "account" },
   { label: "פרופיל", icon: "person", route: "home/profile", minRole: 0, section: "account" },
   { label: "הודעות", icon: "chatbubbles", route: "messages", minRole: 0, section: "menu" },
   { label: "אירועים פעילים", icon: "calendar", route: "events", minRole: 0, section: "menu" },

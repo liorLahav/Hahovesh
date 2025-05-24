@@ -20,7 +20,7 @@ export default function HomePage() {
     <SafeAreaView className="flex-1 bg-blue-200">
       <HomePageHeader />
       <UserStatus userId="Sy79iRZBzqaUey6elxmT" />
-      <ActiveEvents />
+      <ActiveEvents userId="Sy79iRZBzqaUey6elxmT"/>
     </SafeAreaView>
   );
 }
