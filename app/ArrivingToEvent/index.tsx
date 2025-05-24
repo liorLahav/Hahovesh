@@ -10,6 +10,7 @@ import { Button } from '@/components/Button';
 import ButtonsPanel from './ButtonsPanel';
 import { Event } from '@/services/events';
 import {useEventContext} from "@/hooks/EventContext";
+import Timer from './Timer';
 
 
 const user = "Sy79iRZBzqaUey6elxmT";
@@ -28,6 +29,7 @@ const ArrivingToEventScreen = () => {
     <>
       {event && (
         <SafeAreaView className="flex-1 bg-blue-200">
+          <ScrollView className="flex-1" >
           {/* Top red line */}
           <View className="w-full h-1 bg-red-500 rounded-t-xl" />
           
@@ -45,12 +47,16 @@ const ArrivingToEventScreen = () => {
             </Text>
             <View className="w-16 h-1 bg-white mt-2 rounded-full" />
           </View>
+          
+          {/* Timer */}
+          <Timer time={event?.createdAt || Date.now()}/>
           {/* Address Tag */}
           {event?.street && <AdressCard address={event.street} addressType={event.location_type} apartment_details={event.apartment_details}/>}
           {event && <EventDetailsCard event={event} />}
           {event?.phone_number1 && <PhoneCard phone={event.phone_number1} />}
           {event?.phone_number2 && <PhoneCard phone={event.phone_number2} />}
           <ButtonsPanel/>
+          </ScrollView>
         </SafeAreaView>
       )}
     </>

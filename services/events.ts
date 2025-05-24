@@ -3,23 +3,21 @@ import { get, onChildAdded, onValue, push, ref, serverTimestamp, set } from "fir
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Event = {
-  anamnesis: string;
-  apartment_details: string;
+  anamnesis?: string;
+  apartment_details?: string;
   createdAt: number;
-  haznk_code: string;
-  house_number: string;
-  informat_location: string;
-  location_type: string;
-  medical_code: string;
-  patient_age: string;
-  patient_name: string;
-  patient_sex: string;
-  phone: number;
-  phone_number1: string;
-  phone_number2: string;
-  recipient: string;
-  street: string;
-  urgency: string;
+  haznk_code?: string;
+  informat_location?: string;
+  location_type?: string;
+  medical_code?: string;
+  patient_age?: string;
+  patient_name?: string;
+  patient_sex?: string;
+  phone_number1?: string;
+  phone_number2?: string;
+  recipient?: string;
+  street?: string;
+  urgency?: string;
   id : string;
 };
 
