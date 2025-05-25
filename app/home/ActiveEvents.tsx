@@ -23,7 +23,7 @@ export default function ActiveEvents(props: ActiveEventsProps) {
   const {event,isEventActive, changeEvent} = useEventContext();
   const {isOnline} = useOnlineContext();
 
-  const reciveEvent = (event : Event) => {
+  const receiveEvent = (event : Event) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
@@ -130,7 +130,7 @@ export default function ActiveEvents(props: ActiveEventsProps) {
                     router.push({
                       pathname: "/ArrivingToEvent",
                     });
-                    reciveEvent(event);
+                    receiveEvent(event);
                   }}
                 >
                   <Text className="text-white font-semibold">קבל אירוע</Text>

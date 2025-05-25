@@ -6,6 +6,7 @@ import type { ParamListBase } from "@react-navigation/native";
 import NotificationButton from "./NotificationIcon";
 import { useRouter } from "expo-router";
 import logo from "../../assets/images/logo.png"; 
+import MenuButton from "@/components/navigation/menuButton";
 
 export default function HomePageHeader() {
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>(); // Use the navigation prop to open the drawer only (not the router)
@@ -41,9 +42,7 @@ export default function HomePageHeader() {
             {/*unreadCount prop should be dynamic (fix later) */}
             <NotificationButton unreadCount={11} />
           </Pressable>
-          <Pressable onPress={() => navigation.openDrawer()} className="p-2">
-            <Ionicons name="menu" size={30} color="black" />
-          </Pressable>
+          <MenuButton />
         </View>
       </View>
     </>

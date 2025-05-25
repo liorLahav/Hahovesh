@@ -11,6 +11,7 @@ import ButtonsPanel from './ButtonsPanel';
 import { Event } from '@/services/events';
 import {useEventContext} from "@/hooks/EventContext";
 import Timer from './Timer';
+import MenuButton from '@/components/navigation/menuButton';
 
 
 const user = "Sy79iRZBzqaUey6elxmT";
@@ -36,6 +37,7 @@ const ArrivingToEventScreen = () => {
           {/* Header */}
           <View className="w-full bg-blue-100 shadow-sm p-2 rounded-b-md">
             <View className="flex-row-reverse items-center justify-center mb-2">
+              <MenuButton className='position absolute right-2 top--1 z-10'/>
               <Text className="text-2xl font-bold text-blue-700">אירוע</Text>
             </View>
           </View>
