@@ -156,11 +156,25 @@ export default function EventDetails() {
             <Pressable
               className=" bg-red-600 p-2 rounded-full shadow-md h-[40px] w-full"
               onPress={() => {
-                console.log("נלחץ ביטול");
-                {
-                  event.id && deleteEvent(event.id);
-                }
-                router.push("/home/HomePage");
+                Alert.alert(
+                  "האם אתה בטוח?",
+                  "לאחר ביטול האירוע לא תוכל לשחזר אותו",
+                  [
+                    {
+                      text: "ביטול",
+                      style: "cancel",
+                    },
+                    {
+                      text: "אישור",
+                      onPress: () => {
+                        if (event.id) {
+                          deleteEvent(event.id);
+                          router.push("/home/HomePage");
+                        }
+                      },
+                    },
+                  ]
+                );
               }}
             >
               <Text className="text-white font-bold text-base text-center">
@@ -204,4 +218,3 @@ export default function EventDetails() {
     </SafeAreaView>
   );
 }
-
