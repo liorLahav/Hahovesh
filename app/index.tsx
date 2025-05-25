@@ -2,6 +2,7 @@ import { Text } from "react-native";
 import * as Font from "expo-font";
 import { useFonts } from "expo-font";
 import HomePage from "./home/HomePage";
+import Register from "./Register";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -13,5 +14,5 @@ export default function App() {
     return <Text>טוען...</Text>;
   }
 
-  return <HomePage />;
+  return <Register />;
 }
