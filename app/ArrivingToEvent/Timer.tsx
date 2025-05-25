@@ -47,7 +47,7 @@ const Timer = (props : TimerProps) => {
     return (
         <View className="bg-white mx-4 mt-4 rounded-xl shadow-md overflow-hidden border border-gray-200 h-28 flex items-center justify-center">
             <View className="flex items-center justify-center">
-                <Text className="text-gray-500 font-medium mb-2">זמן חלף מרגע הקבלה</Text>
+                <Text className="text-gray-500 font-medium mb-2"> זמן שחלף מאז יצירת האירוע </Text>
                 <Text className="text-3xl font-bold text-blue-600">{formatTime(elapsedTime)}</Text>
             </View>
         </View>
