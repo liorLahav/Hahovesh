@@ -1,4 +1,4 @@
-import { updateUserStatus } from "@/services/users";
+import { ONCALL, updateUserStatus } from "@/services/users";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { update } from "firebase/database";
@@ -20,7 +20,7 @@ const ButtonsPanel = () => {
             });
     }
     const CancelEvent = () => {
-        updateUserStatus(user,"OnCall")
+        updateUserStatus(user,ONCALL)
             .then(() => {
                 console.log("User status updated successfully");
             })

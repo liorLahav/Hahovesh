@@ -1,15 +1,15 @@
-import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
+import { View, Text, TextInput, ScrollView, Pressable, Alert } from 'react-native';
 import Select from './Select';
 import { useState } from 'react';
 import type { SchemaField } from '@/data/fromSchema_eventSummary';
+import { saveEventSummary } from '@/services/event_summary';
 
-/** Option type */
 type Option = { label: string; value: string };
 
 interface Props {
   schema: SchemaField[];
   onSubmit: (values: Record<string, string>) => void;
-  initialValues?: Record<string, string>; 
+  initialValues?: Record<string, string>;
 }
 
 export default function DynamicForm({ schema, onSubmit, initialValues }: Props) {
@@ -19,6 +19,8 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
       [f.key]: initialValues?.[f.key] ?? f.defaultValue ?? ''
     }), {})
   );
+
+  const [requireRefusalForm, setRequireRefusalForm] = useState(false);
 
   const setVal = (key: string, val: string) => {
     setValues(prev => ({ ...prev, [key]: val }));
@@ -32,10 +34,23 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
     setVal(key, updated.join(','));
   };
 
+  const handleSubmit = () => {
+  if (requireRefusalForm && !values['refusal_form']) {
+    Alert.alert('שגיאה', 'נדרש למלא טופס סירוב כאשר תיבת הסימון מסומנת');
+    return;
+  }
+
+  onSubmit({
+    ...values,
+    requireRefusalForm: requireRefusalForm.toString(),
+  });
+};
   return (
     <ScrollView className="flex-1 bg-white p-4" contentContainerStyle={{ paddingBottom: 80 }}>
       {schema.map((field) => {
         const isLast = field.key === 'additional_notes';
+        const isRefusalForm = field.key === 'refusal_form';
+
         return (
           <View
             key={field.key}
@@ -47,6 +62,18 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
               </Text>
             ) : (
               <>
+                {isRefusalForm && (
+                  <Pressable
+                    onPress={() => setRequireRefusalForm(prev => !prev)}
+                    className="flex-row items-center justify-end mb-2"
+                  >
+                    <View
+                      className={`w-4 h-4 mr-2 rounded border-2 ${requireRefusalForm ? 'bg-blue-600 border-blue-600' : 'border-gray-400'}`}
+                    />
+                    <Text className="text-sm">מילוי טופס סירוב</Text>
+                  </Pressable>
+                )}
+
                 <Text className="mb-1 text-right font-medium">
                   {field.label}
                 </Text>
@@ -58,6 +85,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
                     onChangeText={t => setVal(field.key, t)}
                     className="border border-gray-300 rounded-lg p-3 w-full text-right"
                     style={{ writingDirection: 'rtl' }}
+                    editable={!isRefusalForm || requireRefusalForm}
                   />
                 )}
 
@@ -71,6 +99,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
                     textAlignVertical="top"
                     className="border border-gray-300 rounded-lg p-3 w-full text-right min-h-[120px]"
                     style={{ writingDirection: 'rtl' }}
+                    editable={!isRefusalForm || requireRefusalForm}
                   />
                 )}
 
@@ -87,11 +116,11 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
                     {field.options.map((opt: Option) => {
                       const selected = values[field.key]?.split(',').includes(opt.value);
                       return (
-                          <Pressable
-                            key={opt.value}
-                            onPress={() => toggleMultiSelect(field.key, opt.value)}
-                            className="flex-row-reverse items-center gap-2"
-                          >
+                        <Pressable
+                          key={opt.value}
+                          onPress={() => toggleMultiSelect(field.key, opt.value)}
+                          className="flex-row-reverse items-center gap-2"
+                        >
                           <View
                             className={`w-4 h-4 rounded-full border-2 ${selected ? 'bg-blue-600 border-blue-600' : 'border-gray-400'}`}
                           />
@@ -109,7 +138,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
 
       <View className="mt-8">
         <Pressable
-          onPress={() => onSubmit(values)}
+          onPress={handleSubmit}
           className="w-full rounded-full h-14 bg-blue-600 shadow-md items-center justify-center"
         >
           <Text className="text-white font-bold text-xl">שלח</Text>
