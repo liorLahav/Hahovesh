@@ -1,34 +1,24 @@
 import { realtimeDb } from "@/FirebaseConfig";
-import { get, onChildAdded, onValue, ref, push } from "firebase/database";
+import { get, onChildAdded, onValue, push, ref, serverTimestamp, set } from "firebase/database";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-/**
- * 
- * getEvents useless now using subscribeToEvents
- * onChildAppend useless now using subscribeToEvents
- */
-
-const getEvents = async () => {
-  try {
-    const eventsRef = ref(realtimeDb, "events");
-    const data = await get(eventsRef);
-    if (!data.exists()) {
-      return null;
-    }
-    return data.val();
-  } catch (error) {
-    console.error("Error fetching events: ", error);
-    return null;
-  }
-};
-
-const onChildAppend = (callback: (data: any) => void) => {
-  const eventsRef = ref(realtimeDb, "events");
-  onChildAdded(eventsRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      callback(data);
-    }
-  });
+type Event = {
+  anamnesis?: string;
+  apartment_details?: string;
+  createdAt: number;
+  haznk_code?: string;
+  informat_location?: string;
+  location_type?: string;
+  medical_code?: string;
+  patient_age?: string;
+  patient_name?: string;
+  patient_sex?: string;
+  phone_number1?: string;
+  phone_number2?: string;
+  recipient?: string;
+  street?: string;
+  urgency?: string;
+  id : string;
 };
 
 const subscribeToEvents = (
@@ -51,7 +41,6 @@ const subscribeToEvents = (
       }
     },
     (error) => {
-      // טיפול בשגיאה של Firebase עצמה (לא snapshot)
       callback(null, error);
     }
   );
@@ -59,25 +48,54 @@ const subscribeToEvents = (
   return unsubscribe;
 };
 
-const sendEventOperation = async (
-  eventId: string,
-  data: {
-    option: string;
-    text?: string | null;
-    timestamp: number;
-  }
-): Promise<boolean> => {
+export const subscribeToEventsById = (
+  id: string,
+  callback: (event: Event | null, error?: Error) => void
+) => {
+  const eventsRef = ref(realtimeDb, "events/" + id);
+  const unsubscribe = onValue(
+    eventsRef,
+    (snapshot) => {
+      try {
+        const data = snapshot.val();
+        if (data && typeof data === "object") {
+          callback(data);
+        } else {
+          callback(null);
+        }
+      } catch (err) {
+        callback(null, err as Error);
+      }
+    },
+    (error) => {
+      callback(null, error);
+    }
+  );
+
+  return unsubscribe;
+}
+
+const createEvent = async (
+  values: Record<string, string>,
+  onReset: () => void
+): Promise<void> => {
   try {
-    const opsRef = ref(realtimeDb, `events/${eventId}/operations`);
-    await push(opsRef, data);
-    return true;
-  } catch (error) {
-    console.error("Error sending event operation:", error);
-    return false;
+    const node = push(ref(realtimeDb, 'events'));
+    const id = node.key;
+
+    await set(node, {
+      id, 
+      ...values,
+      createdAt: serverTimestamp(),
+    });
+
+    onReset();
+    return;
+  } catch (error: any) {
+    throw new Error(
+      'Error saving event: ' + (error?.message || JSON.stringify(error))
+    );
   }
 };
 
-
-
-
-export { getEvents, onChildAppend, subscribeToEvents, sendEventOperation };
+export { Event, subscribeToEvents,createEvent };

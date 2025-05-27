@@ -40,6 +40,19 @@ export const updatePermissions = async (
   }
 };
 
+export const updateStatus = async(user_id: string, status: string) => {
+  try {
+    const userRef = doc(db, "volunteers", user_id);
+    await updateDoc(userRef, { status });
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error("Error updating status: " + error.message);
+    } else {
+      throw new Error("Unknown error updating status: " + JSON.stringify(error));
+    }
+  }
+}
+
 export const getAllUsers = async (): Promise<DocumentData[]> => {
   try {
     console.log("Getting all users from Firestore...");
