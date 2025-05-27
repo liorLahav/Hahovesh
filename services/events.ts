@@ -78,21 +78,24 @@ export const subscribeToEventsById = (
 const createEvent = async (
   values: Record<string, string>,
   onReset: () => void
-): Promise<void>  => {
+): Promise<void> => {
   try {
     const node = push(ref(realtimeDb, 'events'));
+    const id = node.key;
+
     await set(node, {
+      id, 
       ...values,
       createdAt: serverTimestamp(),
     });
+
     onReset();
     return;
   } catch (error: any) {
-    // Propagate error with context
     throw new Error(
       'Error saving event: ' + (error?.message || JSON.stringify(error))
     );
   }
-}
+};
 
 export { Event, subscribeToEvents,createEvent };
