@@ -1,4 +1,4 @@
-import { ref, push, set, onValue } from "firebase/database";
+import { ref, push, set, onValue, remove } from "firebase/database";
 import { realtimeDb } from "@/FirebaseConfig";
 
 export type Message = {
@@ -66,4 +66,18 @@ const subscribeToMessages = (
 
   return unsubscribe;
 };
-export { sendMessageToDB, subscribeToMessages };
+
+const deleteMessage = async (messageId: string) => {
+  try {
+    const messageRef = ref(realtimeDb, `messages/${messageId}`);
+    await remove(messageRef);
+    console.log(`Message with ID ${messageId} deleted successfully.`);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to delete message: ${error.message}`);
+    } else {
+      console.error("Unexpected error while deleting message:", error);
+    }
+  }
+};
+export { sendMessageToDB, subscribeToMessages, deleteMessage };

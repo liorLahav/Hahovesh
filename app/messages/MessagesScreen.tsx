@@ -2,7 +2,6 @@ import { SafeAreaView, View, Text, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { subscribeToMessages, Message } from "@/services/messages";
 import { useRolesContext } from "@/hooks/RolesContext";
-import MessagesHeader from "./MessagesHeader";
 
 export default function MessagesScreen() {
   const { roles, rolesLoading } = useRolesContext();
@@ -49,7 +48,7 @@ export default function MessagesScreen() {
     }
   };
 
-  const visibleMessages = getVisibleMessages()?.reverse() || [];
+  const visibleMessages = getVisibleMessages() || [];
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }}>
@@ -58,26 +57,26 @@ export default function MessagesScreen() {
           אין הודעות להצגה
         </Text>
       ) : (
-        visibleMessages.map((msg) => (
+        visibleMessages.reverse().map((msg) => (
           <View
             key={msg.message_id}
             className="mb-6 bg-blue-50 p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col items-end"
           >
-            <View className="flex flex-row items-center justify-between w-full mb-2">
+            <View className="flex flex-row justify-between items-end mb-1">
               <Text className="text-right text-sm text-gray-500 mb-1">
                 {msg.date} {msg.time}
               </Text>
-
-              <Text className="text-right text-sm font-bold text-gray-800 mb-2">
-                {msg.distribution_by_role === "All"
-                  ? "[כולם]"
-                  : msg.distribution_by_role === "Dispatcher"
-                  ? "[מוקדן]"
-                  : msg.distribution_by_role === "Admin"
-                  ? "[מנהל]"
-                  : null}
-              </Text>
             </View>
+
+            <Text className="text-right text-sm font-bold text-gray-800 mb-2">
+              {msg.distribution_by_role === "All"
+                ? "[כולם]"
+                : msg.distribution_by_role === "Dispatcher"
+                ? "[מוקדן]"
+                : msg.distribution_by_role === "Admin"
+                ? "[מנהל]"
+                : null}
+            </Text>
 
             <Text className="text-right text-gray-800 leading-relaxed">
               {msg.message_description}
