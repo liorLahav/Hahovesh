@@ -40,11 +40,11 @@ export type SchemaField = {
       key:  'location_type',
       label:'מיקום',
       options: [
-        { label:'מקום ציבורי', value:'public'     },
-        { label:'בית',          value:'home'       },
-        { label:'בית כנסת',     value:'synagogue'  },
-        { label:'בית ספר',      value:'school'     },
-        { label:'רחוב',         value:'street'     },
+        { label:'מקום ציבורי', value:'מקום ציבורי'},
+        { label:'בית',          value:'בית'        },
+        { label:'בית כנסת',     value:'בית כנסת'  },
+        { label:'בית ספר',      value:'בית ספר'   },
+        { label:'רחוב',         value:'רחוב'      },
       ],
     },
     {
@@ -52,10 +52,10 @@ export type SchemaField = {
       key:  'urgency',
       label:'דחיפות',
       options: [
-        { label:'חובש בלבד',              value:'Medic_only'              },
-        { label:'אמבולנס',                value:'ambulance'               },
-        { label:'אמבולנס דחוף',           value:'emergency_ambulance'     },
-        { label:'אמבולנס טיפול נמרץ',     value:'intensive care ambulance'},
+        { label:'חובש בלבד',              value:'חובש בלבד'              },
+        { label:'אמבולנס',                value:'אמבולנס'               },
+        { label:'אמבולנס דחוף',           value:'אמבולנס דחוף'     },
+        { label:'אמבולנס טיפול נמרץ',     value:'אמבולנס טיפול נמרץ'},
       ],
     },
     {
@@ -63,9 +63,9 @@ export type SchemaField = {
       key:  'recipient',
       label:'מוקד מקבל',
       options: [
-        { label:'מגן דוד אדום', value:'mada'            },
-        { label:'איחוד הצלה',   value:'united_hatzalah' },
-        { label:'החובש',        value:'hahovesh'        },
+        { label:'מגן דוד אדום', value:'מגן דוד אדום'            },
+        { label:'איחוד הצלה',   value:'איחוד הצלה' },
+        { label:'החובש',        value:'החובש'        },
       ],
     },
   
@@ -251,8 +251,8 @@ export type SchemaField = {
       key:  'haznk_code',
       label:'קוד הזנקה',
       options: [
-        { label:'מחלה מבוגר', value:'adultDisease' },
-        { label:'מחלה ילד', value:'kidDisease' },
+        { label:'מחלה מבוגר', value:'מחלה מבוגר' },
+        { label:'מחלה ילד', value:'מחלה ילד' },
       ],
     },
     {
@@ -276,8 +276,8 @@ export type SchemaField = {
       key:  'patient_sex',
       label:'מין המטופל',
       options: [
-        { label:'זכר', value:'male' },
-        { label:'נקבה', value:'female' },
+        { label:'זכר', value:'גבר' },
+        { label:'נקבה', value:'נקבה' },
       ],
     },
     {
@@ -315,8 +315,8 @@ export type SchemaField = {
       key:  'informat_location',
       label:'מיקום מודיע',
       options: [
-        { label:'במקום', value:'inLLocation' },
-        { label:'מודיע צד ג', value:'notInLocation' },
+        { label:'במקום', value:'במקום' },
+        { label:'מודיע צד ג', value:'מודיע צד ג' },
       ],
     },
   ];

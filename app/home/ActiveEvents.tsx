@@ -1,34 +1,76 @@
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRolesContext } from "@/hooks/RolesContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { router } from "expo-router";
 import { subscribeToEvents, Event } from "@/services/events";
+import { updateUserStatus } from "@/services/users";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEventContext } from "@/hooks/EventContext";
+import { useOnlineContext } from "@/hooks/OnlineContext";
 
-export default function ActiveEvents() {
+
+type ActiveEventsProps = {
+  userId: string;
+};
+
+
+export default function ActiveEvents(props: ActiveEventsProps) {
   const { roles, rolesLoading } = useRolesContext();
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
+  const user = "Sy79iRZBzqaUey6elxmT";
+  const unsubscribeRef = useRef<() => void | null>(null);
+  const {event,isEventActive, changeEvent} = useEventContext();
+  const {isOnline} = useOnlineContext();
 
+  const receiveEvent = (event : Event) => {
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+    }
+    console.log("Changing user status to Arriving for event ID:", event.id);
+    updateUserStatus(user,"Arriving : " + event.id)
+      .then(() => {
+        console.log("User status updated successfully");
+      })
+      .catch((error) => {
+        console.error("Error updating user status:", error);
+      });
+      changeEvent(event);
+  }
+
+  // Subscribe only once when component mounts
   useEffect(() => {
-    const unsubscribe = subscribeToEvents((fetchedEvents, error) => {
-      if (error) {
-        console.error("שגיאה בשליפת אירועים:", error);
-        setLoadingEvents(false);
-        return;
-      }
-
-      if (fetchedEvents) {
-        setEvents(fetchedEvents);
-      } else {
-        setEvents([]);
-      }
-
-      setLoadingEvents(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
+    setLoadingEvents(true);
+    console.log("isEventActive:", isEventActive);
+      if (!isEventActive){
+        console.log("Subscribing to events...");
+        const unsubscribeFunction = subscribeToEvents((fetchedEvents, error) => {
+          if (error) {
+            console.error("שגיאה בשליפת אירועים:", error);
+            setLoadingEvents(false);
+            return;
+          }
+          if (fetchedEvents) {
+            setEvents(fetchedEvents);
+          } else {
+            setEvents([]);
+          }
+          setLoadingEvents(false);
+        });
+        
+        // Store the unsubscribe function in a ref for access elsewhere
+        unsubscribeRef.current = unsubscribeFunction;
+        
+        // Clean up subscription when component unmounts
+        return () => {
+          if (unsubscribeRef.current) {
+            unsubscribeRef.current();
+            unsubscribeRef.current = null;
+          }
+        };
+    }
+  }, [isEventActive]); // only subscribe when isEventActive false
+  
   if (rolesLoading || loadingEvents) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -84,7 +126,12 @@ export default function ActiveEvents() {
 
                 <Pressable
                   className="bg-red-600 px-4 py-2 rounded-lg"
-                  onPress={() => console.log("קבל אירוע נלחץ")}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/ArrivingToEvent",
+                    });
+                    receiveEvent(event);
+                  }}
                 >
                   <Text className="text-white font-semibold">קבל אירוע</Text>
                 </Pressable>
