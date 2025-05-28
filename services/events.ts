@@ -21,6 +21,12 @@ type Event = {
   id : string;
 };
 
+export type OperationPayload = {
+  option: string;
+  text: string | null;
+  timestamp: number;
+};
+
 const subscribeToEvents = (
   callback: (events: any[] | null, error?: Error) => void
 ) => {
@@ -98,4 +104,26 @@ const createEvent = async (
   }
 };
 
-export { Event, subscribeToEvents,createEvent };
+const sendEventOperation = async (
+  eventId: string,
+  payload: OperationPayload
+): Promise<void> => {
+  try {
+    const opsRef = ref(realtimeDb, `events/${eventId}/operations`);
+    const newOpRef = push(opsRef);
+    await set(newOpRef, {
+      ...payload,
+      createdAt: serverTimestamp(),
+    });
+  } catch (error: any) {
+    throw new Error(
+      "Error sending event operation: " +
+        (error.message || JSON.stringify(error))
+    );
+  }
+};
+
+
+
+
+export { Event, subscribeToEvents, createEvent, sendEventOperation };
