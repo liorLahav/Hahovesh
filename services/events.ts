@@ -1,6 +1,15 @@
 import { realtimeDb } from "@/FirebaseConfig";
-import { get, onChildAdded, onValue, push, ref, serverTimestamp, set } from "firebase/database";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  get,
+  onChildAdded,
+  onValue,
+  push,
+  ref,
+  serverTimestamp,
+  set,
+  remove,
+} from "firebase/database";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Event = {
   anamnesis?: string;
@@ -18,7 +27,25 @@ type Event = {
   recipient?: string;
   street?: string;
   urgency?: string;
-  id : string;
+  id: string;
+};
+
+const deleteEvent = async (eventId: string) => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}`);
+    await remove(eventRef);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error("Error deleting event: " + error.message);
+    } else {
+      throw new Error("Unknown error deleting event: " + JSON.stringify(error));
+    }
+  }
+};
+
+const updateEvent = async (eventId: string, updatedEvent: Event) => {
+  const eventRef = ref(realtimeDb, `events/${eventId}`);
+  await set(eventRef, updatedEvent);
 };
 
 const subscribeToEvents = (
@@ -76,18 +103,18 @@ export const subscribeToEventsById = (
   );
 
   return unsubscribe;
-}
+};
 
 const createEvent = async (
   values: Record<string, string>,
   onReset: () => void
 ): Promise<void> => {
   try {
-    const node = push(ref(realtimeDb, 'events'));
+    const node = push(ref(realtimeDb, "events"));
     const id = node.key;
 
     await set(node, {
-      id, 
+      id,
       ...values,
       createdAt: serverTimestamp(),
     });
@@ -96,9 +123,9 @@ const createEvent = async (
     return;
   } catch (error: any) {
     throw new Error(
-      'Error saving event: ' + (error?.message || JSON.stringify(error))
+      "Error saving event: " + (error?.message || JSON.stringify(error))
     );
   }
 };
 
-export { Event, subscribeToEvents,createEvent };
+export { Event, subscribeToEvents, createEvent };
