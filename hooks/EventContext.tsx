@@ -12,6 +12,11 @@ type EventContextType = {
     refreshEvent : () => Promise<(() => void) | undefined>;
 }
 
+const safeSetJSON = async (key: string, value: unknown) => {  
+  if (value === undefined || value === null) return;           
+  await AsyncStorage.setItem(key, JSON.stringify(value));     
+};
+
 const eventContext =  createContext<EventContextType | null>(null);
 
 export const EventProvider = ({ children }: { children: React.ReactNode } ) => {
@@ -23,7 +28,7 @@ export const EventProvider = ({ children }: { children: React.ReactNode } ) => {
     const changeEvent = async (event: Event) => {
         setEvent(event);
         changeActiveStatus(true);
-        await AsyncStorage.setItem("event", JSON.stringify(event));
+        await safeSetJSON("event", event); 
     }    
     
     const refreshEvent = async () => {
@@ -31,11 +36,11 @@ export const EventProvider = ({ children }: { children: React.ReactNode } ) => {
         const unsubscribe = subscribeToEventsById(event.id, async (fetchedEvent, error) => {
             if (fetchedEvent) {
                 setEvent(fetchedEvent);
-                await AsyncStorage.setItem("event", JSON.stringify(fetchedEvent));
+                await safeSetJSON("event", fetchedEvent); 
             }
             else{
                 try {
-                    const e = await AsyncStorage.getItem(event.id);
+                    const e = await AsyncStorage.getItem("event"); 
                     console.log("Event found in storage:", e);
                     if (e) {
                         const parsedEvent = JSON.parse(e);
@@ -55,7 +60,7 @@ export const EventProvider = ({ children }: { children: React.ReactNode } ) => {
         setIsEventActive(status);
         if (isEventActive) {
             refreshEvent();
-            AsyncStorage.setItem("event", JSON.stringify(event));
+            safeSetJSON("event", event); 
         }
         else {
             unsubscribeRef.current?.();
