@@ -15,7 +15,7 @@ export default function DetailsHeader() {
       <View className="w-full h-1 bg-red-500 rounded-t-xl" />
       <View className="bg-blue-50 border-b border-blue-300 py-4 px-4 rounded-b-2xl shadow-sm">
         <View className="flex-row items-center justify-between">
-          <Pressable onPress={() => router.push("/home/HomePage")}>
+          <Pressable onPress={() => router.push("/home")}>
             <Ionicons name="arrow-back" size={28} color="#1e3a8a" />
           </Pressable>
 

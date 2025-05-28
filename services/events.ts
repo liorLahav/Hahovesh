@@ -28,6 +28,8 @@ type Event = {
   street?: string;
   urgency?: string;
   id: string;
+  house_number?: string;
+  isActive?: boolean;
 };
 
 const deleteEvent = async (eventId: string) => {
@@ -116,7 +118,8 @@ const createEvent = async (
     await set(node, {
       id,
       ...values,
-      createdAt: serverTimestamp(),
+      isActive: true,
+      createdAt: new Date().toISOString(), // ← שומר תאריך מלא כמו "2025-05-28T14:05:00.000Z"
     });
 
     onReset();
@@ -128,4 +131,4 @@ const createEvent = async (
   }
 };
 
-export { Event, subscribeToEvents, createEvent };
+export { Event, subscribeToEvents, createEvent, deleteEvent, updateEvent };

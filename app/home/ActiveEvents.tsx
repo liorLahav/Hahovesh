@@ -22,6 +22,7 @@ export default function ActiveEvents(props: ActiveEventsProps) {
   const unsubscribeRef = useRef<() => void | null>(null);
   const {event,isEventActive, changeEvent} = useEventContext();
   const {isOnline} = useOnlineContext();
+  
 
   const receiveEvent = (event : Event) => {
     if (unsubscribeRef.current) {
@@ -109,7 +110,7 @@ export default function ActiveEvents(props: ActiveEventsProps) {
             לא נמצאו אירועים פעילים
           </Text>
         ) : (
-          events.map((event) => (
+          events.reverse().map((event) => (
             <View
               key={event.id}
               className="bg-blue-50 border border-blue-300 rounded-xl shadow-sm mb-4 p-4"
@@ -125,7 +126,7 @@ export default function ActiveEvents(props: ActiveEventsProps) {
                 <Pressable
                   className="bg-blue-600 px-4 py-2 rounded-lg"
                   onPress={() =>
-                    route.push({
+                    router.push({
                       pathname: "/detailedEvent/[id]",
                       params: { id: event.id },
                     })

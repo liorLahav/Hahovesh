@@ -21,6 +21,7 @@ import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import DetailsHeader from "./DetailsHeader";
 import { set } from "firebase/database";
+import { useEventContext } from "@/hooks/EventContext";
 
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
@@ -31,6 +32,7 @@ export default function EventDetails() {
   const [fieldToEdit, setFieldToEdit] = useState<string | null>(null);
   const [editedValue, setEditedValue] = useState("");
   const [fieldLabel, setFieldLabel] = useState<string | null>(null);
+  const { changeActiveStatus } = useEventContext();
 
   const router = useRouter();
 
@@ -86,6 +88,18 @@ export default function EventDetails() {
     }
   };
 
+  const handleCancel = async (event: Event) => {
+    if (event.id) {
+      try {
+        await updateEvent(event.id, { ...event, isActive: false });
+      } catch (error) {
+        console.error("Error canceling event:", error);
+      } finally {
+        router.push("/home");
+      }
+    }
+  };
+
   const getDetails = () => [
     { label: "סוג האירוע", key: "anamnesis", value: event?.anamnesis },
     { label: "תאריך", key: "createdAt", value: event?.createdAt },
@@ -136,7 +150,7 @@ export default function EventDetails() {
                 <Pressable
                   onPress={() => {
                     setFieldToEdit(detail.key);
-                    setEditedValue(detail.value || "");
+                    setEditedValue(String(detail.value || ""));
                     setFieldLabel(detail.label);
                     setEditModalVisible(true);
                   }}
@@ -168,8 +182,7 @@ export default function EventDetails() {
                       text: "אישור",
                       onPress: () => {
                         if (event.id) {
-                          deleteEvent(event.id);
-                          router.push("/home/HomePage");
+                          handleCancel(event);
                         }
                       },
                     },
