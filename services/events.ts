@@ -62,10 +62,27 @@ const subscribeToEvents = (
       try {
         const data = snapshot.val();
         if (data && typeof data === "object") {
+          const now = Date.now();
+          const activeEvents: any[] = [];
+
           for (const [key, value] of Object.entries(data)) {
-            (value as any)["id"] = key;
+            const event = value as any;
+            event.id = key;
+
+            if (
+              event.isActive === false &&
+              event.canceledAt &&
+              now - event.canceledAt > 2 * 60 * 60 * 1000
+            ) {
+              const refToDelete = ref(realtimeDb, `events/${key}`);
+              remove(refToDelete);
+              continue;
+            }
+
+            activeEvents.push(event);
           }
-          callback(Object.values(data));
+
+          callback(activeEvents);
         } else {
           callback([]);
         }
@@ -74,10 +91,10 @@ const subscribeToEvents = (
       }
     },
     (error) => {
-      // טיפול בשגיאה של Firebase עצמה (לא snapshot)
       callback(null, error);
     }
   );
+
   return unsubscribe;
 };
 

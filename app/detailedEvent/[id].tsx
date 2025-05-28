@@ -1,27 +1,13 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  Alert,
-  Modal,
-  TextInput,
-} from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  subscribeToEvents,
-  Event,
-  deleteEvent,
-  updateEvent,
-} from "@/services/events";
+import { subscribeToEvents, Event, updateEvent } from "@/services/events";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRolesContext } from "@/hooks/RolesContext";
-import { useRouter } from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import DetailsHeader from "./DetailsHeader";
-import { set } from "firebase/database";
-import { useEventContext } from "@/hooks/EventContext";
+import EditableDetailRow from "./EditableDetailRow";
+import EditModal from "./EditModal";
+import CancelEventButton from "./CancelEventButton";
 
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
@@ -30,11 +16,9 @@ export default function EventDetails() {
   const { roles, rolesLoading } = useRolesContext();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [fieldToEdit, setFieldToEdit] = useState<string | null>(null);
-  const [editedValue, setEditedValue] = useState("");
   const [fieldLabel, setFieldLabel] = useState<string | null>(null);
-  const { changeActiveStatus } = useEventContext();
+  const [editedValue, setEditedValue] = useState("");
 
-  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = subscribeToEvents((events, error) => {
@@ -88,22 +72,6 @@ export default function EventDetails() {
     }
   };
 
-  const handleCancel = async (event: Event) => {
-    if (event.id) {
-      try {
-        await updateEvent(event.id, {
-          ...event,
-          isActive: false,
-          canceledAt: Date.now(),
-        });
-      } catch (error) {
-        console.error("Error canceling event:", error);
-      } finally {
-        router.push("/home");
-      }
-    }
-  };
-
   const getDetails = () => [
     { label: "סוג האירוע", key: "anamnesis", value: event?.anamnesis },
     { label: "תאריך", key: "createdAt", value: event?.createdAt },
@@ -139,99 +107,33 @@ export default function EventDetails() {
         className=" bg-blue-50"
       >
         {getDetails().map((detail) => (
-          <View
+          <EditableDetailRow
             key={detail.label}
-            className="mb-4 border-b border-gray-200 pb-2"
-          >
-            <Text className="text-sm text-gray-500 text-right">
-              {detail.label}
-            </Text>
-            <Text className="text-lg text-right text-gray-800">
-              {detail.value == "" ? "-" : detail.value}
-            </Text>
-            {roles.includes("Dispatcher") || roles.includes("Admin") ? (
-              <View className="absolute">
-                <Pressable
-                  onPress={() => {
-                    setFieldToEdit(detail.key);
-                    setEditedValue(String(detail.value || ""));
-                    setFieldLabel(detail.label);
-                    setEditModalVisible(true);
-                  }}
-                  className=" bg-blue-100 p-2 rounded-full shadow-sm h-[40px] w-[80px] items-center flex-row gap-1"
-                >
-                  <View className="flex-row items-center gap-1">
-                    <Ionicons name="create-outline" size={18} color="black" />
-                    <Text>עריכה</Text>
-                  </View>
-                </Pressable>
-              </View>
-            ) : null}
-          </View>
+            label={detail.label}
+            value={String(detail.value || "")}
+            canEdit={roles.includes("Dispatcher") || roles.includes("Admin")}
+            onEdit={() => {
+              setFieldToEdit(detail.key);
+              setEditedValue(String(detail.value || ""));
+              setFieldLabel(detail.label);
+              setEditModalVisible(true);
+            }}
+          />
         ))}
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <View className="items-end mt-2">
-            <Pressable
-              className=" bg-red-600 p-2 rounded-full shadow-md h-[40px] w-full"
-              onPress={() => {
-                Alert.alert(
-                  "האם אתה בטוח?",
-                  "לאחר ביטול האירוע לא תוכל לשחזר אותו",
-                  [
-                    {
-                      text: "ביטול",
-                      style: "cancel",
-                    },
-                    {
-                      text: "אישור",
-                      onPress: () => {
-                        if (event.id) {
-                          handleCancel(event);
-                        }
-                      },
-                    },
-                  ]
-                );
-              }}
-            >
-              <Text className="text-white font-bold text-base text-center">
-                ביטול אירוע
-              </Text>
-            </Pressable>
+            <CancelEventButton event={event} />
           </View>
         ) : null}
       </ScrollView>
-      <Modal visible={editModalVisible} transparent animationType="fade">
-        <View className="flex-1 bg-black/40 justify-center items-center">
-          <View className="bg-white w-[90%] p-5 rounded-2xl shadow-lg">
-            <Text className="text-center text-lg font-bold mb-4 text-blue-900">
-              ערוך {fieldLabel}
-            </Text>
-
-            <TextInput
-              value={editedValue}
-              onChangeText={setEditedValue}
-              className="border border-blue-200 p-3 rounded-md text-right"
-            />
-
-            <View className="flex-row justify-center gap-4 mt-6">
-              <Pressable
-                onPress={() => setEditModalVisible(false)}
-                className="bg-red-600 px-6 py-2 rounded-full shadow"
-              >
-                <Text className="text-white font-bold text-base">ביטול</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={handleSave}
-                className="bg-green-600 px-6 py-2 rounded-full shadow"
-              >
-                <Text className="text-white font-bold text-base">שמור</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <EditModal
+        visible={editModalVisible}
+        fieldLabel={fieldLabel}
+        editedValue={editedValue}
+        onChange={setEditedValue}
+        onCancel={() => setEditModalVisible(false)}
+        onSave={handleSave}
+      />
     </SafeAreaView>
   );
 }
