@@ -55,10 +55,7 @@ const formSchema_eventSummary: SchemaField[] = [
   },
   { key: 'summary', label: 'רשומה רפואית (אנמנזה)', type: 'textarea' },
 
-  { key: 'title_medic', label: 'פרטי כונן', type: 'title' },
-  { key: 'medic_name', label: 'שם הכונן', type: 'text' },
-  { key: 'medic_code', label: 'קוד כונן', type: 'text' },
-
+  
   { key: 'title_measurements', label: 'מדדים', type: 'title' },
   { key: 'blood_pressure', label: 'לחץ דם', type: 'text' },
   { key: 'sugar', label: 'סוכר', type: 'text' },

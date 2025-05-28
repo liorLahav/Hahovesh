@@ -28,6 +28,7 @@ export default function EventSummaryScreen() {
       event_date: event.createdAt
         ? new Date(event.createdAt).toLocaleDateString('he-IL')
         : '',
+        volenteer_id: user,
     };
 
     setInitialValues(mappedValues);
