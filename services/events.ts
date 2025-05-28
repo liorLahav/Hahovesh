@@ -30,6 +30,7 @@ type Event = {
   id: string;
   house_number?: string;
   isActive?: boolean;
+  canceledAt?: number;
 };
 
 const deleteEvent = async (eventId: string) => {

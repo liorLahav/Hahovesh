@@ -4,15 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { router } from "expo-router";
 import { subscribeToEvents, Event } from "@/services/events";
 import { updateUserStatus } from "@/services/users";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEventContext } from "@/hooks/EventContext";
 import { useOnlineContext } from "@/hooks/OnlineContext";
-
 
 type ActiveEventsProps = {
   userId: string;
 };
-
 
 export default function ActiveEvents(props: ActiveEventsProps) {
   const { roles, rolesLoading } = useRolesContext();
@@ -20,58 +18,57 @@ export default function ActiveEvents(props: ActiveEventsProps) {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const user = "Sy79iRZBzqaUey6elxmT";
   const unsubscribeRef = useRef<() => void | null>(null);
-  const {event,isEventActive, changeEvent} = useEventContext();
-  const {isOnline} = useOnlineContext();
-  
+  const { event, isEventActive, changeEvent } = useEventContext();
+  const { isOnline } = useOnlineContext();
 
-  const receiveEvent = (event : Event) => {
+  const receiveEvent = (event: Event) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
     console.log("Changing user status to Arriving for event ID:", event.id);
-    updateUserStatus(user,"Arriving : " + event.id)
+    updateUserStatus(user, "Arriving : " + event.id)
       .then(() => {
         console.log("User status updated successfully");
       })
       .catch((error) => {
         console.error("Error updating user status:", error);
       });
-      changeEvent(event);
-  }
+    changeEvent(event);
+  };
 
   // Subscribe only once when component mounts
   useEffect(() => {
     setLoadingEvents(true);
     console.log("isEventActive:", isEventActive);
-      if (!isEventActive){
-        console.log("Subscribing to events...");
-        const unsubscribeFunction = subscribeToEvents((fetchedEvents, error) => {
-          if (error) {
-            console.error("שגיאה בשליפת אירועים:", error);
-            setLoadingEvents(false);
-            return;
-          }
-          if (fetchedEvents) {
-            setEvents(fetchedEvents);
-          } else {
-            setEvents([]);
-          }
+    if (!isEventActive) {
+      console.log("Subscribing to events...");
+      const unsubscribeFunction = subscribeToEvents((fetchedEvents, error) => {
+        if (error) {
+          console.error("שגיאה בשליפת אירועים:", error);
           setLoadingEvents(false);
-        });
-        
-        // Store the unsubscribe function in a ref for access elsewhere
-        unsubscribeRef.current = unsubscribeFunction;
-        
-        // Clean up subscription when component unmounts
-        return () => {
-          if (unsubscribeRef.current) {
-            unsubscribeRef.current();
-            unsubscribeRef.current = null;
-          }
-        };
+          return;
+        }
+        if (fetchedEvents) {
+          setEvents(fetchedEvents);
+        } else {
+          setEvents([]);
+        }
+        setLoadingEvents(false);
+      });
+
+      // Store the unsubscribe function in a ref for access elsewhere
+      unsubscribeRef.current = unsubscribeFunction;
+
+      // Clean up subscription when component unmounts
+      return () => {
+        if (unsubscribeRef.current) {
+          unsubscribeRef.current();
+          unsubscribeRef.current = null;
+        }
+      };
     }
   }, [isEventActive]); // only subscribe when isEventActive false
-  
+
   if (rolesLoading || loadingEvents) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -79,8 +76,6 @@ export default function ActiveEvents(props: ActiveEventsProps) {
       </View>
     );
   }
-
-  
 
   return (
     <View className="flex-1 bg-white">
@@ -136,7 +131,10 @@ export default function ActiveEvents(props: ActiveEventsProps) {
                 </Pressable>
 
                 <Pressable
-                  className="bg-red-600 px-4 py-2 rounded-lg"
+                  className={`px-4 py-2 rounded-lg ${
+                    event.isActive ? "bg-red-600" : "bg-gray-400 opacity-50"
+                  }`}
+                  disabled={!event.isActive}
                   onPress={() => {
                     router.push({
                       pathname: "/ArrivingToEvent",
@@ -144,7 +142,9 @@ export default function ActiveEvents(props: ActiveEventsProps) {
                     receiveEvent(event);
                   }}
                 >
-                  <Text className="text-white font-semibold">קבל אירוע</Text>
+                  <Text className="text-white font-semibold">
+                    {event.isActive ? "קבל אירוע" : "אירוע בוטל"}{" "}
+                  </Text>
                 </Pressable>
               </View>
             </View>

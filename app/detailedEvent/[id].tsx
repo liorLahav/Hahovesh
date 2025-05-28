@@ -91,7 +91,11 @@ export default function EventDetails() {
   const handleCancel = async (event: Event) => {
     if (event.id) {
       try {
-        await updateEvent(event.id, { ...event, isActive: false });
+        await updateEvent(event.id, {
+          ...event,
+          isActive: false,
+          canceledAt: Date.now(),
+        });
       } catch (error) {
         console.error("Error canceling event:", error);
       } finally {
