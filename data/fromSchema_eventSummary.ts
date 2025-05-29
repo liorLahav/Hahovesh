@@ -10,7 +10,7 @@ export type SchemaField = {
 const formSchema_eventSummary: SchemaField[] = [
   { key: 'title_patient', label: 'פרטי מטופל', type: 'title' },
   { key: 'name', label: 'שם המטופל', type: 'text' },
-  { key: 'id', label: 'ת"ז המטופל', type: 'text' },
+  { key: 'patient_id', label: 'ת"ז המטופל', type: 'text' },
   {
     key: 'gender',
     label: 'מין המטופל',
