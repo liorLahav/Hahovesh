@@ -1,4 +1,4 @@
-// עדכון ב-VolunteerPicker.tsx כדי להדגיש את הבחירה
+// Updated VolunteerPicker to highlight selected volunteer
 
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, FlatList, TextInput, ActivityIndicator } from 'react-native';
@@ -12,14 +12,13 @@ interface VolunteerPickerProps {
 }
 
 export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunteer }: VolunteerPickerProps) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);  const [searchQuery, setSearchQuery] = useState('');
   const { volunteers, loading, error } = useVolunteers();
-    // רענון רשימת המתנדבים במקרה של שגיאה
+  // Refresh volunteers list in case of an error
   const refreshVolunteers = () => {
     console.log("Refreshing volunteers list");
-    setSearchQuery(''); // איפוס החיפוש
-    setModalVisible(false); // סגירת החלון הקופץ
+    setSearchQuery(''); // Reset search
+    setModalVisible(false); // Close modal
     
     // Force a component refresh
     // This is a hack to force the useVolunteers hook to re-run
@@ -29,10 +28,9 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
       if (tempSelected) {
         onSelectVolunteer(tempSelected);
       }
-    }, 100);
-  };
+    }, 100);  };
   
-  // סינון מתנדבים לפי מחרוזת חיפוש
+  // Filter volunteers by search string
   const filteredVolunteers = searchQuery.trim() === '' 
     ? volunteers 
     : volunteers.filter(v => 
@@ -62,9 +60,8 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
                   ? "לא נמצאו מתנדבים"
                   : "בחר מתנדב לצפייה בסטטיסטיקות"}
         </Text>
-      </TouchableOpacity>
-      
-      {/* בחירת הצגת כל המתנדבים */}
+      </TouchableOpacity>      
+      {/* Option to clear volunteer selection */}
       {selectedVolunteerName && (
         <TouchableOpacity 
           className="mt-2 flex-row justify-end items-center"
@@ -74,7 +71,7 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
         </TouchableOpacity>
       )}
       
-      {/* כפתור רענון במקרה של שגיאה */}
+      {/* Refresh button for error cases */}
       {error && (
         <TouchableOpacity 
           className="mt-2 flex-row justify-end items-center"
@@ -98,9 +95,8 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
               </TouchableOpacity>
               
               <Text className="text-lg font-bold text-gray-800">בחירת מתנדב</Text>
-            </View>
-            
-            {/* חיפוש */}
+            </View>            
+            {/* Search box */}
             <View className="mb-4 border border-gray-300 rounded-lg p-2 flex-row items-center">
               <TextInput
                 className="flex-1 text-right mr-2"
@@ -111,7 +107,7 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
               <Ionicons name="search" size={20} color="#4B5563" />
             </View>
             
-            {/* רשימת מתנדבים */}
+            {/* Volunteers list */}
             {loading ? (
               <View className="items-center justify-center py-8">
                 <ActivityIndicator size="large" color="#1d4ed8" />
@@ -142,7 +138,7 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
                     }}
                   >
                     <Text className="text-right text-gray-800 font-medium">{item.full_name}</Text>
-                    <Text className="text-right text-gray-500 text-sm">מזהה: {item.id}</Text>
+                    <Text className="text-right text-gray-500 text-sm">ID: {item.id}</Text>
                   </TouchableOpacity>
                 )}
               />
