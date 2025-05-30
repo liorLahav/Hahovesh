@@ -1,7 +1,8 @@
-import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
-import Select from './Select';
-import { useState } from 'react';
-import type { SchemaField } from '../data/formSchema';
+import { View, Text, TextInput, ScrollView, Pressable } from "react-native";
+import Select from "./Select";
+import { useState } from "react";
+import type { SchemaField } from "../data/formSchema";
+import { router } from "expo-router";
 
 export type Field = SchemaField;
 
@@ -14,74 +15,79 @@ interface Props {
 export default function DynamicForm({ schema, onSubmit }: Props) {
   /** Initial state – empty map key → value */
   const initialState = schema.reduce<Record<string, string>>(
-    (acc, field) => ({ ...acc, [field.key]: '' }),
-    {},
+    (acc, field) => ({ ...acc, [field.key]: "" }),
+    {}
   );
   const [values, setValues] = useState(initialState);
 
   /** Update a single value */
   const setVal = (key: string, val: string) =>
-    setValues(prev => ({ ...prev, [key]: val }));
+    setValues((prev) => ({ ...prev, [key]: val }));
 
   return (
     <ScrollView /* ... */>
-      {schema.map(field => (
+      {schema.map((field) => (
         <View key={field.key} className="mb-6">
           <Text className="mb-2 font-semibold text-right text-gray-800">
             {field.label}
           </Text>
 
-          {field.type === 'text' && (
+          {field.type === "text" && (
             <TextInput
               placeholder={field.placeholder}
               value={values[field.key]}
-              keyboardType={field.keyboardType ?? 'default'}
-              onChangeText={text => {
+              keyboardType={field.keyboardType ?? "default"}
+              onChangeText={(text) => {
                 let finalText = text;
 
                 if (field.lettersOnly) {
-                  finalText = finalText.replace(/[^A-Za-z\u05D0-\u05EA ]/g, '');
+                  finalText = finalText.replace(/[^A-Za-z\u05D0-\u05EA ]/g, "");
+                } else if (field.numericOnly) {
+                  finalText = finalText.replace(/[^0-9]/g, "");
                 }
-                else if (field.numericOnly) {
-                  finalText = finalText.replace(/[^0-9]/g, '');
-                }
-                if (typeof field.maxLength === 'number') {
+                if (typeof field.maxLength === "number") {
                   finalText = finalText.slice(0, field.maxLength);
                 }
                 setVal(field.key, finalText);
               }}
               className="border border-blue-300 rounded-lg p-3 w-full text-right bg-blue-50"
-              style={{ writingDirection: 'rtl' }}
+              style={{ writingDirection: "rtl" }}
             />
           )}
 
-          {/* ---------- textarea ---------- */} 
-          {field.type === 'textarea' && (
+          {/* ---------- textarea ---------- */}
+          {field.type === "textarea" && (
             <TextInput
               placeholder={field.placeholder}
               value={values[field.key]}
-              onChangeText={text => setVal(field.key, text)}
-              multiline                     
-              numberOfLines={field.rows ?? 4} 
-              textAlignVertical="top"        
-              className="border border-blue-300 rounded-lg p-3 w-full text-right bg-blue-50 min-h-[120px]" 
-              style={{ writingDirection: 'rtl', minHeight: (field.rows ?? 4) * 24}}
+              onChangeText={(text) => setVal(field.key, text)}
+              multiline
+              numberOfLines={field.rows ?? 4}
+              textAlignVertical="top"
+              className="border border-blue-300 rounded-lg p-3 w-full text-right bg-blue-50 min-h-[120px]"
+              style={{
+                writingDirection: "rtl",
+                minHeight: (field.rows ?? 4) * 24,
+              }}
             />
           )}
 
-          {field.type === 'picker' && Array.isArray(field.options) && (
+          {field.type === "picker" && Array.isArray(field.options) && (
             <Select
               value={values[field.key]}
-              onChange={v => setVal(field.key, v)}
-              options={[{ label: 'בחר', value: '' }, ...field.options]}
+              onChange={(v) => setVal(field.key, v)}
+              options={[{ label: "בחר", value: "" }, ...field.options]}
             />
           )}
         </View>
       ))}
       <View className="mt-8">
         <Pressable
-          onPress={() => onSubmit(values)}
-          className="w-full rounded-full h-14 bg-blue-600 shadow-md items-center justify-center">
+          onPress={() => {
+            onSubmit(values), router.push("/home");
+          }}
+          className="w-full rounded-full h-14 bg-blue-600 shadow-md items-center justify-center"
+        >
           <Text className="text-white font-bold text-xl">שלח</Text>
         </Pressable>
       </View>
