@@ -22,6 +22,8 @@ export const deleteUser = async (user_id: string) => {
   }
 };
 
+export const ONCALL = "OnCall";
+
 export const updatePermissions = async (
   user_id: string,
   newPermissions: string[]
