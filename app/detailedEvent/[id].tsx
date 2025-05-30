@@ -7,8 +7,7 @@ import { useRolesContext } from "@/hooks/RolesContext";
 import DetailsHeader from "./DetailsHeader";
 import EditableDetailRow from "./EditableDetailRow";
 import EditModal from "./EditModal";
-import CancelEventButton from "./CancelEventButton";
-
+import { CancelEventButton } from "./CancelEventButton";
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
   const [event, setEvent] = useState<Event | null>(null);

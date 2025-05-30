@@ -72,7 +72,7 @@ const subscribeToEvents = (
             if (
               event.isActive === false &&
               event.canceledAt &&
-              now - event.canceledAt > 2 * 60 * 60 * 1000
+              now - event.canceledAt > 2 * 60 * 60 * 1000 // change this to > 1000 for debug now its 2 hours 
             ) {
               const refToDelete = ref(realtimeDb, `events/${key}`);
               remove(refToDelete);
