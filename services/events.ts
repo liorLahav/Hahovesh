@@ -124,6 +124,32 @@ const sendEventOperation = async (
 };
 
 
+const addVolunteerToEvent = async (
+  eventId: string,
+  volunteerId: string
+): Promise<void> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}`);
+    await set(eventRef, { volunteerId, joinedAt: serverTimestamp() });
+  } catch (error: any) {
+    throw new Error(
+      'Error adding volunteer to event: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
 
+const removeVolunteerFromEvent = async (
+  eventId: string,
+  volunteerId: string
+): Promise<void> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}`);
+    await set(eventRef, null);
+  } catch (error: any) {
+    throw new Error(
+      'Error removing volunteer from event: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
 
-export { Event, subscribeToEvents, createEvent, sendEventOperation };
+export { Event, subscribeToEvents,createEvent,addVolunteerToEvent,removeVolunteerFromEvent, sendEventOperation };

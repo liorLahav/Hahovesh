@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { update } from "firebase/database";
 import { Pressable, ScrollView, View,Text } from "react-native";
 import { useEventContext } from "@/hooks/EventContext";
+import { removeVolunteerFromEvent } from "@/services/events";
 
 
 const user = "Sy79iRZBzqaUey6elxmT";
@@ -23,6 +24,9 @@ const ButtonsPanel = () => {
     const CancelEvent = () => {
         updateUserStatus(user,"OnCall")
             .then(() => {
+                removeVolunteerFromEvent(event.id, user).then(() => {
+                    console.log("Volunteer removed from event successfully");
+                });
                 console.log("User status updated successfully");
             })
             .catch((error) => {
