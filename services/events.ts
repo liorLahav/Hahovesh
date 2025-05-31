@@ -21,6 +21,18 @@ type Event = {
   id : string;
 };
 
+export type OperationPayload = {
+  option: string;
+  text: string | null;
+  timestamp: number;
+};
+
+
+export type VolunteerEntry = {
+  volunteerId: string;
+  joinedAt: number;
+};
+
 const subscribeToEvents = (
   callback: (events: any[] | null, error?: Error) => void
 ) => {
@@ -98,6 +110,26 @@ const createEvent = async (
   }
 };
 
+const sendEventOperation = async (
+  eventId: string,
+  payload: OperationPayload
+): Promise<void> => {
+  try {
+    const opsRef = ref(realtimeDb, `events/${eventId}/operations`);
+    const newOpRef = push(opsRef);
+    await set(newOpRef, {
+      ...payload,
+      createdAt: serverTimestamp(),
+    });
+  } catch (error: any) {
+    throw new Error(
+      "Error sending event operation: " +
+        (error.message || JSON.stringify(error))
+    );
+  }
+};
+
+
 const addVolunteerToEvent = async (
   eventId: string,
   volunteerId: string
@@ -126,4 +158,20 @@ const removeVolunteerFromEvent = async (
   }
 }
 
-export { Event, subscribeToEvents,createEvent,addVolunteerToEvent,removeVolunteerFromEvent };
+const sortVolunteersByJoinTime = (
+  volunteersObj?: Record<string, VolunteerEntry> | null
+): VolunteerEntry[] => {
+  if (!volunteersObj) return [];
+  return Object.values(volunteersObj).sort(
+    (a, b) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0)
+  );
+};
+
+const getFirstVolunteerId = (
+  volunteersObj?: Record<string, VolunteerEntry> | null
+): string | null => {
+  const sorted = sortVolunteersByJoinTime(volunteersObj);
+  return sorted.length ? sorted[0].volunteerId : null;
+};
+
+export { Event, subscribeToEvents,createEvent,addVolunteerToEvent,removeVolunteerFromEvent, sendEventOperation, getFirstVolunteerId };
