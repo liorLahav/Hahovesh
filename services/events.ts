@@ -28,11 +28,6 @@ export type OperationPayload = {
 };
 
 
-export type VolunteerEntry = {
-  volunteerId: string;
-  joinedAt: number;
-};
-
 const subscribeToEvents = (
   callback: (events: any[] | null, error?: Error) => void
 ) => {
@@ -158,20 +153,4 @@ const removeVolunteerFromEvent = async (
   }
 }
 
-const sortVolunteersByJoinTime = (
-  volunteersObj?: Record<string, VolunteerEntry> | null
-): VolunteerEntry[] => {
-  if (!volunteersObj) return [];
-  return Object.values(volunteersObj).sort(
-    (a, b) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0)
-  );
-};
-
-const getFirstVolunteerId = (
-  volunteersObj?: Record<string, VolunteerEntry> | null
-): string | null => {
-  const sorted = sortVolunteersByJoinTime(volunteersObj);
-  return sorted.length ? sorted[0].volunteerId : null;
-};
-
-export { Event, subscribeToEvents,createEvent,addVolunteerToEvent,removeVolunteerFromEvent, sendEventOperation, getFirstVolunteerId };
+export { Event, subscribeToEvents,createEvent,addVolunteerToEvent,removeVolunteerFromEvent, sendEventOperation };
