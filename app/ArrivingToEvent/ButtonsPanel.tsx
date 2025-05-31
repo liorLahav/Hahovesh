@@ -19,7 +19,7 @@ const ButtonsPanel = () => {
             .catch((error) => {
                 console.error("Error updating user status:", error);
             });
-            router.push("/eventOperation/EventOperation");
+            router.push("/eventOperation");
     }
     const CancelEvent = () => {
         updateUserStatus(user,"OnCall")
