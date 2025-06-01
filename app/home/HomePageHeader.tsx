@@ -36,7 +36,7 @@ export default function HomePageHeader() {
 
         <View className="flex-row justify-end gap-4 items-center">
           <Pressable
-            onPress={() => router.push("/home")}
+            onPress={() => router.push(("/messages") as any)}
             className="p-3"
           >
             {/*unreadCount prop should be dynamic (fix later) */}
