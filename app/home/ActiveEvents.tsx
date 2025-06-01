@@ -2,7 +2,7 @@ import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRolesContext } from "@/hooks/RolesContext";
 import { useEffect, useState, useRef } from "react";
 import { router } from "expo-router";
-import { subscribeToEvents, Event } from "@/services/events";
+import { subscribeToEvents, Event, addVolunteerToEvent } from "@/services/events";
 import { updateUserStatus } from "@/services/users";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEventContext } from "@/hooks/EventContext";
@@ -29,12 +29,19 @@ export default function ActiveEvents(props: ActiveEventsProps) {
     updateUserStatus(user, "Arriving : " + event.id)
       .then(() => {
         console.log("User status updated successfully");
+        addVolunteerToEvent(event.id, user)
+          .then(() => {
+            console.log("Volunteer added to event successfully");
+          })
       })
       .catch((error) => {
         console.error("Error updating user status:", error);
       });
+
     changeEvent(event);
   };
+
+
 
   // Subscribe only once when component mounts
   useEffect(() => {

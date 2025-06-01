@@ -11,7 +11,7 @@ import {
 } from "firebase/database";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type Event = {
+export type Event = {
   anamnesis?: string;
   apartment_details?: string;
   createdAt: number;
@@ -33,7 +33,7 @@ type Event = {
   canceledAt?: number;
 };
 
-const deleteEvent = async (eventId: string) => {
+export const deleteEvent = async (eventId: string) => {
   try {
     const eventRef = ref(realtimeDb, `events/${eventId}`);
     await remove(eventRef);
@@ -46,12 +46,12 @@ const deleteEvent = async (eventId: string) => {
   }
 };
 
-const updateEvent = async (eventId: string, updatedEvent: Event) => {
+export const updateEvent = async (eventId: string, updatedEvent: Event) => {
   const eventRef = ref(realtimeDb, `events/${eventId}`);
   await set(eventRef, updatedEvent);
 };
 
-const subscribeToEvents = (
+export const subscribeToEvents = (
   callback: (events: any[] | null, error?: Error) => void
 ) => {
   const eventsRef = ref(realtimeDb, "events");
@@ -125,7 +125,7 @@ export const subscribeToEventsById = (
   return unsubscribe;
 };
 
-const createEvent = async (
+export const createEvent = async (
   values: Record<string, string>,
   onReset: () => void
 ): Promise<void> => {
@@ -149,4 +149,31 @@ const createEvent = async (
   }
 };
 
-export { Event, subscribeToEvents, createEvent, deleteEvent, updateEvent };
+
+export const addVolunteerToEvent = async (
+  eventId: string,
+  volunteerId: string
+): Promise<void> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}`);
+    await set(eventRef, { volunteerId, joinedAt: serverTimestamp() });
+  } catch (error: any) {
+    throw new Error(
+      'Error adding volunteer to event: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
+
+export const removeVolunteerFromEvent = async (
+  eventId: string,
+  volunteerId: string
+): Promise<void> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}`);
+    await set(eventRef, null);
+  } catch (error: any) {
+    throw new Error(
+      'Error removing volunteer from event: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
