@@ -5,6 +5,7 @@ import formSchema from '../../data/formSchema';
 import DynamicForm from '../../components/DynamicForm';
 import { useState } from 'react';
 import { createEvent } from '@/services/events';
+import {router} from 'expo-router';
 
 import HomePageHeader from "../home/HomePageHeader";
 
