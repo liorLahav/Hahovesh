@@ -32,7 +32,7 @@ export default function MessagesScreen() {
 
   const getVisibleMessages = () => {
     if (roles.includes("Admin")) {
-      return messages; // Admin sees all messages
+      return messages; 
     } else if (roles.includes("Dispatcher")) {
       return messages.filter(
         (msg) =>

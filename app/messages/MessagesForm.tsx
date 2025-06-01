@@ -6,7 +6,13 @@ import {
   TextInput,
   Pressable,
   Alert,
+  Keyboard,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useState } from "react";
 import { MessageField } from "@/services/MessagesSchema";
@@ -68,58 +74,69 @@ export default function MessagesForm() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <MessagesHeader />
-      <View className="flex-1 bg-white">
-        <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
-          <Text
-            className="text-3xl text-white tracking-wide"
-            style={{ fontFamily: "Assistant-Bold" }}
-          >
-            שליחת הודעה
-          </Text>
-          <View className="w-16 h-1 bg-white mt-2 rounded-full" />
-        </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      className="flex-1"
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView className="flex-1 bg-white">
+          <StatusBar barStyle="dark-content" />
 
-        <View className="px-5 pt-5">
-          {messageFormSchema.map((field) => (
-            <View key={field.key} className="mb-4">
-              <Text className="text-lg font-bold mb-2">{field.label}</Text>
-              {renderField(field)}
+          <View className="flex-1 bg-white">
+            <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
+              <Text
+                className="text-3xl text-white tracking-wide"
+                style={{ fontFamily: "Assistant-Bold" }}
+              >
+                שליחת הודעה
+              </Text>
+              <View className="w-16 h-1 bg-white mt-2 rounded-full" />
+              <Ionicons name="arrow-back" size={24} color="#000" />
             </View>
-          ))}
 
-          <View className="mb-4 z-50">
-            <DropDownPicker
-              open={open}
-              value={value}
-              items={items}
-              setOpen={setOpen}
-              setValue={setValue}
-              setItems={setItems}
-              placeholder="בחר תפקיד"
-              style={{ height: 50 }}
-              dropDownContainerStyle={{ zIndex: 1000 }}
-              zIndex={1000}
-              onChangeValue={(val) => {
-                setForm({ ...form, distribution_by_role: val });
-              }}
-            />
+            <View className="px-5 pt-5">
+              {messageFormSchema.map((field) => (
+                <View key={field.key} className="mb-4">
+                  <Text className="text-lg font-bold mb-2 text-right">
+                    {field.label}
+                  </Text>
+                  {renderField(field)}
+                </View>
+              ))}
+
+              <View className="mb-4 z-50">
+                <DropDownPicker
+                  open={open}
+                  value={value}
+                  items={items}
+                  setOpen={setOpen}
+                  setValue={setValue}
+                  setItems={setItems}
+                  placeholder="בחר תפקיד"
+                  style={{ height: 50 }}
+                  dropDownContainerStyle={{ zIndex: 1000 }}
+                  zIndex={1000}
+                  onChangeValue={(val) => {
+                    setForm({ ...form, distribution_by_role: val ?? "" });
+                  }}
+                />
+              </View>
+
+              <Pressable
+                onPress={onSubmit}
+                disabled={isSubmitting}
+                className={`mx-5 my-6 py-3 rounded-full items-center ${
+                  isSubmitting ? "bg-gray-400" : "bg-green-600"
+                }`}
+              >
+                <Text className="text-white font-bold text-lg">
+                  {isSubmitting ? "שולח..." : "שלח הודעה"}
+                </Text>
+              </Pressable>
+            </View>
           </View>
-
-          <Pressable
-            onPress={onSubmit}
-            disabled={isSubmitting}
-            className={`mx-5 my-6 py-3 rounded-full items-center ${
-              isSubmitting ? "bg-gray-400" : "bg-green-600"
-            }`}
-          >
-            <Text className="text-white font-bold text-lg">
-              {isSubmitting ? "שולח..." : "שלח הודעה"}
-            </Text>
-          </Pressable>
-        </View>
-      </View>
-    </SafeAreaView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
