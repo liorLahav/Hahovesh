@@ -1,16 +1,13 @@
 import { View, Text, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
-import {
-  subscribeToMessages,
-  Message,
-  markMessagesAsRead,
-} from "@/services/messages";
+import { markMessagesAsRead } from "@/services/messages";
 import { useRolesContext } from "@/hooks/RolesContext";
 import { useMessages } from "@/hooks/MessagesContext";
+import { deleteAllMessages } from "@/services/messages";
 
 export default function MessagesScreen() {
   const { roles, rolesLoading } = useRolesContext();
-  const messages = useMessages();
+  const { messages, loadingMessages } = useMessages();
 
   const userId = "abc";
 
@@ -20,9 +17,9 @@ export default function MessagesScreen() {
     }
   }, [userId, messages]);
 
-  if (rolesLoading) {
+  if (rolesLoading || loadingMessages) {
     return (
-      <View className="flex-1 items-center justify-center">
+      <View className="flex-1 items-center justify-center text-bold text-lg">
         <Text>טוען...</Text>
       </View>
     );

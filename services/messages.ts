@@ -12,7 +12,9 @@ export type Message = {
   read_by?: { [userId: string]: boolean };
 };
 
-const sendMessageToDB = async (messageData: { [key: string]: string }) => {
+export const sendMessageToDB = async (messageData: {
+  [key: string]: string;
+}) => {
   const now = new Date();
   const date = now.toLocaleDateString("he-IL");
   const time = now.toLocaleTimeString("he-IL", {
@@ -36,7 +38,7 @@ const sendMessageToDB = async (messageData: { [key: string]: string }) => {
   await set(newMessageRef, fullMessage);
 };
 
-const subscribeToMessages = (
+export const subscribeToMessages = (
   callback: (messages: Message[] | null, error?: Error) => void
 ) => {
   const messagesRef = ref(realtimeDb, "messages");
@@ -70,7 +72,7 @@ const subscribeToMessages = (
   return unsubscribe;
 };
 
-const deleteMessage = async (messageId: string) => {
+export const deleteMessage = async (messageId: string) => {
   try {
     const messageRef = ref(realtimeDb, `messages/${messageId}`);
     await remove(messageRef);
@@ -80,6 +82,20 @@ const deleteMessage = async (messageId: string) => {
       throw new Error(`Failed to delete message: ${error.message}`);
     } else {
       console.error("Unexpected error while deleting message:", error);
+    }
+  }
+};
+
+export const deleteAllMessages = async () => {
+  try {
+    const messagesRef = ref(realtimeDb, `messages`);
+    await remove(messagesRef);
+    console.log("all messages deleted");
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error("Failed to deleted messages");
+    } else {
+      console.error("Unexpected error while deleting messages");
     }
   }
 };
@@ -105,4 +121,3 @@ export const markMessagesAsRead = async (
     await update(ref(realtimeDb), update);
   }
 };
-export { sendMessageToDB, subscribeToMessages, deleteMessage };

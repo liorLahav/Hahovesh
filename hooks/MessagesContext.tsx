@@ -1,4 +1,3 @@
-// context/MessagesContext.tsx
 import {
   createContext,
   useContext,
@@ -8,31 +7,23 @@ import {
 } from "react";
 import { Message, subscribeToMessages } from "@/services/messages";
 
-// 1. יצירת context
-const MessagesContext = createContext<Message[]>([]);
-const MessagesUpdateContext = createContext<() => void>(() => {});
+// טיפוס חדש לאובייקט שנחזיר
+type MessagesContextType = {
+  messages: Message[];
+  loadingMessages: boolean;
+};
 
-// 2. hook לשימוש נוח
+// יצירת context עם ערך ברירת מחדל
+const MessagesContext = createContext<MessagesContextType>({
+  messages: [],
+  loadingMessages: true,
+});
+
 export const useMessages = () => useContext(MessagesContext);
-export const useRefreshMessages = () => useContext(MessagesUpdateContext);
 
-// 3. Provider
 export function MessagesProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
-
-  // הפונקציה תרענן אבל לא תחזיר unsubscribe
-  const refreshMessages = () => {
-    subscribeToMessages((fetchedMessages, error) => {
-      if (error) {
-        console.error("שגיאה בטעינת הודעות:", error);
-        setLoadingMessages(false);
-        return;
-      }
-      setMessages(fetchedMessages || []);
-      setLoadingMessages(false);
-    });
-  };
 
   useEffect(() => {
     const unsubscribe = subscribeToMessages((fetchedMessages, error) => {
@@ -49,11 +40,8 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <MessagesContext.Provider value={messages}>
-      <MessagesUpdateContext.Provider value={refreshMessages}>
-        {children}
-      </MessagesUpdateContext.Provider>
+    <MessagesContext.Provider value={{ messages, loadingMessages }}>
+      {children}
     </MessagesContext.Provider>
   );
 }
-

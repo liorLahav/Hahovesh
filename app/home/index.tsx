@@ -10,10 +10,10 @@ import { useMessages } from "@/hooks/MessagesContext";
 export default function HomePage() {
   const userId = "Sy79iRZBzqaUey6elxmT";
   const { roles, rolesLoading } = useRolesContext();
-  const messages = useMessages();
+  const {messages} = useMessages();
 
   return (
-    
+
     <SafeAreaView className="flex-1 bg-blue-200">
       <HomePageHeader userId={userId} messages={messages} userRoles={roles} />
       <UserStatus userId="Sy79iRZBzqaUey6elxmT" />
