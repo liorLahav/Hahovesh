@@ -1,28 +1,26 @@
-import { SafeAreaView, View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
-import { subscribeToMessages, Message } from "@/services/messages";
+import {
+  subscribeToMessages,
+  Message,
+  markMessagesAsRead,
+} from "@/services/messages";
 import { useRolesContext } from "@/hooks/RolesContext";
+import { useMessages } from "@/hooks/MessagesContext";
 
 export default function MessagesScreen() {
   const { roles, rolesLoading } = useRolesContext();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loadingMessages, setLoadingMessages] = useState(true);
+  const messages = useMessages();
+
+  const userId = "abc";
 
   useEffect(() => {
-    const unsubscribe = subscribeToMessages((fetchedMessages, error) => {
-      if (error) {
-        console.error("שגיאה בטעינת הודעות:", error);
-        setLoadingMessages(false);
-        return;
-      }
-      setMessages(fetchedMessages || []);
-      setLoadingMessages(false);
-    });
+    if (messages.length && userId) {
+      markMessagesAsRead(userId, messages, roles);
+    }
+  }, [userId, messages]);
 
-    return () => unsubscribe();
-  }, []);
-
-  if (rolesLoading || loadingMessages) {
+  if (rolesLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text>טוען...</Text>
@@ -32,7 +30,7 @@ export default function MessagesScreen() {
 
   const getVisibleMessages = () => {
     if (roles.includes("Admin")) {
-      return messages; 
+      return messages;
     } else if (roles.includes("Dispatcher")) {
       return messages.filter(
         (msg) =>
@@ -75,6 +73,8 @@ export default function MessagesScreen() {
                 ? "[מוקדן]"
                 : msg.distribution_by_role === "Admin"
                 ? "[מנהל]"
+                : msg.distribution_by_role === "Volunteers"
+                ? "[חובשים]"
                 : null}
             </Text>
 

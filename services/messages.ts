@@ -1,5 +1,6 @@
-import { ref, push, set, onValue, remove } from "firebase/database";
+import { ref, push, set, onValue, remove, update } from "firebase/database";
 import { realtimeDb } from "@/FirebaseConfig";
+import { userHasRoles } from "./userHasRoles";
 
 export type Message = {
   message_id: string;
@@ -8,6 +9,7 @@ export type Message = {
   date: string;
   time: string;
   sender_id: string;
+  read_by?: { [userId: string]: boolean };
 };
 
 const sendMessageToDB = async (messageData: { [key: string]: string }) => {
@@ -27,6 +29,7 @@ const sendMessageToDB = async (messageData: { [key: string]: string }) => {
     time,
     sender_id: "admin123", // replace with actual sender ID
     message_id: newMessageRef.key,
+    // read_by: {},
   };
   console.log("fullMessage:", fullMessage);
 
@@ -78,6 +81,28 @@ const deleteMessage = async (messageId: string) => {
     } else {
       console.error("Unexpected error while deleting message:", error);
     }
+  }
+};
+
+export const markMessagesAsRead = async (
+  userId: string,
+  messages: Message[],
+  userRoles: string[]
+) => {
+  const updates: Record<string, any> = {};
+
+  messages.forEach((msg) => {
+    const shouldSee =
+      msg.distribution_by_role === "All" ||
+      userHasRoles(userRoles, msg.distribution_by_role);
+
+    if (shouldSee && msg.read_by?.[userId]) {
+      updates[`messages/${msg.message_id}/read_by/${userId}`] = true;
+    }
+  });
+
+  if (Object.keys(updates).length > 0) {
+    await update(ref(realtimeDb), update);
   }
 };
 export { sendMessageToDB, subscribeToMessages, deleteMessage };

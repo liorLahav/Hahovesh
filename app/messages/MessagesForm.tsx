@@ -23,7 +23,7 @@ import MessagesHeader from "./MessagesHeader";
 export default function MessagesForm() {
   const [form, setForm] = useState<{ [key: string]: string }>({
     // message_description: "",
-    distribution_by_role: "",
+    distribution_by_role: "All",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
