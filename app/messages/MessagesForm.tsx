@@ -19,6 +19,8 @@ import { MessageField } from "@/data/MessagesSchema";
 import { sendMessageToDB } from "@/services/messages";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MessagesHeader from "./MessagesHeader";
+import { router } from "expo-router";
+import MessagesFormHeader from "./MessagesFormHeader";
 
 export default function MessagesForm() {
   const [form, setForm] = useState<{ [key: string]: string }>({
@@ -83,16 +85,7 @@ export default function MessagesForm() {
           <StatusBar barStyle="dark-content" />
 
           <View className="flex-1 bg-white">
-            <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
-              <Text
-                className="text-3xl text-white tracking-wide"
-                style={{ fontFamily: "Assistant-Bold" }}
-              >
-                שליחת הודעה
-              </Text>
-              <View className="w-16 h-1 bg-white mt-2 rounded-full" />
-              <Ionicons name="arrow-back" size={24} color="#000" />
-            </View>
+            <MessagesFormHeader />
 
             <View className="px-5 pt-5">
               {messageFormSchema.map((field) => (

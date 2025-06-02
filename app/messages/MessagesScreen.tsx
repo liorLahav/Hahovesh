@@ -8,30 +8,14 @@ import {
 import { useRolesContext } from "@/hooks/RolesContext";
 import { useMessages } from "@/hooks/MessagesContext";
 import { StatusBar } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
-
+import DeleteMessageButton from "./DeleteMessageButton";
+import DeleteAllMessagesButton from "./DeleteAllMessagesButton";
 export default function MessagesScreen() {
   const { roles, rolesLoading } = useRolesContext();
   const { messages, loadingMessages } = useMessages();
   const isFocused = useIsFocused();
   const userId = "Sy79iRZBzqaUey6elxmT";
-
-  const handleDeleteMessage = async (msgId: string) => {
-    try {
-      await deleteMessage(msgId);
-    } catch (err) {
-      console.error("שגיאה במחיקת הודעה:", err);
-    }
-  };
-
-  const handleDeleteAllMessages = async () => {
-    try {
-      await deleteAllMessages();
-    } catch (err) {
-      console.error("שגיאה במחיקת ההודעות:", err);
-    }
-  };
 
   useEffect(() => {
     if (isFocused && messages.length && userId) {
@@ -91,26 +75,7 @@ export default function MessagesScreen() {
                 }`}
               >
                 {roles.includes("Admin") && (
-                  <Pressable
-                    onPress={() => {
-                      Alert.alert(
-                        "האם אתה בטוח?",
-                        "לאחר המחיקה לא תוכל לשחזר הודעה",
-                        [
-                          {
-                            text: "ביטול",
-                            style: "cancel",
-                          },
-                          {
-                            text: "אישור",
-                            onPress: () => handleDeleteMessage(msg.message_id),
-                          },
-                        ]
-                      );
-                    }}
-                  >
-                    <Ionicons name="trash-outline" size={22} color="red" />
-                  </Pressable>
+                  <DeleteMessageButton msgId={msg.message_id} />
                 )}
 
                 <Text className="text-right text-sm text-gray-500 mb-1">
@@ -138,14 +103,7 @@ export default function MessagesScreen() {
         )}
 
         {messages.length >= 2 && roles.includes("Admin") && (
-          <Pressable
-            className="p-3 rounded-full shadow-md h-[40px] w-full bg-red-600 "
-            onPress={handleDeleteAllMessages}
-          >
-            <Text className="text-white font-bold text-base text-center">
-              מחיקת כל ההודעות
-            </Text>
-          </Pressable>
+          <DeleteAllMessagesButton />
         )}
       </ScrollView>
     </>

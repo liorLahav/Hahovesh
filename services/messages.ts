@@ -49,13 +49,30 @@ export const subscribeToMessages = (
       try {
         const data = snapshot.val();
         if (data && typeof data === "object") {
-          // ממיר את ה־object לרשימה רגילה + מוסיף את ה־message_id מתוך המפתח
           const messages: Message[] = Object.entries(data).map(
             ([key, value]) => ({
               ...(value as any),
               message_id: key,
             })
           );
+
+          if (messages.length > 30) {
+            const sorted = [...messages].sort((a, b) => {
+              const aDate = new Date(`${a.date} ${a.time}`);
+              const bDate = new Date(`${b.date} ${b.time}`);
+              return aDate.getTime() - bDate.getTime(); // ישנות קודם
+            });
+
+            const messagesToDelete = sorted.slice(0, messages.length - 30);
+
+            messagesToDelete.forEach((msg) => {
+              const msgRef = ref(realtimeDb, `messages/${msg.message_id}`);
+              remove(msgRef).catch((err) =>
+                console.error("שגיאה במחיקת הודעה ישנה:", err)
+              );
+            });
+          }
+
           callback(messages);
         } else {
           callback([]);
