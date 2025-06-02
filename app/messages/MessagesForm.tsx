@@ -1,4 +1,4 @@
-import messageFormSchema from "@/services/MessagesSchema";
+import messageFormSchema from "@/data/MessagesSchema";
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useState } from "react";
-import { MessageField } from "@/services/MessagesSchema";
+import { MessageField } from "@/data/MessagesSchema";
 import { sendMessageToDB } from "@/services/messages";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MessagesHeader from "./MessagesHeader";
