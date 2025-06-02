@@ -87,7 +87,7 @@ export default function OperationEvent() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-        <Text className="text-3xl text-blue-800 font-bold mb-4">
+        <Text className="text-3xl text-blue-800 font-bold mb-4 items-center text-right">
           מה הצורך שלך?
         </Text>
 
