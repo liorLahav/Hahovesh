@@ -112,12 +112,12 @@ export const markMessagesAsRead = async (
       msg.distribution_by_role === "All" ||
       userHasRoles(userRoles, msg.distribution_by_role);
 
-    if (shouldSee && msg.read_by?.[userId]) {
+    if (shouldSee && !msg.read_by?.[userId]) {
       updates[`messages/${msg.message_id}/read_by/${userId}`] = true;
     }
   });
 
   if (Object.keys(updates).length > 0) {
-    await update(ref(realtimeDb), update);
+    await update(ref(realtimeDb), updates);
   }
 };

@@ -1,19 +1,21 @@
 import { View, Text, ScrollView, Pressable, Alert } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
+  deleteAllMessages,
   deleteMessage,
   markMessagesAsRead,
-  Message,
 } from "@/services/messages";
 import { useRolesContext } from "@/hooks/RolesContext";
 import { useMessages } from "@/hooks/MessagesContext";
 import { StatusBar } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function MessagesScreen() {
   const { roles, rolesLoading } = useRolesContext();
   const { messages, loadingMessages } = useMessages();
-  const userId = "abc";
+  const isFocused = useIsFocused();
+  const userId = "Sy79iRZBzqaUey6elxmT";
 
   const handleDeleteMessage = async (msgId: string) => {
     try {
@@ -23,11 +25,19 @@ export default function MessagesScreen() {
     }
   };
 
+  const handleDeleteAllMessages = async () => {
+    try {
+      await deleteAllMessages();
+    } catch (err) {
+      console.error("שגיאה במחיקת ההודעות:", err);
+    }
+  };
+
   useEffect(() => {
-    if (messages.length && userId) {
+    if (isFocused && messages.length && userId) {
       markMessagesAsRead(userId, messages, roles);
     }
-  }, [userId, messages]);
+  }, [isFocused, userId, messages]);
 
   if (rolesLoading || loadingMessages) {
     return (
@@ -60,38 +70,48 @@ export default function MessagesScreen() {
   return (
     <>
       <StatusBar backgroundColor="black" />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 80 }}>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, padding: 16, paddingBottom: 80 }}
+      >
         {visibleMessages.length === 0 ? (
-          <Text className="text-center text-blue-700 text-lg mt-8">
-            אין הודעות להצגה
-          </Text>
+          <View className="flex-1 justify-center items-center">
+            <Text className=" text-black text-2xl text-blur ">
+              אין הודעות להצגה
+            </Text>
+          </View>
         ) : (
           visibleMessages.reverse().map((msg) => (
             <View
               key={msg.message_id}
               className="mb-6 bg-blue-50 p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col "
             >
-              <View className="flex flex-row justify-between items-center mb-1">
-                <Pressable
-                  onPress={() => {
-                    Alert.alert(
-                      "האם אתה בטוח?",
-                      "לאחר המחיקה לא תוכל לשחזר הודעה",
-                      [
-                        {
-                          text: "ביטול",
-                          style: "cancel",
-                        },
-                        {
-                          text: "אישור",
-                          onPress: () => handleDeleteMessage(msg.message_id),
-                        },
-                      ]
-                    );
-                  }}
-                >
-                  <Ionicons name="trash-outline" size={22} color="red" />
-                </Pressable>
+              <View
+                className={`flex justify-between mb-1 ${
+                  roles.includes("Admin") ? "flex-row items-center" : null
+                }`}
+              >
+                {roles.includes("Admin") && (
+                  <Pressable
+                    onPress={() => {
+                      Alert.alert(
+                        "האם אתה בטוח?",
+                        "לאחר המחיקה לא תוכל לשחזר הודעה",
+                        [
+                          {
+                            text: "ביטול",
+                            style: "cancel",
+                          },
+                          {
+                            text: "אישור",
+                            onPress: () => handleDeleteMessage(msg.message_id),
+                          },
+                        ]
+                      );
+                    }}
+                  >
+                    <Ionicons name="trash-outline" size={22} color="red" />
+                  </Pressable>
+                )}
 
                 <Text className="text-right text-sm text-gray-500 mb-1">
                   {msg.date} {msg.time}
@@ -115,6 +135,17 @@ export default function MessagesScreen() {
               </Text>
             </View>
           ))
+        )}
+
+        {messages.length >= 2 && roles.includes("Admin") && (
+          <Pressable
+            className="p-3 rounded-full shadow-md h-[40px] w-full bg-red-600 "
+            onPress={handleDeleteAllMessages}
+          >
+            <Text className="text-white font-bold text-base text-center">
+              מחיקת כל ההודעות
+            </Text>
+          </Pressable>
         )}
       </ScrollView>
     </>
