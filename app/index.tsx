@@ -14,5 +14,5 @@ export default function App() {
     return <Text>טוען...</Text>;
   }
 
-  return <Register />;
+  return <HomePage />;
 }
