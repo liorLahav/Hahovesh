@@ -1,17 +1,19 @@
 /**
  * @file AppDrawer.tsx
- * @description This file defines the AppDrawer component, which is a custom drawer navigator for the application.
- * It uses the Expo Router's Drawer component to create a side menu for navigation.
- * The drawer content is customized using the DrawerContent component, which is passed the user's role.
+ * @description Custom drawer navigator that locks itself while an event is active.
  */
 
+import React, { useEffect } from "react";
+import { DrawerActions, useNavigation } from "@react-navigation/native";
 import { Drawer } from "expo-router/drawer";
 import DrawerContent from "./DrawerContent";
 import { View, Text } from "react-native";
 import { useRolesContext } from "@/hooks/RolesContext";
+import { useEventContext } from "@/hooks/EventContext";
 
 export default function AppDrawer() {
   const { roles, rolesLoading } = useRolesContext();
+  const { isEventActive } = useEventContext();
 
   if (rolesLoading) {
     return (
@@ -23,13 +25,15 @@ export default function AppDrawer() {
 
   return (
     <Drawer
+      /* תוכן המגירה המותאם */
       drawerContent={(props) => (
         <DrawerContent {...props} userRole={roles ?? []} />
       )}
       screenOptions={{
         headerShown: false,
         drawerPosition: "right",
+        swipeEnabled: !isEventActive,    
       }}
-    ></Drawer>
+    />
   );
 }

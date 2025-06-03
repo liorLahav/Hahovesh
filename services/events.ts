@@ -137,7 +137,7 @@ export const createEvent = async (
       id,
       ...values,
       isActive: true,
-      createdAt: new Date().toISOString(), // ← שומר תאריך מלא כמו "2025-05-28T14:05:00.000Z"
+      createdAt: new Date().toISOString(),
     });
 
     onReset();
