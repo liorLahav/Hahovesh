@@ -50,7 +50,7 @@ export default function Register() {
             className="mt-8 py-2"
             onPress={() => router.back()}
           >
-            <Text className="text-gray-500 text-base">חזרה לדף הבית</Text>
+            <Text className="text-gray-500 text-base"> עבור להתחברות </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

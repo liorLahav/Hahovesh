@@ -3,7 +3,7 @@ import { View, Alert } from "react-native";
 import registerSchema from "../../data/registerSchema";
 import FormInput from "./FormInput";
 import SubmitButton from "./SubmitButton";
-import { registerVolunteer } from "../../services/register";
+import { createUser } from "@/services/users";
 
 type RegisterFormProps = {
   onSuccess: () => void;
@@ -94,7 +94,7 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
     setIsLoading(true);
 
     try {
-      const result = await registerVolunteer(formValues);
+      const result = await createUser(formValues);
 
       if (!result.success) {
         if (result.conflict === "id") {
