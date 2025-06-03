@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, StatusBar } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { subscribeToEvents, Event, updateEvent } from "@/services/events";
@@ -7,7 +7,7 @@ import { useRolesContext } from "@/hooks/RolesContext";
 import DetailsHeader from "./DetailsHeader";
 import EditableDetailRow from "./EditableDetailRow";
 import EditModal from "./EditModal";
-import { CancelEventButton } from "./CancelEventButton";
+import CancelEventButton from "./CancelEventButton";
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
   const [event, setEvent] = useState<Event | null>(null);
@@ -101,6 +101,8 @@ export default function EventDetails() {
   return (
     <SafeAreaView className="flex-1 bg-grey-200">
       <DetailsHeader />
+              <StatusBar barStyle="dark-content" />
+      
       <ScrollView
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
         className=" bg-blue-50"
