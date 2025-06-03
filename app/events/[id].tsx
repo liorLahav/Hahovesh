@@ -136,7 +136,7 @@ export default function EventDetails() {
                 <Pressable
                   onPress={() => {
                     setFieldToEdit(detail.key);
-                    setEditedValue(detail.value || "");
+                    setEditedValue(String(detail.value ?? ""));
                     setFieldLabel(detail.label);
                     setEditModalVisible(true);
                   }}
@@ -160,7 +160,7 @@ export default function EventDetails() {
                 {
                   event.id && deleteEvent(event.id);
                 }
-                router.push("/home/HomePage");
+                router.push("/home");
               }}
             >
               <Text className="text-white font-bold text-base text-center">
