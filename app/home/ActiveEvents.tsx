@@ -97,7 +97,7 @@ export default function ActiveEvents() {
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <Pressable
             className="absolute right-3 top-5 bg-red-600 px-4 py-3 rounded-full shadow-md h-[40px]"
-            onPress={() => router.push("/newEvent/NewEvent")}
+            onPress={() => router.push("/newEvent")}
           >
             <Text className="text-white font-bold text-base">אירוע חדש</Text>
           </Pressable>
