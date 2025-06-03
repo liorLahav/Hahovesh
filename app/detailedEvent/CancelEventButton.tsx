@@ -6,7 +6,7 @@ type Props = {
   event: Event;
 };
 
-export const CancelEventButton = ({ event }: Props) => {
+export default function CancelEventButton({ event }: Props) {
   const handleCancel = async () => {
     if (event.id) {
       try {
