@@ -10,11 +10,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import { useEventContext } from "@/hooks/EventContext";
-import { sendEventOperation } from "@/services/events";
+import { sendMessageToDB } from "@/services/messages";
 import { router } from "expo-router";
 
 // Hard-coded for now; replace with real auth later
-const currentUserId = "Sy79iRZBzqaUey6elxmM";
+const currentUserId = "Sy79iRZBzqaUey6elxmT";
 
 
 export default function OperationEvent() {
@@ -32,12 +32,14 @@ export default function OperationEvent() {
       Alert.alert("יש לבחור אופציה", "שגיאה");
       return;
     }
-    try {
-      await sendEventOperation(eventId, {
-        option: selectedOption,
-        text: selectedOption === "אחר" ? otherText : null,
-        timestamp: Date.now(),
+     try {
+      const description = `לאירוע -  ${eventTitle} צריך : ${selectedOption === "אחר" ? otherText : selectedOption}`;
+
+      await sendMessageToDB({
+        message_description: description,
+        distribution_by_role: "All", 
       });
+
       Alert.alert("הבקשה נשלחה");
       setSelectedOption("");
       setOtherText("");
