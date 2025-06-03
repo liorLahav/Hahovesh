@@ -22,7 +22,7 @@ const ButtonsPanel = () => {
             router.push("/eventOperation");
     }
     const CancelEvent = () => {
-        updateUserStatus(user,"OnCall")
+        updateUserStatus(user,"available")
             .then(() => {
                 removeVolunteerFromEvent(event.id, user).then(() => {
                     console.log("Volunteer removed from event successfully");

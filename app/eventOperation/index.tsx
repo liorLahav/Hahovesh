@@ -33,7 +33,7 @@ export default function OperationEvent() {
       return;
     }
      try {
-      const description = `לאירוע -  ${eventTitle} צריך : ${selectedOption === "אחר" ? otherText : selectedOption}`;
+      const description = `לאירוע -  ${eventTitle} צריך : ${selectedOption === "אחר" ? otherText : selectedOption.slice(7)}`;
 
       await sendMessageToDB({
         message_description: description,
