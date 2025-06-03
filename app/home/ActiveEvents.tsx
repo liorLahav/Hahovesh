@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEventContext } from "@/hooks/EventContext";
 import { useOnlineContext } from "@/hooks/OnlineContext";
 import { useUserContext } from "@/hooks/UserContext";
+import Loading from "@/components/Loading";
 
 
 
@@ -76,9 +77,7 @@ export default function ActiveEvents() {
 
   if (userLoading || loadingEvents) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>טוען...</Text>
-      </View>
+      <Loading/>
     );
   }
 

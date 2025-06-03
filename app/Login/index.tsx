@@ -123,16 +123,15 @@ const Login = () => {
       console.log("User data:", result);
       console.log()
       const userData = result.user;
-      changeUser(userData.phoneNumber);
+      console.log("User data:", userData);
+      changeUser(userData.user.phoneNumber);
 
       // Show success message
       setLoginStatus("התחברות הצליחה!");
       setWelcomeName(userData.first_name);
-      setIsLoading(false);
       // Navigate to home after a short delay
-      setTimeout(() => {
-        router.push('/home');
-      }, 1500);
+      router.replace('/home');
+      setIsLoading(false);
     } catch (err) {
       console.error("שגיאת אימות:", err);
       setVerificationError("שגיאה באימות הקוד. אנא נסה שוב.");

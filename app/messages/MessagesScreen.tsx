@@ -11,6 +11,7 @@ import { useIsFocused } from "@react-navigation/native";
 import DeleteMessageButton from "./DeleteMessageButton";
 import DeleteAllMessagesButton from "./DeleteAllMessagesButton";
 import { useUserContext } from "@/hooks/UserContext";
+import Loading from "@/components/Loading";
 export default function MessagesScreen() {
   const {user, userLoading} = useUserContext();
 
@@ -27,9 +28,7 @@ export default function MessagesScreen() {
 
   if (userLoading || loadingMessages) {
     return (
-      <View className="flex-1 items-center justify-center text-bold text-lg">
-        <Text>טוען...</Text>
-      </View>
+      <Loading/>
     );
   }
 

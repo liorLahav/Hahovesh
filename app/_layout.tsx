@@ -1,34 +1,54 @@
-/**
- * @fileoverview This file is the root layout for the application.
- * It wraps the entire application in a context provider for user roles and includes the AppDrawer component.
- * need to include common components
- */
-
 import "../global.css";
 import { useEffect } from "react";
-import { Linking } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
-import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
+import { useRouter, useSegments } from "expo-router";
 
 import { EventProvider } from "@/hooks/EventContext";
 import { OnlineProvider } from "@/hooks/OnlineContext";
 import AppDrawer from "./sideBar/AppDrawer";
 import { MessagesProvider } from "@/hooks/MessagesContext";
-import { UserContext, UserProvider } from "@/hooks/UserContext";
+import { UserProvider, useUserContext } from "@/hooks/UserContext";
+import Loading from "@/components/Loading";
 
-export default function RootLayout() {
+function AppContent() {
   const router = useRouter();
+  const segments = useSegments();
+  const { isAuthenticated, userLoading } = useUserContext();
+
+  // useEffect(() => {
+  //   if (userLoading) return;
+
+  //   const inAuthGroup = segments[0] === "Login";
+  //   console.log("Current segments:", segments);
+  //   console.log("isAuthenticated:", isAuthenticated);
+
+  //   if (!isAuthenticated && !inAuthGroup) {
+  //     console.log("User is not authenticated, redirecting to Login");
+  //     router.replace("/Login");
+  //   }
+
+  //   if (isAuthenticated && inAuthGroup) {
+  //     console.log("User is authenticated, redirecting to Home");
+  //     router.replace("/home");
+  //   }
+  // }, [segments, isAuthenticated, userLoading]);
+
+  //if (userLoading) return <Loading message="טוען פרטי משתמש..." />;
 
   return (
+    <OnlineProvider>
+      <EventProvider>
+        <MessagesProvider>
+          <AppDrawer />
+        </MessagesProvider>
+      </EventProvider>
+    </OnlineProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
     <UserProvider>
-      <OnlineProvider>
-          <EventProvider>
-            <MessagesProvider>
-              <AppDrawer />
-            </MessagesProvider>
-          </EventProvider>
-      </OnlineProvider>
+      <AppContent />
     </UserProvider>
   );
 }

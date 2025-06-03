@@ -3,16 +3,25 @@ import * as Font from "expo-font";
 import { useFonts } from "expo-font";
 import HomePage from "./home";
 import Login from "./Login";
+import Loading from "@/components/Loading";
+import {useRouter } from "expo-router";
+import { useEffect } from "react";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
     Assistant: require("../assets/fonts/Assistant-Regular.ttf"),
     "Assistant-Bold": require("../assets/fonts/Assistant-Bold.ttf"),
   });
+  const router = useRouter();
 
-  if (!fontsLoaded) {
-    return <Text>טוען...</Text>;
-  }
+  
+  // useEffect(() => {
+  //   router.replace("/Login");
+  // }, []);
 
-  return <Login />;
+  // if (!fontsLoaded) {
+  //   return <Loading />;
+  // }
+
+  return <HomePage />;
 }

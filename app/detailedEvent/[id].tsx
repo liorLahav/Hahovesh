@@ -8,6 +8,7 @@ import EditableDetailRow from "./EditableDetailRow";
 import EditModal from "./EditModal";
 import CancelEventButton from "./CancelEventButton";
 import { useUserContext } from "@/hooks/UserContext";
+import Loading from "@/components/Loading";
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
   const [event, setEvent] = useState<Event | null>(null);
@@ -37,9 +38,7 @@ export default function EventDetails() {
 
   if (loading || userLoading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>טוען פרטי אירוע...</Text>
-      </View>
+      <Loading message="טוען פרטי אירוע..." />
     );
   }
   console.log("roles:", user.permissions);

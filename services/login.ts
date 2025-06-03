@@ -1,7 +1,6 @@
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../FirebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../FirebaseConfig";
+import { db,auth } from "../FirebaseConfig";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { User } from "@/hooks/UserContext";
 
 export async function loginWithPhoneAndId(phone: string, identifier: string) {
@@ -38,3 +37,13 @@ export const checkAuthState = (): Promise<null | any> => {
     });
   });
 };
+
+// export const signOutUser = async () => {
+//   try {
+//     await signOut(auth);
+//     console.log("User signed out successfully");
+//   } catch (error) {
+//     console.error("Error signing out:", error);
+//     throw new Error("Error signing out: " + (error?.message || JSON.stringify(error)));
+//   }
+// }

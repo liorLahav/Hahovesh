@@ -9,15 +9,14 @@ import { Drawer } from "expo-router/drawer";
 import DrawerContent from "./DrawerContent";
 import { View, Text } from "react-native";
 import { useUserContext } from "@/hooks/UserContext";
+import Loading from "@/components/Loading";
 
 export default function AppDrawer() {
   const {user, userLoading} = useUserContext();
 
   if (userLoading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>טוען...</Text>
-      </View>
+      <Loading message="טוען פרטי משתמש..." />
     );
   }
 

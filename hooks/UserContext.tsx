@@ -31,7 +31,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             try {
                 const user = await checkAuthState();
                 if (user) {
-                    changeUser(user.phoneNumber);
+                    changeUser("+972528818420");
                     setIsAuthenticated(true);
                 } else {
                     setIsAuthenticated(false);
@@ -47,6 +47,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const changeUser =async (phoneNumber : string) => {
         try{
             setUserLoading(true);
+            console.log("Changing user with phone number:", phoneNumber);
             const userData = await getUserByPhoneNumber(phoneNumber);
             if (userData) {
                 setUser(userData as User);
@@ -66,6 +67,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const refreshUser = async () => {
         try {
             const user = auth.currentUser;
+            console.log("user: ",user);
             if (user) {
                 await changeUser(user.phoneNumber);
             } else {
