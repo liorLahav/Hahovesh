@@ -1,8 +1,17 @@
 import { realtimeDb } from "@/FirebaseConfig";
-import { get, onChildAdded, onValue, push, ref, serverTimestamp, set } from "firebase/database";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  get,
+  onChildAdded,
+  onValue,
+  push,
+  ref,
+  serverTimestamp,
+  set,
+  remove,
+} from "firebase/database";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type Event = {
+export type Event = {
   anamnesis?: string;
   apartment_details?: string;
   createdAt: number;
@@ -18,17 +27,31 @@ type Event = {
   recipient?: string;
   street?: string;
   urgency?: string;
-  id : string;
+  id: string;
+  house_number?: string;
+  isActive?: boolean;
+  canceledAt?: number;
 };
 
-export type OperationPayload = {
-  option: string;
-  text: string | null;
-  timestamp: number;
+export const deleteEvent = async (eventId: string) => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}`);
+    await remove(eventRef);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error("Error deleting event: " + error.message);
+    } else {
+      throw new Error("Unknown error deleting event: " + JSON.stringify(error));
+    }
+  }
 };
 
+export const updateEvent = async (eventId: string, updatedEvent: Event) => {
+  const eventRef = ref(realtimeDb, `events/${eventId}`);
+  await set(eventRef, updatedEvent);
+};
 
-const subscribeToEvents = (
+export const subscribeToEvents = (
   callback: (events: any[] | null, error?: Error) => void
 ) => {
   const eventsRef = ref(realtimeDb, "events");
@@ -39,7 +62,27 @@ const subscribeToEvents = (
       try {
         const data = snapshot.val();
         if (data && typeof data === "object") {
-          callback(Object.values(data));
+          const now = Date.now();
+          const activeEvents: any[] = [];
+
+          for (const [key, value] of Object.entries(data)) {
+            const event = value as any;
+            event.id = key;
+
+            if (
+              event.isActive === false &&
+              event.canceledAt &&
+              now - event.canceledAt > 2 * 60 * 60 * 1000 // change this to > 1000 for debug now its 2 hours 
+            ) {
+              const refToDelete = ref(realtimeDb, `events/${key}`);
+              remove(refToDelete);
+              continue;
+            }
+
+            activeEvents.push(event);
+          }
+
+          callback(activeEvents);
         } else {
           callback([]);
         }
@@ -80,52 +123,34 @@ export const subscribeToEventsById = (
   );
 
   return unsubscribe;
-}
+};
 
-const createEvent = async (
+export const createEvent = async (
   values: Record<string, string>,
   onReset: () => void
 ): Promise<void> => {
   try {
-    const node = push(ref(realtimeDb, 'events'));
+    const node = push(ref(realtimeDb, "events"));
     const id = node.key;
 
     await set(node, {
-      id, 
+      id,
       ...values,
-      createdAt: serverTimestamp(),
+      isActive: true,
+      createdAt: new Date().toISOString(), // ← שומר תאריך מלא כמו "2025-05-28T14:05:00.000Z"
     });
 
     onReset();
     return;
   } catch (error: any) {
     throw new Error(
-      'Error saving event: ' + (error?.message || JSON.stringify(error))
-    );
-  }
-};
-
-const sendEventOperation = async (
-  eventId: string,
-  payload: OperationPayload
-): Promise<void> => {
-  try {
-    const opsRef = ref(realtimeDb, `events/${eventId}/operations`);
-    const newOpRef = push(opsRef);
-    await set(newOpRef, {
-      ...payload,
-      createdAt: serverTimestamp(),
-    });
-  } catch (error: any) {
-    throw new Error(
-      "Error sending event operation: " +
-        (error.message || JSON.stringify(error))
+      "Error saving event: " + (error?.message || JSON.stringify(error))
     );
   }
 };
 
 
-const addVolunteerToEvent = async (
+export const addVolunteerToEvent = async (
   eventId: string,
   volunteerId: string
 ): Promise<void> => {
@@ -139,7 +164,7 @@ const addVolunteerToEvent = async (
   }
 }
 
-const removeVolunteerFromEvent = async (
+export const removeVolunteerFromEvent = async (
   eventId: string,
   volunteerId: string
 ): Promise<void> => {
@@ -152,5 +177,3 @@ const removeVolunteerFromEvent = async (
     );
   }
 }
-
-export { Event, subscribeToEvents,createEvent,addVolunteerToEvent,removeVolunteerFromEvent, sendEventOperation };

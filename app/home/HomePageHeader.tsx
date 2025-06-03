@@ -1,16 +1,24 @@
 import { View, Text, Image, Pressable } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import type { DrawerNavigationProp } from "@react-navigation/drawer";
-import type { ParamListBase } from "@react-navigation/native";
 import NotificationButton from "./NotificationIcon";
-import { useRouter } from "expo-router";
-import logo from "../../assets/images/logo.png"; 
+import logo from "../../assets/images/logo.png";
 import MenuButton from "@/components/navigation/menuButton";
+import { Message } from "@/services/messages";
+import { router } from "expo-router";
+import { userHasRoles } from "@/services/userHasRoles";
 
-export default function HomePageHeader() {
-  const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>(); // Use the navigation prop to open the drawer only (not the router)
-  const router = useRouter();
+type Props = {
+  messages: Message[];
+  userId: string;
+  userRoles: string[];
+};
+
+export default function HomePageHeader({ messages, userId, userRoles }: Props) {
+  const countUnreadMessages = messages.filter(
+    (msg) =>
+      (msg.distribution_by_role === "All" ||
+        userHasRoles(userRoles, msg.distribution_by_role)) &&
+      !msg.read_by?.[userId]
+  ).length;
 
   return (
     <>
@@ -36,11 +44,11 @@ export default function HomePageHeader() {
 
         <View className="flex-row justify-end gap-4 items-center">
           <Pressable
-            onPress={() => router.push("/home")}
+            onPress={() => router.push("/messages" as any)}
             className="p-3"
           >
             {/*unreadCount prop should be dynamic (fix later) */}
-            <NotificationButton unreadCount={11} />
+            <NotificationButton unreadCount={countUnreadMessages} />
           </Pressable>
           <MenuButton />
         </View>

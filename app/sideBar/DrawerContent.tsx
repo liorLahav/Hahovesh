@@ -2,7 +2,7 @@ import { DrawerContentScrollView } from "@react-navigation/drawer";
 import { SafeAreaView, View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import {drawerItems} from "./DrawerRoutes";
+import {drawerItems} from "../../data/DrawerRoutes";
 import type { DrawerContentComponentProps } from "@react-navigation/drawer";
 
 export default function DrawerContent(
