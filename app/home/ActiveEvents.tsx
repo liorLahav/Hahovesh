@@ -1,5 +1,4 @@
 import { View, Text, ScrollView, Pressable } from "react-native";
-import { useRolesContext } from "@/hooks/RolesContext";
 import { useEffect, useState, useRef } from "react";
 import { router } from "expo-router";
 import { subscribeToEvents, Event, addVolunteerToEvent } from "@/services/events";
@@ -7,29 +6,28 @@ import { updateUserStatus } from "@/services/users";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEventContext } from "@/hooks/EventContext";
 import { useOnlineContext } from "@/hooks/OnlineContext";
+import { useUserContext } from "@/hooks/UserContext";
 
-type ActiveEventsProps = {
-  userId: string;
-};
 
-export default function ActiveEvents(props: ActiveEventsProps) {
-  const { roles, rolesLoading } = useRolesContext();
+
+export default function ActiveEvents() {
+  const { user, userLoading } = useUserContext();
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
-  const user = "Sy79iRZBzqaUey6elxmT";
   const unsubscribeRef = useRef<() => void | null>(null);
   const { event, isEventActive, changeEvent } = useEventContext();
   const { isOnline } = useOnlineContext();
+  const roles = user.permissions || [];
 
   const receiveEvent = (event: Event) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
     console.log("Changing user status to Arriving for event ID:", event.id);
-    updateUserStatus(user, "Arriving : " + event.id)
+    updateUserStatus(user.id, "Arriving : " + event.id)
       .then(() => {
         console.log("User status updated successfully");
-        addVolunteerToEvent(event.id, user)
+        addVolunteerToEvent(event.id, user.id)
           .then(() => {
             console.log("Volunteer added to event successfully");
           })
@@ -76,7 +74,7 @@ export default function ActiveEvents(props: ActiveEventsProps) {
     }
   }, [isEventActive]); // only subscribe when isEventActive false
 
-  if (rolesLoading || loadingEvents) {
+  if (userLoading || loadingEvents) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text>טוען...</Text>

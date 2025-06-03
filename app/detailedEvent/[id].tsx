@@ -3,21 +3,21 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { subscribeToEvents, Event, updateEvent } from "@/services/events";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRolesContext } from "@/hooks/RolesContext";
 import DetailsHeader from "./DetailsHeader";
 import EditableDetailRow from "./EditableDetailRow";
 import EditModal from "./EditModal";
 import CancelEventButton from "./CancelEventButton";
+import { useUserContext } from "@/hooks/UserContext";
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  const { roles, rolesLoading } = useRolesContext();
+  const { user,userLoading } = useUserContext();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [fieldToEdit, setFieldToEdit] = useState<string | null>(null);
   const [fieldLabel, setFieldLabel] = useState<string | null>(null);
   const [editedValue, setEditedValue] = useState("");
-
+  const roles = user.permissions || [];
 
   useEffect(() => {
     const unsubscribe = subscribeToEvents((events, error) => {
@@ -35,14 +35,14 @@ export default function EventDetails() {
     return () => unsubscribe();
   }, [id]);
 
-  if (loading || rolesLoading) {
+  if (loading || userLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text>טוען פרטי אירוע...</Text>
       </View>
     );
   }
-  console.log("roles:", roles);
+  console.log("roles:", user.permissions);
 
   if (!event) {
     return (

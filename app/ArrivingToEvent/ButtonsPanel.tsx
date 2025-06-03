@@ -5,14 +5,16 @@ import { update } from "firebase/database";
 import { Pressable, ScrollView, View,Text } from "react-native";
 import { useEventContext } from "@/hooks/EventContext";
 import { removeVolunteerFromEvent } from "@/services/events";
+import {useUserContext} from "@/hooks/UserContext";
 
-
-const user = "Sy79iRZBzqaUey6elxmT";
 
 const ButtonsPanel = () => {
     const { event,changeActiveStatus } = useEventContext();
+    const { user } = useUserContext();
+    const user_id = user.id; 
+
     const ArrivedToEvent = () => {
-        updateUserStatus(user,"At : " + event.id)
+        updateUserStatus(user_id,"At : " + event.id)
             .then(() => {
                 console.log("User status updated successfully");
             })
@@ -21,9 +23,9 @@ const ButtonsPanel = () => {
             });
     }
     const CancelEvent = () => {
-        updateUserStatus(user,"OnCall")
+        updateUserStatus(user_id,"OnCall")
             .then(() => {
-                removeVolunteerFromEvent(event.id, user).then(() => {
+                removeVolunteerFromEvent(event.id, user_id).then(() => {
                     console.log("Volunteer removed from event successfully");
                 });
                 console.log("User status updated successfully");

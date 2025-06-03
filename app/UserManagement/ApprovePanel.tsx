@@ -1,25 +1,20 @@
 import {View, Text, TouchableOpacity} from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { updatePermissions, deleteUser } from '@/services/users';
+import { useUserContext } from '@/hooks/UserContext';
 
 type ApprovePanelProps = {
     refresh: () => void;
-    user_id : string;
 }
+
     
 const ApprovePanel = (props : ApprovePanelProps) => { 
+    const {user,updateRoles} = useUserContext();
     const onAprove = () => {
-        updatePermissions(props.user_id, ["volunteer"]).then(
-            () => {
-                props.refresh();
-            }
-        ).catch((error: Error) => {
-            console.error("Error updating permissions: ", error);
-        }
-        );
+        updateRoles(["Volunteer"])
     }
     const onDeny = () => {
-        deleteUser(props.user_id).then(
+        deleteUser(user.id).then(
             () => {
                 props.refresh();
             }

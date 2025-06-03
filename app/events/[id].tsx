@@ -21,17 +21,18 @@ import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import DetailsHeader from "./DetailsHeader";
 import { set } from "firebase/database";
+import { useUserContext } from "@/hooks/UserContext";
 
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  const { roles, rolesLoading } = useRolesContext();
+  const {user, userLoading} = useUserContext();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [fieldToEdit, setFieldToEdit] = useState<string | null>(null);
   const [editedValue, setEditedValue] = useState("");
   const [fieldLabel, setFieldLabel] = useState<string | null>(null);
-
+  const roles = user.permissions || [];
   const router = useRouter();
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export default function EventDetails() {
     return () => unsubscribe();
   }, [id]);
 
-  if (loading || rolesLoading) {
+  if (loading || userLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text>טוען פרטי אירוע...</Text>
@@ -160,7 +161,7 @@ export default function EventDetails() {
                 {
                   event.id && deleteEvent(event.id);
                 }
-                router.push("/home/HomePage");
+                router.push("/home");
               }}
             >
               <Text className="text-white font-bold text-base text-center">

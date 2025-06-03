@@ -1,13 +1,9 @@
 import { View, TouchableOpacity, Text } from "react-native";
 import { useState } from "react";
 import { updatePermissions } from "../../services/users";
-import { useRolesContext } from "@/hooks/RolesContext";
+import { useUserContext } from "@/hooks/UserContext";
 
-type PermissionsPanelProps = {
-  refresh: () => void;
-  user_id: string;
-  premissions: string[];
-};
+
 
 const ROLES = {
   Volunteer: ["Volunteer"],
@@ -15,37 +11,25 @@ const ROLES = {
   Admin: ["Volunteer", "Dispatcher", "Admin"],
 };
 
-const PermissionsPanel = ({
-  refresh,
-  user_id,
-  premissions,
-}: PermissionsPanelProps) => {
-  const [currentPermissions, setCurrentPermissions] =
-    useState<string[]>(premissions);
+const PermissionsPanel = () => {
+  const { user ,updateRoles,userHasRoles } = useUserContext();
   const [isUpdating, setIsUpdating] = useState(false);
-  const { setRoles } = useRolesContext();
 
   const handleRoleSelection = async (role: keyof typeof ROLES) => {
     if (isUpdating) return;
     setIsUpdating(true);
     try {
       const selectedPermissions = ROLES[role];
-      setCurrentPermissions(selectedPermissions);
-      await updatePermissions(user_id, selectedPermissions);
-      setRoles(selectedPermissions); // update all roles in the context
-      requestAnimationFrame(() => {
-        refresh();
-      });
+      updateRoles(selectedPermissions);
     } catch (error) {
       console.error("Error updating permissions: ", error);
-      setCurrentPermissions(premissions);
     } finally {
       setIsUpdating(false);
     }
   };
 
   const renderButton = (role: keyof typeof ROLES, label: string) => {
-    const isSelected = currentPermissions.includes(role);
+    const isSelected = userHasRoles(role);
     return (
       <TouchableOpacity
         className={`py-2.5 px-2 rounded-lg border items-center flex-1 mx-[2px]
@@ -56,7 +40,7 @@ const PermissionsPanel = ({
           }
           ${isUpdating ? "opacity-50" : "opacity-100"}`}
         onPress={() => handleRoleSelection(role)}
-        key={user_id + role}
+        key={user.id + role}
         disabled={isUpdating}
       >
         <Text

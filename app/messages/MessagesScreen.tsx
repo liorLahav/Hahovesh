@@ -5,17 +5,19 @@ import {
   deleteMessage,
   markMessagesAsRead,
 } from "@/services/messages";
-import { useRolesContext } from "@/hooks/RolesContext";
 import { useMessages } from "@/hooks/MessagesContext";
 import { StatusBar } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import DeleteMessageButton from "./DeleteMessageButton";
 import DeleteAllMessagesButton from "./DeleteAllMessagesButton";
+import { useUserContext } from "@/hooks/UserContext";
 export default function MessagesScreen() {
-  const { roles, rolesLoading } = useRolesContext();
+  const {user, userLoading} = useUserContext();
+
   const { messages, loadingMessages } = useMessages();
   const isFocused = useIsFocused();
   const userId = "Sy79iRZBzqaUey6elxmT";
+  const roles = user.permissions || [];
 
   useEffect(() => {
     if (isFocused && messages.length && userId) {
@@ -23,7 +25,7 @@ export default function MessagesScreen() {
     }
   }, [isFocused, userId, messages]);
 
-  if (rolesLoading || loadingMessages) {
+  if (userLoading || loadingMessages) {
     return (
       <View className="flex-1 items-center justify-center text-bold text-lg">
         <Text>טוען...</Text>

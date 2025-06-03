@@ -29,12 +29,9 @@ const User = (props : UserProps) => {
                 <View className="flex-[1.2] bg-gray-50">
                     { !(props.user.permissions.includes("Pending")) ? 
                         <PermissionsPanel 
-                            premissions={props.user.permissions} 
-                            refresh={handleRefresh} 
-                            user_id={props.user.id} 
+
                         />  : 
                       <ApprovePanel 
-                          user_id={props.user.id} 
                           refresh={handleRefresh} 
                       />}
                 </View>

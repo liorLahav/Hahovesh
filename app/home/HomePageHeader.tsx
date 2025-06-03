@@ -4,19 +4,20 @@ import logo from "../../assets/images/logo.png";
 import MenuButton from "@/components/navigation/menuButton";
 import { Message } from "@/services/messages";
 import { router } from "expo-router";
-import { userHasRoles } from "@/services/userHasRoles";
+import { useUserContext } from "@/hooks/UserContext";
 
 type Props = {
   messages: Message[];
-  userId: string;
-  userRoles: string[];
 };
 
-export default function HomePageHeader({ messages, userId, userRoles }: Props) {
+export default function HomePageHeader({ messages }: Props) {
+  const { user, userHasRoles} = useUserContext();
+  const userRoles = user.permissions || [];
+  const userId = user.id;
   const countUnreadMessages = messages.filter(
     (msg) =>
       (msg.distribution_by_role === "All" ||
-        userHasRoles(userRoles, msg.distribution_by_role)) &&
+        userHasRoles(msg.distribution_by_role)) &&
       !msg.read_by?.[userId]
   ).length;
 

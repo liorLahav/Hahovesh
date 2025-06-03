@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useRef } from "react";
 import { View, Alert, SafeAreaView, Text, KeyboardAvoidingView, Platform } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { UserContext, useUser } from "../../hooks/UserContext";
+import { UserContext, useUserContext } from "../../hooks/UserContext";
 import { loginWithPhoneAndId, sendVerificationCode } from "../../services/auth";
 import LoginForm from "./LoginForm";
 import StatusMessage from "./StatusMessage";
@@ -31,7 +31,7 @@ const Login = () => {
   const verifyUserRef = useRef<((code: string) => Promise<any>) | null>(null);
 
   // Get user context
-  const {changeUser} = useUser();
+  const {changeUser} = useUserContext();
   
   const formatPhoneNumber = (phone: string): string => {
     // Remove non-digits

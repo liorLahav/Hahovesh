@@ -14,7 +14,6 @@ import Timer from './Timer';
 import MenuButton from '@/components/navigation/menuButton';
 
 
-const user = "Sy79iRZBzqaUey6elxmT";
 
 const ArrivingToEventScreen = () => {
   const [elapsedTime, setElapsedTime] = useState<string>("00:00:00");

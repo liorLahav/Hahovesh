@@ -25,7 +25,6 @@ export default function NewEventScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <HomePageHeader />
        <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
         <Text className="text-3xl font-bold text-white tracking-wide">טופס אירוע</Text>
         <View className="w-16 h-1 bg-white mt-2 rounded-full" /> 

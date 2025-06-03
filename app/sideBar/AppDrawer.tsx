@@ -8,12 +8,12 @@
 import { Drawer } from "expo-router/drawer";
 import DrawerContent from "./DrawerContent";
 import { View, Text } from "react-native";
-import { useRolesContext } from "@/hooks/RolesContext";
+import { useUserContext } from "@/hooks/UserContext";
 
 export default function AppDrawer() {
-  const { roles, rolesLoading } = useRolesContext();
+  const {user, userLoading} = useUserContext();
 
-  if (rolesLoading) {
+  if (userLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text>טוען...</Text>
@@ -24,7 +24,7 @@ export default function AppDrawer() {
   return (
     <Drawer
       drawerContent={(props) => (
-        <DrawerContent {...props} userRole={roles ?? []} />
+        <DrawerContent {...props} userRole={user.permissions ?? []} />
       )}
       screenOptions={{
         headerShown: false,
