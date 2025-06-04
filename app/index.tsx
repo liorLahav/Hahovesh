@@ -6,6 +6,7 @@ import Login from "./Login";
 import Loading from "@/components/Loading";
 import {useRouter } from "expo-router";
 import { useEffect } from "react";
+import Register from "./Register";
 
 export default function App() {
   const [fontsLoaded] = useFonts({

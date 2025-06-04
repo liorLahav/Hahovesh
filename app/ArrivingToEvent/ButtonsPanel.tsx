@@ -21,9 +21,10 @@ const ButtonsPanel = () => {
             .catch((error) => {
                 console.error("Error updating user status:", error);
             });
+            router.push("/eventOperation");
     }
     const CancelEvent = () => {
-        updateUserStatus(user_id,"OnCall")
+        updateUserStatus(user.id,"available")
             .then(() => {
                 removeVolunteerFromEvent(event.id, user_id).then(() => {
                     console.log("Volunteer removed from event successfully");
