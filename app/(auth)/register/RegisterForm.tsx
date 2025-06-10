@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Alert } from "react-native";
-import registerSchema from "../../data/registerSchema";
+import registerSchema from "../../../data/registerSchema";
 import FormInput from "./FormInput";
 import SubmitButton from "./SubmitButton";
 import { createUser } from "@/services/users";
@@ -9,6 +9,17 @@ type RegisterFormProps = {
   onSuccess: () => void;
   onConflict: (message: string, details: string) => void;
 };
+const formatPhoneNumber = (phone: string): string => {
+  const cleaned = phone.replace(/\D/g, "");
+
+  if (cleaned.startsWith("0")) {
+    return "+972" + cleaned.substring(1);
+  } else if (!cleaned.startsWith("+")) {
+    return "+972" + cleaned;
+  }
+
+  return cleaned;
+}
 
 const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
   const [formValues, setFormValues] = useState({
@@ -90,11 +101,12 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
       Alert.alert("שדות חסרים", "אנא מלא את כל הפרטים.");
       return;
     }
-
+    const values = { ...formValues };
+    values.phone = formatPhoneNumber(phone);
     setIsLoading(true);
 
     try {
-      const result = await createUser(formValues);
+      const result = await createUser(values);
 
       if (!result.success) {
         if (result.conflict === "id") {
@@ -155,7 +167,7 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
       firstName &&
       lastName &&
       identifier &&
-      phone &&
+      formatPhoneNumber(phone) &&
       !firstNameError &&
       !lastNameError &&
       !idError &&

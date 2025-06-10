@@ -1,6 +1,6 @@
 import { View, TouchableOpacity, Text } from "react-native";
 import { useState } from "react";
-import { updatePermissions } from "../../services/users";
+import { updatePermissions } from "../../../services/users";
 import { useUserContext } from "@/hooks/UserContext";
 
 

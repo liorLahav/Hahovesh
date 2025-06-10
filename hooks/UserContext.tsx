@@ -1,4 +1,5 @@
 import { auth } from '@/FirebaseConfig';
+import { signOutUser } from '@/services/auth';
 import { checkAuthState } from '@/services/login';
 import { getUserByPhoneNumber, updatePermissions } from '@/services/users';
 import { set, update } from 'firebase/database';
@@ -18,21 +19,25 @@ type userContextType = {
     userLoading: boolean;
     userHasRoles: (roleToCheck: string) => boolean;
     updateRoles: (permissions: string[]) => void;
+    signOut: () => Promise<void>;
 }
 export const UserContext = createContext<userContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User>({} as User);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userLoading, setUserLoading] = useState(true);
+    const [userLoading, setUserLoading] = useState(false);
 
     useEffect(() => {
         const checkIfAuthenticated = async () => {
+            console.log("Checking authentication state...");
             try {
                 const user = await checkAuthState();
+                console.log("User authentication state:", user);
                 if (user) {
-                    changeUser("+972528818420");
+                    changeUser(user.phoneNumber);
                     setIsAuthenticated(true);
+                    console.log("User is authenticated:", isAuthenticated);
                 } else {
                     setIsAuthenticated(false);
                 }
@@ -53,7 +58,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 setUser(userData as User);
                 setIsAuthenticated(true);
             } else {
-                console.error("User not found");
+                console.error("User not found 1");
                 setIsAuthenticated(false);
             }
             console.log("User data updated:", userData);
@@ -101,8 +106,17 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const signOut = async () => {
+            console.log("Signing out user...");
+            signOutUser();
+            setUser({} as User);
+            setIsAuthenticated(false);
+            setUserLoading(false);
+    }
+            
+
     return (
-        <UserContext.Provider value={{userLoading, user, changeUser, isAuthenticated,userHasRoles,updateRoles }}>
+        <UserContext.Provider value={{userLoading, user, changeUser, isAuthenticated,userHasRoles,updateRoles,signOut }}>
             {children}
         </UserContext.Provider>
     );

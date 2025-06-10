@@ -7,7 +7,6 @@ import { subscribeToMessages, Message } from "@/services/messages";
 import { useMessages } from "@/hooks/MessagesContext";
 
 export default function HomePage() {
-  const userId = "Sy79iRZBzqaUey6elxmT";
   const {messages} = useMessages();
 
   return (

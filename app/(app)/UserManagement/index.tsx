@@ -6,7 +6,7 @@ import type { DrawerNavigationProp } from "@react-navigation/drawer";
 import type { ParamListBase } from "@react-navigation/native";
 import UsersArea from "./UsersArea";
 import { DocumentData, doc as firestoreDoc } from "firebase/firestore";
-import { getAllUsers } from "../../services/users";
+import { getAllUsers } from "../../../services/users";
 import { Button } from "@/components/Button";
 
 const UserManagementScreen = () => {

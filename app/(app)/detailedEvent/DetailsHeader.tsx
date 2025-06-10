@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import type { DrawerNavigationProp } from "@react-navigation/drawer";
 import type { ParamListBase } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import logo from "../../assets/images/logo.png";
+import logo from "../../../assets/images/logo.png";
 
 export default function DetailsHeader() {
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();

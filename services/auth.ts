@@ -9,6 +9,7 @@ import {
   UserCredential
 } from 'firebase/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAllUsers } from "./users";
 
 export type LoginResult = {
   success: boolean;
@@ -21,24 +22,19 @@ export type VerificationResult = {
   user?: UserCredential;
 };
 
-// For web implementations - mobile uses the native reCAPTCHA
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 
 
-/**
- * Send verification code to the phone number
- */
 export const sendVerificationCode = async (phoneNumber: string,recaptchaVerifier : any): Promise<LoginResult> => {
   try {
-    console.log("📱 Verification code sent to:", phoneNumber);
+    console.log("Verification code sent to:", phoneNumber);
 
-    // Request verification code
     const confirmationResult = await signInWithPhoneNumber(
       auth,
-      "+13322767084",
+      phoneNumber,
       recaptchaVerifier
     );
-    console.log("📱 Verification code sent to:", phoneNumber);
+    console.log("Verification code sent to:", phoneNumber);
     console.log(confirmationResult.verificationId);
     return {
       success: true,
@@ -71,10 +67,10 @@ export const loginWithPhoneAndId = async (phone: string, identifier: string): Pr
   try {
     // Format the phone number for consistency
     const formattedPhone = phone;
+    console.log("Formatted phone number:", formattedPhone);
     const localPhone = formattedPhone.replace('+972', '0');
     
     const volunteersRef = collection(db, "volunteers");
-    // Query for phone number in different formats
     const q = query(
       volunteersRef,
       where("phone", "in", [formattedPhone, localPhone, phone]),
@@ -108,3 +104,15 @@ export const loginWithPhoneAndId = async (phone: string, identifier: string): Pr
     return { success: false, error: "אירעה שגיאה בהתחברות. אנא נסה שוב." };
   }
 };
+
+export const signOutUser = async (): Promise<void> => {
+  try {
+    await auth.signOut();
+    console.log("User signed out successfully");
+    await AsyncStorage.removeItem('user');
+    
+  } catch (error) {
+    console.error("Error signing out:", error);
+    throw new Error("Error signing out: " + (error?.message || JSON.stringify(error)));
+  }
+}

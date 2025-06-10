@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
+import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
+import { firebaseConfig } from "@/FirebaseConfig";
 
 interface PhoneVerificationProps {
   phoneNumber: string;
@@ -91,9 +93,15 @@ const PhoneVerification: React.FC<PhoneVerificationProps> = ({
     if (code.length !== 6 || isLoading) return;
     await onCodeSubmit(code);
   };
-
+  const recaptchaVerifier = useRef(null);
+  
   return (
     <SafeAreaView className="flex-1 bg-blue-200">
+        <FirebaseRecaptchaVerifierModal
+          ref={recaptchaVerifier}
+          firebaseConfig={firebaseConfig} // עדיף להשתמש בזה!
+          attemptInvisibleVerification={true}
+        />
       <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}

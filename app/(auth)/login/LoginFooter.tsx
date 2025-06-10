@@ -14,9 +14,9 @@ const LoginFooter: React.FC = () => {
 
       <TouchableOpacity
         className="mt-8 py-2"
-        onPress={() => router.back()}
+        onPress={() => router.replace("/register")}
       >
-        <Text className="text-gray-500 text-base">חזרה לדף הבית</Text>
+        <Text className="text-gray-500 text-base">מעבר להרשמה</Text>
       </TouchableOpacity>
     </>
   );

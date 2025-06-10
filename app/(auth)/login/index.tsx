@@ -2,14 +2,15 @@ import React, { useState, useContext, useEffect, useRef } from "react";
 import { View, Alert, SafeAreaView, Text, KeyboardAvoidingView, Platform } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { UserContext, useUserContext } from "../../hooks/UserContext";
-import { loginWithPhoneAndId, sendVerificationCode } from "../../services/auth";
+import { UserContext, useUserContext } from "../../../hooks/UserContext";
+import { loginWithPhoneAndId, sendVerificationCode } from "../../../services/auth";
 import LoginForm from "./LoginForm";
 import StatusMessage from "./StatusMessage";
 import LoginFooter from "./LoginFooter";
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { firebaseConfig } from "@/FirebaseConfig";
 import PhoneVerification from "./PhoneVerification";
+import {auth} from "@/FirebaseConfig";
 
 const Login = () => {
   const recaptchaVerifier = useRef(null);
@@ -34,10 +35,8 @@ const Login = () => {
   const {changeUser} = useUserContext();
   
   const formatPhoneNumber = (phone: string): string => {
-    // Remove non-digits
     const cleaned = phone.replace(/\D/g, '');
     
-    // Add Israeli country code if needed
     if (cleaned.startsWith('0')) {
       return '+972' + cleaned.substring(1);
     } else if (!cleaned.startsWith('+')) {
@@ -54,7 +53,7 @@ const Login = () => {
       Alert.alert("שדות חסרים", "אנא מלא את כל הפרטים");
       return;
     }
-
+    console.log("Phone number:", phoneNumber, "Identifier:", identifier);
     if (phoneNumber.length < 10) {
       Alert.alert("שגיאה", "מספר טלפון לא תקין");
       return;
@@ -70,9 +69,9 @@ const Login = () => {
     setWelcomeName("");
     setLoginError("");
     setIsLoading(true);
-
+    console.log("Attempting login with phone:", formatPhoneNumber(phoneNumber), "and ID:", identifier);
     try {
-      const loginResult = await loginWithPhoneAndId(phoneNumber, identifier);
+      const loginResult = await loginWithPhoneAndId(formatPhoneNumber(phoneNumber), identifier);
       if (!loginResult.success) {
         setLoginError(loginResult.error || "שגיאה בהתחברות. אנא נסה שוב.");
         setIsLoading(false);
@@ -179,11 +178,13 @@ const Login = () => {
   // Main login screen
   return (
     <SafeAreaView className="flex-1 bg-blue-200">
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={firebaseConfig}
-        attemptInvisibleVerification={true}
-      />
+      {auth && (
+        <FirebaseRecaptchaVerifierModal
+          ref={recaptchaVerifier}
+          firebaseConfig={firebaseConfig} // עדיף להשתמש בזה!
+          attemptInvisibleVerification={true}
+        />
+      )}
 
       <StatusBar style="light" />
       <KeyboardAvoidingView

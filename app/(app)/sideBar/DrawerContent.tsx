@@ -2,15 +2,15 @@ import { DrawerContentScrollView } from "@react-navigation/drawer";
 import { SafeAreaView, View, Text, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import {drawerItems} from "../../data/DrawerRoutes";
+import {drawerItems} from "../../../data/DrawerRoutes";
 import type { DrawerContentComponentProps } from "@react-navigation/drawer";
-import { signOutUser } from "@/services/login";
+import { useUserContext } from "@/hooks/UserContext";
 
 export default function DrawerContent(
   props: DrawerContentComponentProps & { userRole: string[] }
 ) {
   const router = useRouter();
-
+  const { signOut} = useUserContext();
   let roleLevel = 0;
   if (props.userRole.includes("Admin")) roleLevel = 2;
   else if (props.userRole.includes("Dispatcher")) roleLevel = 1;
@@ -21,7 +21,7 @@ export default function DrawerContent(
     account: filteredItems.filter((i) => i.section === "account"),
     menu: filteredItems.filter((i) => i.section === "menu"),
   };
-  const signOut = () => {
+  const signOutFunc = () => {
     // Implement sign out logic here
     Alert.alert("התנתקות", "האם אתה בטוח שברצונך להתנתק?", [
       {
@@ -31,7 +31,7 @@ export default function DrawerContent(
       {
         text: "כן",
         onPress: () => {
-          router.replace("/Login");
+          signOut();
         },
       },
     ]);
@@ -63,7 +63,7 @@ export default function DrawerContent(
     <DrawerContentScrollView className="flex-1 bg-white p-4 items-end">
       {renderSection("חשבון", sections.account)}
       {renderSection("פעולות", sections.menu)}
-      <Pressable onPress={() => signOut()}  className="p-3 rounded-lg hover:bg-gray-200 mt-2 w-full border-b border-gray-200">
+      <Pressable onPress={() => signOutFunc()}  className="p-3 rounded-lg hover:bg-gray-200 mt-2 w-full border-b border-gray-200">
         <View className="flex-row-reverse items-center gap-4 p-2 mr-4">
           <Ionicons name="log-out" size={24} color="gray" />
           <Text className="text-lg text-red-600 text-right">התנתק</Text>

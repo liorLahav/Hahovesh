@@ -1,28 +1,15 @@
-import { Text } from "react-native";
-import * as Font from "expo-font";
-import { useFonts } from "expo-font";
-import HomePage from "./home";
-import Login from "./Login";
+// app/index.tsx
+import { Redirect } from "expo-router";
+import { useUserContext } from "@/hooks/UserContext";
 import Loading from "@/components/Loading";
-import {useRouter } from "expo-router";
-import { useEffect } from "react";
-import Register from "./Register";
 
-export default function App() {
-  const [fontsLoaded] = useFonts({
-    Assistant: require("../assets/fonts/Assistant-Regular.ttf"),
-    "Assistant-Bold": require("../assets/fonts/Assistant-Bold.ttf"),
-  });
-  const router = useRouter();
 
-  
-  // useEffect(() => {
-  //   router.replace("/Login");
-  // }, []);
 
-  // if (!fontsLoaded) {
-  //   return <Loading />;
-  // }
+export default function Index() {
+  const {isAuthenticated,userLoading} = useUserContext();
 
-  return <HomePage />;
+  if (userLoading) 
+    return <Loading/>
+  console.log("Redirecting to", isAuthenticated);
+  return <Redirect href={isAuthenticated ? "/home" : "/login"} />;
 }

@@ -19,7 +19,7 @@ export default function MessagesHeader() {
         </Pressable>
 
         <Image
-          source={require("../../assets/images/logo.png")}
+          source={require("../../../assets/images/logo.png")}
           style={{ width: 45, height: 45 }}
           resizeMode="contain"
           className="absolute left-4 top-5"

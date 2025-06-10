@@ -1,9 +1,9 @@
 import { View, Text, Pressable, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import logo from "../../assets/images/logo.png";
+import logo from "../../../assets/images/logo.png";
 
-export default function NewEventHeader() {
+export default function MessagesFormHeader() {
   const router = useRouter();
 
   return (
@@ -17,10 +17,10 @@ export default function NewEventHeader() {
 
           <View className="items-center">
             <Text
-              className="text-3xl font-bold text-white"
+              className="text-2xl font-bold text-white"
               style={{ fontFamily: "Assistant-Bold" }}
             >
-              יצירת אירוע
+              שליחת הודעה
             </Text>
             <View className="w-16 h-1 bg-white mt-2 rounded-full" />
           </View>

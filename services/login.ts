@@ -12,6 +12,7 @@ export async function loginWithPhoneAndId(phone: string, identifier: string) {
   );
 
   const querySnapshot = await getDocs(q);
+  console.log("Query snapshot:", querySnapshot);
 
   if (querySnapshot.empty) {
     return { success: false, error: "מספר הטלפון או תעודת הזהות שגויים. אנא נסה שוב." };
@@ -37,13 +38,3 @@ export const checkAuthState = (): Promise<null | any> => {
     });
   });
 };
-
-// export const signOutUser = async () => {
-//   try {
-//     await signOut(auth);
-//     console.log("User signed out successfully");
-//   } catch (error) {
-//     console.error("Error signing out:", error);
-//     throw new Error("Error signing out: " + (error?.message || JSON.stringify(error)));
-//   }
-// }

@@ -1,6 +1,6 @@
 import { View, Text, Image, Pressable } from "react-native";
 import NotificationButton from "./NotificationIcon";
-import logo from "../../assets/images/logo.png";
+import logo from "../../../assets/images/logo.png";
 import MenuButton from "@/components/navigation/menuButton";
 import { Message } from "@/services/messages";
 import { router } from "expo-router";

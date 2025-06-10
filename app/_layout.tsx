@@ -1,54 +1,33 @@
-import "../global.css";
-import { useEffect } from "react";
-import { useRouter, useSegments } from "expo-router";
-
-import { EventProvider } from "@/hooks/EventContext";
+import "global.css";
+import { Slot, useRouter } from "expo-router";
+import { UserProvider } from "@/hooks/UserContext";
 import { OnlineProvider } from "@/hooks/OnlineContext";
-import AppDrawer from "./sideBar/AppDrawer";
+import { EventProvider } from "@/hooks/EventContext";
 import { MessagesProvider } from "@/hooks/MessagesContext";
-import { UserProvider, useUserContext } from "@/hooks/UserContext";
+import { useFonts } from "expo-font";
+import { Text } from "react-native";
+import { useUserContext} from "@/hooks/UserContext";
 import Loading from "@/components/Loading";
 
-function AppContent() {
-  const router = useRouter();
-  const segments = useSegments();
-  const { isAuthenticated, userLoading } = useUserContext();
-
-  // useEffect(() => {
-  //   if (userLoading) return;
-
-  //   const inAuthGroup = segments[0] === "Login";
-  //   console.log("Current segments:", segments);
-  //   console.log("isAuthenticated:", isAuthenticated);
-
-  //   if (!isAuthenticated && !inAuthGroup) {
-  //     console.log("User is not authenticated, redirecting to Login");
-  //     router.replace("/Login");
-  //   }
-
-  //   if (isAuthenticated && inAuthGroup) {
-  //     console.log("User is authenticated, redirecting to Home");
-  //     router.replace("/home");
-  //   }
-  // }, [segments, isAuthenticated, userLoading]);
-
-  //if (userLoading) return <Loading message="טוען פרטי משתמש..." />;
-
-  return (
-    <OnlineProvider>
-      <EventProvider>
-        <MessagesProvider>
-          <AppDrawer />
-        </MessagesProvider>
-      </EventProvider>
-    </OnlineProvider>
-  );
-}
-
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Assistant: require("../assets/fonts/Assistant-Regular.ttf"),
+    "Assistant-Bold": require("../assets/fonts/Assistant-Bold.ttf"),
+  });
+  const {userLoading} = useUserContext();
+
+  if (!fontsLoaded) return <Text>Loading fonts...</Text>; // או קומפוננטת Loading
+  if (userLoading) return <Loading message="טוען פרטי משתמש..." />;
+
   return (
     <UserProvider>
-      <AppContent />
+      <OnlineProvider>
+        <EventProvider>
+          <MessagesProvider>
+            <Slot />
+          </MessagesProvider>
+        </EventProvider>
+      </OnlineProvider>
     </UserProvider>
   );
 }

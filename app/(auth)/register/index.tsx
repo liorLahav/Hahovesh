@@ -48,7 +48,7 @@ export default function Register() {
 
           <TouchableOpacity
             className="mt-8 py-2"
-            onPress={() => router.back()}
+            onPress={() => router.replace("/login")}
           >
             <Text className="text-gray-500 text-base"> עבור להתחברות </Text>
           </TouchableOpacity>

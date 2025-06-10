@@ -1,7 +1,7 @@
 import { ScrollView, Text, Alert, View, StatusBar } from "react-native";
 
-import formSchema from "../../data/formSchema";
-import DynamicForm from "../../components/DynamicForm";
+import formSchema from "../../../data/formSchema";
+import DynamicForm from "../../../components/DynamicForm";
 import { useState } from "react";
 import { createEvent } from "@/services/events";
 import { router } from "expo-router";
