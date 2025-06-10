@@ -1,20 +1,27 @@
 import { initializeApp } from "firebase/app";
-import { initializeAuth } from "firebase/auth";
-import { getReactNativePersistence } from '@firebase/auth/dist/rn/index.js';
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
 import { getDatabase } from "firebase/database";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+
+// Read values from app.config.ts -> extra
+const {
+  firebaseApiKey,
+  firebaseAuthDomain,
+  firebaseProjectId,
+  firebaseStorageBucket,
+  firebaseMessagingSenderId,
+  firebaseAppId,
+} = Constants.expoConfig?.extra ?? {};
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyAwFn5-CkW1rK3hukWdEWJ0EMom08e4Kpw",
-  authDomain: "hahovesh-project.firebaseapp.com",
-  databaseURL: "https://hahovesh-project-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "hahovesh-project",
-  storageBucket: "hahovesh-project.appspot.com",
-  messagingSenderId: "259653569192",
-  appId: "1:259653569192:web:d8640079b0c50a828d109d",
-  measurementId: "G-ZMB4E0BNNJ"
+  apiKey: firebaseApiKey,
+  authDomain: firebaseAuthDomain,
+  projectId: firebaseProjectId,
+  storageBucket: firebaseStorageBucket,
+  messagingSenderId: firebaseMessagingSenderId,
+  appId: firebaseAppId,
 };
 
 // Initialize Firebase
@@ -22,6 +29,5 @@ export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const realtimeDb = getDatabase(app);
 export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
+  persistence: getReactNativePersistence(AsyncStorage),
 });
-

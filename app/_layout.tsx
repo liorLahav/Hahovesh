@@ -6,7 +6,6 @@ import { EventProvider } from "@/hooks/EventContext";
 import { MessagesProvider } from "@/hooks/MessagesContext";
 import { useFonts } from "expo-font";
 import { Text } from "react-native";
-import { useUserContext} from "@/hooks/UserContext";
 import Loading from "@/components/Loading";
 
 export default function RootLayout() {
@@ -14,10 +13,8 @@ export default function RootLayout() {
     Assistant: require("../assets/fonts/Assistant-Regular.ttf"),
     "Assistant-Bold": require("../assets/fonts/Assistant-Bold.ttf"),
   });
-  const {userLoading} = useUserContext();
 
   if (!fontsLoaded) return <Text>Loading fonts...</Text>; // או קומפוננטת Loading
-  if (userLoading) return <Loading message="טוען פרטי משתמש..." />;
 
   return (
     <UserProvider>
