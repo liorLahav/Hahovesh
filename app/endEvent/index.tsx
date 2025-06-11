@@ -7,8 +7,9 @@ import HomePageHeader from '../home/HomePageHeader';
 import { useEventContext } from '@/hooks/EventContext';
 import { ref, remove } from 'firebase/database';
 import { realtimeDb } from '@/FirebaseConfig';
-import { ONCALL, updateUserStatus } from '@/services/users';
 import { router } from 'expo-router';
+import { deleteEventById } from '@/services/events';
+import EventSummaryHeader from './EventSummaryHeader';
 
 const user = 'Sy79iRZBZzqaUey6elxmT';
 export default function EventSummaryScreen() {
@@ -38,8 +39,7 @@ export default function EventSummaryScreen() {
   try {
     await saveEventSummary({ ...values, eventId: event.id });
 
-    const eventRef = ref(realtimeDb, `events/${event.id}`);
-    await remove(eventRef);
+    await deleteEventById(event.id);
 
     changeActiveStatus(false);
 
@@ -65,25 +65,21 @@ export default function EventSummaryScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <HomePageHeader />
-      <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
-        <Text className="text-3xl font-bold text-white tracking-wide">דוח סיכום</Text>
-        <View className="w-16 h-1 bg-white mt-2 rounded-full" />
-      </View>
+  <View className="flex-1 bg-white">
+    <EventSummaryHeader />
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-        <Text className="text-2xl font-bold mb-6 text-right text-blue-700">
-          פרטי הסיכום
-        </Text>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+      <Text className="text-2xl font-bold mb-6 text-right text-blue-700">
+        פרטי הסיכום
+      </Text>
 
-        <DynamicForm
-          key={formKey}
-          schema={formSchema_eventSummary}
-          initialValues={initialValues}
-          onSubmit={onSubmit}
-        />
-      </ScrollView>
-    </View>
-  );
+      <DynamicForm
+        key={formKey}
+        schema={formSchema_eventSummary}
+        initialValues={initialValues}
+        onSubmit={onSubmit}
+      />
+    </ScrollView>
+  </View>
+);
 }

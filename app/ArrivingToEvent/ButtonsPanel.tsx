@@ -1,11 +1,11 @@
-import { ONCALL, updateUserStatus } from "@/services/users";
+
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { update } from "firebase/database";
 import { Pressable, ScrollView, View,Text } from "react-native";
 import { useEventContext } from "@/hooks/EventContext";
 import { removeVolunteerFromEvent } from "@/services/events";
-
+import { updateUserStatus } from "@/services/users";
 
 const user = "Sy79iRZBzqaUey6elxmT";
 
@@ -19,7 +19,7 @@ const ButtonsPanel = () => {
             .catch((error) => {
                 console.error("Error updating user status:", error);
             });
-            router.push("/eventOperation");
+            router.push("/endEvent");
     }
     const CancelEvent = () => {
         updateUserStatus(user,"available")
