@@ -56,7 +56,7 @@ export const subscribeToEvents = (
   callback: (events: any[] | null, error?: Error) => void
 ) => {
   const eventsRef = ref(realtimeDb, "events");
-
+  console.log("Subscribing to events at:", eventsRef.toString());
   const unsubscribe = onValue(
     eventsRef,
     (snapshot) => {
@@ -83,6 +83,7 @@ export const subscribeToEvents = (
             activeEvents.push(event);
           }
 
+          console.log("Active events:", activeEvents);
           callback(activeEvents);
         } else {
           callback([]);
