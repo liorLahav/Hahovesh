@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 import { deleteEventById } from '@/services/events';
 import EventSummaryHeader from './EventSummaryHeader';
 import { useUserContext } from '@/hooks/UserContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EventSummaryScreen() {
   const [formKey, setFormKey] = useState(0);
@@ -63,7 +64,7 @@ export default function EventSummaryScreen() {
   }
 
   return (
-  <View className="flex-1 bg-white">
+  <SafeAreaView className="flex-1 bg-white">
     <EventSummaryHeader />
 
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
@@ -78,6 +79,6 @@ export default function EventSummaryScreen() {
         onSubmit={onSubmit}
       />
     </ScrollView>
-  </View>
+  </SafeAreaView>
 );
 }
