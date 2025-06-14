@@ -3,19 +3,17 @@ import { ScrollView, Text, Alert, View, ActivityIndicator } from 'react-native';
 import DynamicForm from '@/components/DynamicForm';
 import formSchema_eventSummary from '@/data/fromSchema_eventSummary';
 import { saveEventSummary } from '@/services/event_summary';
-import HomePageHeader from '../home/HomePageHeader';
 import { useEventContext } from '@/hooks/EventContext';
-import { ref, remove } from 'firebase/database';
-import { realtimeDb } from '@/FirebaseConfig';
 import { router } from 'expo-router';
 import { deleteEventById } from '@/services/events';
 import EventSummaryHeader from './EventSummaryHeader';
+import { useUserContext } from '@/hooks/UserContext';
 
-const user = 'Sy79iRZBZzqaUey6elxmT';
 export default function EventSummaryScreen() {
   const [formKey, setFormKey] = useState(0);
   const [initialValues, setInitialValues] = useState<Record<string, string> | null>(null);
   const { event, changeActiveStatus } = useEventContext();
+  const { user } = useUserContext();
 
   useEffect(() => {
     const mappedValues: Record<string, string> = {
@@ -29,7 +27,7 @@ export default function EventSummaryScreen() {
       event_date: event.createdAt
         ? new Date(event.createdAt).toLocaleDateString('he-IL')
         : '',
-        volenteer_id: user,
+        volenteer_id: user.id,
     };
 
     setInitialValues(mappedValues);

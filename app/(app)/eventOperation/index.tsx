@@ -12,15 +12,12 @@ import { useState } from "react";
 import { useEventContext } from "@/hooks/EventContext";
 import { sendMessageToDB } from "@/services/messages";
 import { router } from "expo-router";
-
-// Hard-coded for now; replace with real auth later
-const currentUserId = "Sy79iRZBzqaUey6elxmT";
-
+import { useUserContext } from "@/hooks/UserContext";
 
 export default function OperationEvent() {
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [otherText, setOtherText] = useState<string>("");
-
+  const { user } = useUserContext();
   const { event, changeActiveStatus } = useEventContext();
   const { id: eventId, anamnesis: eventTitle } = event;
   
@@ -59,7 +56,7 @@ export default function OperationEvent() {
     : [];
 
   const firstVolunteerId = volunteersArr[0]?.volunteerId;
-  const isFirstVolunteer = firstVolunteerId === currentUserId;
+  const isFirstVolunteer = firstVolunteerId === user.id;
 
   const handleEnd = () => {
     if (!volunteersObj) {
@@ -70,8 +67,7 @@ export default function OperationEvent() {
     changeActiveStatus (false);
 
     if (isFirstVolunteer) {
-      // If the current user is the first volunteer, navigate to summary page waiting for omer
-      
+      router.replace("/endEvent");
     } else {
       Alert.alert("האירוע נגמר", "תודה על העזרה! , חזרה למסך בית");
       router.replace("/home");

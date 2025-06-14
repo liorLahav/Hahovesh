@@ -21,7 +21,7 @@ const ButtonsPanel = () => {
             .catch((error) => {
                 console.error("Error updating user status:", error);
             });
-            router.push("/endEvent");
+            router.push("/eventOperation");
     }
     const CancelEvent = () => {
         updateUserStatus(user.id,"available")
