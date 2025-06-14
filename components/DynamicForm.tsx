@@ -1,91 +1,144 @@
-import { View, Text, TextInput, ScrollView, Pressable } from "react-native";
-import Select from "./Select";
-import { useState } from "react";
-import type { SchemaField } from "../data/formSchema";
-import { router } from "expo-router";
+import { View, Text, TextInput, ScrollView, Pressable, Alert } from 'react-native';
+import Select from './Select';
+import { useState } from 'react';
+import type { SchemaField } from '@/data/fromSchema_eventSummary';
+import { saveEventSummary } from '@/services/event_summary';
 
-export type Field = SchemaField;
+type Option = { label: string; value: string };
 
 interface Props {
   schema: SchemaField[];
   onSubmit: (values: Record<string, string>) => void;
+  initialValues?: Record<string, string>;
 }
 
-/** Dynamic form generated from a schema */
-export default function DynamicForm({ schema, onSubmit }: Props) {
-  /** Initial state – empty map key → value */
-  const initialState = schema.reduce<Record<string, string>>(
-    (acc, field) => ({ ...acc, [field.key]: "" }),
-    {}
+export default function DynamicForm({ schema, onSubmit, initialValues }: Props) {
+  const [values, setValues] = useState<Record<string, string>>(
+    schema.reduce((acc, f) => ({
+      ...acc,
+      [f.key]: initialValues?.[f.key] ?? f.defaultValue ?? ''
+    }), {})
   );
-  const [values, setValues] = useState(initialState);
 
-  /** Update a single value */
-  const setVal = (key: string, val: string) =>
-    setValues((prev) => ({ ...prev, [key]: val }));
+  const [requireRefusalForm, setRequireRefusalForm] = useState(false);
 
+  const setVal = (key: string, val: string) => {
+    setValues(prev => ({ ...prev, [key]: val }));
+  };
+
+  const toggleMultiSelect = (key: string, value: string) => {
+    const current = values[key]?.split(',') || [];
+    const updated = current.includes(value)
+      ? current.filter(v => v !== value)
+      : [...current, value];
+    setVal(key, updated.join(','));
+  };
+
+  const handleSubmit = () => {
+  if (requireRefusalForm && !values['refusal_form']) {
+    Alert.alert('שגיאה', 'נדרש למלא טופס סירוב כאשר תיבת הסימון מסומנת');
+    return;
+  }
+
+  onSubmit({
+    ...values,
+    requireRefusalForm: requireRefusalForm.toString(),
+  });
+};
   return (
-    <ScrollView /* ... */>
-      {schema.map((field) => (
-        <View key={field.key} className="mb-6">
-          <Text className="mb-2 font-semibold text-right text-gray-800">
-            {field.label}
-          </Text>
+    <ScrollView className="flex-1 bg-white p-4" contentContainerStyle={{ paddingBottom: 80 }}>
+      {schema.map((field) => {
+        const isLast = field.key === 'additional_notes';
+        const isRefusalForm = field.key === 'refusal_form';
 
-          {field.type === "text" && (
-            <TextInput
-              placeholder={field.placeholder}
-              value={values[field.key]}
-              keyboardType={field.keyboardType ?? "default"}
-              onChangeText={(text) => {
-                let finalText = text;
+        return (
+          <View
+            key={field.key}
+            className={['mb-4', isLast && 'pt-4 border-t border-gray-300 mt-8'].filter(Boolean).join(' ')}
+          >
+            {field.type === 'title' ? (
+              <Text className="text-lg font-bold mb-2 text-right border-b border-gray-300 pb-1">
+                {field.label}
+              </Text>
+            ) : (
+              <>
+                {isRefusalForm && (
+                  <Pressable
+                    onPress={() => setRequireRefusalForm(prev => !prev)}
+                    className="flex-row items-center justify-end mb-2"
+                  >
+                    <View
+                      className={`w-4 h-4 mr-2 rounded border-2 ${requireRefusalForm ? 'bg-blue-600 border-blue-600' : 'border-gray-400'}`}
+                    />
+                    <Text className="text-sm">מילוי טופס סירוב</Text>
+                  </Pressable>
+                )}
 
-                if (field.lettersOnly) {
-                  finalText = finalText.replace(/[^A-Za-z\u05D0-\u05EA ]/g, "");
-                } else if (field.numericOnly) {
-                  finalText = finalText.replace(/[^0-9]/g, "");
-                }
-                if (typeof field.maxLength === "number") {
-                  finalText = finalText.slice(0, field.maxLength);
-                }
-                setVal(field.key, finalText);
-              }}
-              className="border border-blue-300 rounded-lg p-3 w-full text-right bg-blue-50"
-              style={{ writingDirection: "rtl" }}
-            />
-          )}
+                <Text className="mb-1 text-right font-medium">
+                  {field.label}
+                </Text>
 
-          {/* ---------- textarea ---------- */}
-          {field.type === "textarea" && (
-            <TextInput
-              placeholder={field.placeholder}
-              value={values[field.key]}
-              onChangeText={(text) => setVal(field.key, text)}
-              multiline
-              numberOfLines={field.rows ?? 4}
-              textAlignVertical="top"
-              className="border border-blue-300 rounded-lg p-3 w-full text-right bg-blue-50 min-h-[120px]"
-              style={{
-                writingDirection: "rtl",
-                minHeight: (field.rows ?? 4) * 24,
-              }}
-            />
-          )}
+                {field.type === 'text' && (
+                  <TextInput
+                    placeholder={field.placeholder}
+                    value={values[field.key]}
+                    onChangeText={t => setVal(field.key, t)}
+                    className="border border-gray-300 rounded-lg p-3 w-full text-right"
+                    style={{ writingDirection: 'rtl' }}
+                    editable={!isRefusalForm || requireRefusalForm}
+                  />
+                )}
 
-          {field.type === "picker" && Array.isArray(field.options) && (
-            <Select
-              value={values[field.key]}
-              onChange={(v) => setVal(field.key, v)}
-              options={[{ label: "בחר", value: "" }, ...field.options]}
-            />
-          )}
-        </View>
-      ))}
+                {field.type === 'textarea' && (
+                  <TextInput
+                    placeholder={field.placeholder}
+                    value={values[field.key]}
+                    onChangeText={t => setVal(field.key, t)}
+                    multiline
+                    numberOfLines={6}
+                    textAlignVertical="top"
+                    className="border border-gray-300 rounded-lg p-3 w-full text-right min-h-[120px]"
+                    style={{ writingDirection: 'rtl' }}
+                    editable={!isRefusalForm || requireRefusalForm}
+                  />
+                )}
+
+                {field.type === 'picker' && field.options && (
+                  <Select
+                    value={values[field.key]}
+                    onChange={v => setVal(field.key, v)}
+                    options={[{ label: 'בחר', value: '' }, ...field.options]}
+                  />
+                )}
+
+                {field.type === 'multiselect' && field.options && (
+                  <View className="gap-2 items-end">
+                    {field.options.map((opt: Option) => {
+                      const selected = values[field.key]?.split(',').includes(opt.value);
+                      return (
+                        <Pressable
+                          key={opt.value}
+                          onPress={() => toggleMultiSelect(field.key, opt.value)}
+                          className="flex-row-reverse items-center gap-2"
+                        >
+                          <View
+                            className={`w-4 h-4 rounded-full border-2 ${selected ? 'bg-blue-600 border-blue-600' : 'border-gray-400'}`}
+                          />
+                          <Text className="text-base">{opt.label}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+              </>
+            )}
+          </View>
+        );
+      })}
+
       <View className="mt-8">
         <Pressable
-          onPress={() => {
-            onSubmit(values), router.push("/home");
-          }}
+          onPress={handleSubmit}
           className="w-full rounded-full h-14 bg-blue-600 shadow-md items-center justify-center"
         >
           <Text className="text-white font-bold text-xl">שלח</Text>

@@ -11,6 +11,7 @@ import {
 } from "firebase/database";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
 export type Event = {
   anamnesis?: string;
   apartment_details?: string;
@@ -98,6 +99,14 @@ export const subscribeToEvents = (
 
   return unsubscribe;
 };
+
+
+
+
+export async function deleteEventById(eventId: string) {
+  const eventRef = ref(realtimeDb, `events/${eventId}`);
+  await remove(eventRef);
+}
 
 export const subscribeToEventsById = (
   id: string,

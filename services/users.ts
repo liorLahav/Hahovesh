@@ -71,6 +71,8 @@ export const deleteUser = async (user_id: string) => {
   }
 };
 
+
+
 export const updatePermissions = async (
   user_id: string,
   newPermissions: string[]
