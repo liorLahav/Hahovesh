@@ -54,6 +54,7 @@ export default function ActiveEvents() {
           setLoadingEvents(false);
           return;
         }
+        console.log("Fetched events:", fetchedEvents);
         if (fetchedEvents) {
           setEvents(fetchedEvents);
         } else {

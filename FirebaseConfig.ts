@@ -5,7 +5,6 @@ import { getDatabase } from "firebase/database";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 
-// Read values from app.config.ts -> extra
 const {
   firebaseApiKey,
   firebaseAuthDomain,
@@ -13,15 +12,19 @@ const {
   firebaseStorageBucket,
   firebaseMessagingSenderId,
   firebaseAppId,
+  firebaseMeasurementId,
+  firebaseDatabaseUrl, // ✅ Now available
 } = Constants.expoConfig?.extra ?? {};
 
 export const firebaseConfig = {
   apiKey: firebaseApiKey,
   authDomain: firebaseAuthDomain,
+  databaseURL: firebaseDatabaseUrl,
   projectId: firebaseProjectId,
   storageBucket: firebaseStorageBucket,
   messagingSenderId: firebaseMessagingSenderId,
   appId: firebaseAppId,
+  measurementId: firebaseMeasurementId,
 };
 
 // Initialize Firebase
