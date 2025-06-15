@@ -1,7 +1,7 @@
 import { View, TouchableOpacity, Text } from "react-native";
 import { useState } from "react";
 import { updatePermissions } from "../../../services/users";
-import { useUserContext } from "@/hooks/UserContext";
+import { User, useUserContext } from "@/hooks/UserContext";
 
 
 
@@ -10,17 +10,27 @@ const ROLES = {
   Dispatcher: ["Volunteer", "Dispatcher"],
   Admin: ["Volunteer", "Dispatcher", "Admin"],
 };
+type permissionsPanelProps = {
+  user : User;
+  refresh: () => void;
+}
 
-const PermissionsPanel = () => {
-  const { user ,updateRoles,userHasRoles } = useUserContext();
+const PermissionsPanel = (props : permissionsPanelProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const userHasRoles = (role: keyof typeof ROLES) => {
+    return props.user.permissions.includes(role);
+  };
+  
 
   const handleRoleSelection = async (role: keyof typeof ROLES) => {
     if (isUpdating) return;
     setIsUpdating(true);
     try {
       const selectedPermissions = ROLES[role];
-      updateRoles(selectedPermissions);
+      props.user.permissions = selectedPermissions;
+      await updatePermissions(props.user.id, selectedPermissions);
+      props.refresh();
     } catch (error) {
       console.error("Error updating permissions: ", error);
     } finally {
@@ -40,7 +50,7 @@ const PermissionsPanel = () => {
           }
           ${isUpdating ? "opacity-50" : "opacity-100"}`}
         onPress={() => handleRoleSelection(role)}
-        key={user.id + role}
+        key={props.user.id + role}
         disabled={isUpdating}
       >
         <Text

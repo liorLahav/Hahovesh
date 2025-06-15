@@ -74,7 +74,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             const user = auth.currentUser;
             console.log("user: ",user);
             if (user) {
-                await changeUser(user.phoneNumber);
+                await changeUser(user.phoneNumber!);
             } else {
                 console.error("No user is currently authenticated");
                 setIsAuthenticated(false);
