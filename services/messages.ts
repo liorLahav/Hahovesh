@@ -1,6 +1,6 @@
 import { ref, push, set, onValue, remove, update } from "firebase/database";
 import { realtimeDb } from "@/FirebaseConfig";
-import { userHasRoles } from "./userHasRoles";
+import { useUserContext } from "@/hooks/UserContext";
 
 export type Message = {
   message_id: string;
