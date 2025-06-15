@@ -17,7 +17,7 @@ export default function MessagesScreen() {
 
   const { messages, loadingMessages } = useMessages();
   const isFocused = useIsFocused();
-  const userId = "Sy79iRZBzqaUey6elxmT";
+  const userId = user.id;
   const roles = user.permissions || [];
 
   useEffect(() => {

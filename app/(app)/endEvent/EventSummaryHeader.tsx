@@ -3,10 +3,10 @@ import type { DrawerNavigationProp } from "@react-navigation/drawer";
 import type { ParamListBase } from "@react-navigation/native";
 
 export default function EventSummaryHeader() {
-
   return (
     <>
-      <View className="w-full h-1 bg-blue-700 rounded-t-xl" />
+      <View className="w-full h-1 bg-red-500 rounded-t-xl" />
+
       <View className="relative h-24 justify-center bg-blue-50 items-center border-b border-blue-300">
         <Image
           source={require("../../../assets/images/logo.png")}
