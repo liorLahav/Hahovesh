@@ -111,8 +111,9 @@ export const signOutUser = async (): Promise<void> => {
     console.log("User signed out successfully");
     await AsyncStorage.removeItem('user');
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error signing out:", error);
-    throw new Error("Error signing out: " + (error?.message || JSON.stringify(error)));
+    const message = error instanceof Error ? error.message : String(JSON.stringify(error));
+    throw new Error(message);
   }
 }

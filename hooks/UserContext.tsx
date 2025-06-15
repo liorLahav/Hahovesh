@@ -30,8 +30,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         const checkIfAuthenticated = async () => {
-            console.log("Checking authentication state...");
             try {
+                setUserLoading(true);
                 const user = await checkAuthState();
                 console.log("User authentication state:", user);
                 if (user) {
@@ -45,6 +45,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 console.error("Error checking authentication state:", error);
                 setIsAuthenticated(false);
             }
+            setUserLoading(false);
         }
         checkIfAuthenticated();
     }, []);

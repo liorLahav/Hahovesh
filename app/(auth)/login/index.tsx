@@ -69,6 +69,7 @@ const Login = () => {
     setWelcomeName("");
     setLoginError("");
     setIsLoading(true);
+    setVerificationError("");
     console.log("Attempting login with phone:", formatPhoneNumber(phoneNumber), "and ID:", identifier);
     try {
       const loginResult = await loginWithPhoneAndId(formatPhoneNumber(phoneNumber), identifier);
