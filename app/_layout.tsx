@@ -1,26 +1,30 @@
-/**
- * @fileoverview This file is the root layout for the application.
- * It wraps the entire application in a context provider for user roles and includes the AppDrawer component.
- * need to include common components
- */
-
-import "../global.css";
-import { RolesProvider } from "@/hooks/RolesContext";
-import { EventProvider } from "@/hooks/EventContext";
+import "global.css";
+import { Slot, useRouter } from "expo-router";
+import { UserProvider } from "@/hooks/UserContext";
 import { OnlineProvider } from "@/hooks/OnlineContext";
-import AppDrawer from "./sideBar/AppDrawer";
+import { EventProvider } from "@/hooks/EventContext";
 import { MessagesProvider } from "@/hooks/MessagesContext";
+import { useFonts } from "expo-font";
+import { Text } from "react-native";
+import Loading from "@/components/Loading";
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Assistant: require("../assets/fonts/Assistant-Regular.ttf"),
+    "Assistant-Bold": require("../assets/fonts/Assistant-Bold.ttf"),
+  });
+
+  if (!fontsLoaded) return <Text>Loading fonts...</Text>; // או קומפוננטת Loading
+
   return (
-    <OnlineProvider>
-      <RolesProvider>
+    <UserProvider>
+      <OnlineProvider>
         <EventProvider>
           <MessagesProvider>
-            <AppDrawer />
+            <Slot />
           </MessagesProvider>
         </EventProvider>
-      </RolesProvider>
-    </OnlineProvider>
+      </OnlineProvider>
+    </UserProvider>
   );
 }

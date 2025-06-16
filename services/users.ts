@@ -6,10 +6,10 @@ import {
   collection,
   getDocs,
   getDoc,
+  query,
+  where,
   CollectionReference,
   setDoc,
-  where,
-  query,
 } from "firebase/firestore";
 import { db } from "../FirebaseConfig";
 
@@ -165,6 +165,31 @@ export const getRoles = async (userId: string): Promise<string[]> => {
     );
   }
 };
+
+export const getUserByPhoneNumber = async (phoneNumber: string): Promise<DocumentData | null> => {
+  try {
+    console.log("Fetching user by phone number:", phoneNumber);
+    const q = query(
+      collection(db, 'volunteers'),
+      where('phone', '==', phoneNumber)
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log("User not found in database");
+      return null;
+    }
+
+    const doc = querySnapshot.docs[0];
+    const userData = doc.data();
+    return { ...userData, id: doc.id }; 
+  } catch (error: any) {
+    console.error("Error fetching user by ID:", error);
+    throw new Error(
+      "Error fetching user: " + (error?.message || JSON.stringify(error))
+    );
+  }
+}
 export async function registerVolunteer({ firstName, lastName, identifier, phone }: {
   firstName: string;
   lastName: string;
