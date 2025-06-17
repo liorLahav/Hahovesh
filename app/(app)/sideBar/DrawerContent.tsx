@@ -5,12 +5,13 @@ import { useRouter } from "expo-router";
 import {drawerItems} from "../../../data/DrawerRoutes";
 import type { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { useUserContext } from "@/hooks/UserContext";
+import { removeExpoToken, updateExpoToken } from "@/services/users";
 
 export default function DrawerContent(
   props: DrawerContentComponentProps & { userRole: string[] }
 ) {
   const router = useRouter();
-  const { signOut} = useUserContext();
+  const {user, signOut} = useUserContext();
   let roleLevel = 0;
   if (props.userRole.includes("Admin")) roleLevel = 2;
   else if (props.userRole.includes("Dispatcher")) roleLevel = 1;
@@ -31,7 +32,19 @@ export default function DrawerContent(
       {
         text: "כן",
         onPress: () => {
-          signOut();
+          let expoToken = user?.expoPushToken;
+          let id = user?.id;
+          try {
+            removeExpoToken(user.id);
+          } catch (error) {
+            console.error("Error removing Expo token:", error);
+          }
+          try {
+            signOut();
+          } catch (error) {
+            updateExpoToken(id,expoToken);
+            console.error("Error removing Expo token:", error);
+          }
         },
       },
     ]);

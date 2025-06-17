@@ -40,6 +40,20 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "firebaseApiKey": "AIzaSyAwFn5-CkW1rK3hukWdEWJ0EMom08e4Kpw",
+      "firebaseAuthDomain": "hahovesh-project.firebaseapp.com",
+      "firebaseProjectId": "hahovesh-project",
+      "firebaseStorageBucket": "hahovesh-project.appspot.com",
+      "firebaseMessagingSenderId": "259653569192",
+      "firebaseAppId": "1:259653569192:web:d8640079b0c50a828d109d",
+      "firebaseMeasurementId": "G-ZMB4E0BNNJ",
+      "firebaseDatabaseUrl": "https://hahovesh-project-default-rtdb.europe-west1.firebasedatabase.app",
+      "router": {},
+      "eas": {
+        "projectId": "bebf62bb-09e7-4b45-85fa-6f08506fc8ee"
+      }
     }
   }
 }

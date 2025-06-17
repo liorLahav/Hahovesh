@@ -12,6 +12,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { db } from "../FirebaseConfig";
+import { remove } from "firebase/database";
 
 export async function createUser({ firstName, lastName, identifier, phone }: {
   firstName: string;
@@ -233,4 +234,30 @@ export async function registerVolunteer({ firstName, lastName, identifier, phone
   });
 
   return { success: true };
+}
+
+export async function updateExpoToken(userId: string, expoPushToken: string) {
+  try {
+    const userRef = doc(db, "volunteers", userId);
+    await updateDoc(userRef, { expoPushToken });
+    console.log("Expo token updated successfully for user:", userId);
+  } catch (error: any) {
+    console.error("Error updating Expo token:", error);
+    throw new Error(
+      "Error updating Expo token: " + (error?.message || JSON.stringify(error))
+    );
+  }
+}
+export async function removeExpoToken(userId: string) {
+  try {
+    const userRef = doc(db, "volunteers", userId);
+    await updateDoc(userRef, { expoPushToken: null });
+    console.log("Expo token removed successfully for user:", userId);
+  }
+  catch (error: any) {
+    console.error("Error removing Expo token:", error);
+    throw new Error(
+      "Error removing Expo token: " + (error?.message || JSON.stringify(error))
+    );
+  }
 }

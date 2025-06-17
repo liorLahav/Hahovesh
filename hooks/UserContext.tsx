@@ -1,15 +1,17 @@
 import { auth } from '@/FirebaseConfig';
 import { signOutUser } from '@/services/auth';
 import { checkAuthState } from '@/services/login';
-import { getUserByPhoneNumber, updatePermissions } from '@/services/users';
+import { getUserByPhoneNumber, updateExpoToken, updatePermissions } from '@/services/users';
 import { set, update } from 'firebase/database';
 import { createContext, use, useEffect, useState } from 'react';
+import { usePushNotifications } from './NotificationsHook';
 export type User = {
     id: string;
     first_name: string;
     last_name: string;
     phone: string;
     permissions: string[];
+    expoPushToken: string;
 }
 
 type userContextType = {
@@ -27,15 +29,17 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User>({} as User);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userLoading, setUserLoading] = useState(false);
+    const {  expoPushToken } = usePushNotifications();
 
     useEffect(() => {
         const checkIfAuthenticated = async () => {
             try {
                 setUserLoading(true);
-                const user = await checkAuthState();
-                console.log("User authentication state:", user);
-                if (user) {
-                    changeUser(user.phoneNumber);
+                const tempUser = await checkAuthState();
+                console.log("User authentication state:", tempUser);
+                if (tempUser) {
+                    changeUser(tempUser.phoneNumber);
+                    await updateExpoToken(user.id, expoPushToken);
                     setIsAuthenticated(true);
                     console.log("User is authenticated:", isAuthenticated);
                 } else {

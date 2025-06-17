@@ -24,7 +24,6 @@ export type VerificationResult = {
 
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 
-
 export const sendVerificationCode = async (phoneNumber: string,recaptchaVerifier : any): Promise<LoginResult> => {
   try {
     console.log("Verification code sent to:", phoneNumber);
@@ -34,14 +33,11 @@ export const sendVerificationCode = async (phoneNumber: string,recaptchaVerifier
       phoneNumber,
       recaptchaVerifier
     );
-    console.log("Verification code sent to:", phoneNumber);
-    console.log(confirmationResult.verificationId);
     return {
       success: true,
       verificationCallback: async (code : string) => {
         try {
           const result : UserCredential = await confirmationResult.confirm(code);
-          console.log("✅ Verification code confirmed:", result);
           return {
             success: true,
             user: result,

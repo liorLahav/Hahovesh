@@ -16,10 +16,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: "org.hahovesh.volunteerApp"
   },
   android: {
+    package: "org.hahovesh.volunteerApp",
+    googleServicesFile: "./android/google-services.json",
     adaptiveIcon: {
       foregroundImage: "./assets/images/adaptive-icon.png",
-      backgroundColor: "#ffffff",
-      package: "org.hahovesh.volunteerApp"
+      backgroundColor: "#ffffff"
     }
   },
   web: {
@@ -53,5 +54,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     firebaseAppId: process.env.FIREBASE_APP_ID,
     firebaseMeasurementId: process.env.FIREBASE_MEASUREMENT_ID,
     firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,
+    eas: {
+      projectId: "bebf62bb-09e7-4b45-85fa-6f08506fc8ee"
+    }
   }
 });
