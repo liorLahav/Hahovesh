@@ -5,11 +5,6 @@ import Loading from "@/components/Loading";
 import { useEffect } from "react";
 import { usePushNotifications } from "@/hooks/NotificationsHook";
 
-useEffect(() => {
-  const { expoPushToken } = usePushNotifications();
-  console.log("Expo Push Token:", expoPushToken);
-}, []);
-
 
 export default function Index() {
   const {isAuthenticated,userLoading} = useUserContext();

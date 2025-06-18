@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import * as Device from 'expo-device';
+import { router } from 'expo-router';
 
 
 export interface PushNotificationState{
@@ -39,7 +40,7 @@ export const usePushNotifications = () : PushNotificationState => {
                 return;
             }
             token = await Notification.getExpoPushTokenAsync({
-                projectId: Constants?.expoConfig?.extra?.eas?.projectId
+                projectId: Constants?.expoConfig?.extra?.eas?.projectId ?? "bebf62bb-09e7-4b45-85fa-6f08506fc8ee"
             });
             if(Platform.OS == 'android') {
                 Notification.setNotificationChannelAsync('default', {
@@ -56,6 +57,7 @@ export const usePushNotifications = () : PushNotificationState => {
     }
     useEffect(() => {
         registerForPushNotifications().then(token => {
+            console.log("Expo Push Token:", token);
             if (token) {
                 setExpoPushToken(token);
             }
@@ -66,7 +68,7 @@ export const usePushNotifications = () : PushNotificationState => {
         });
     
         responseListener.current = Notification.addNotificationResponseReceivedListener(response => {
-            console.log(response);
+            router.replace('/home');
         });
     
         return () => {
