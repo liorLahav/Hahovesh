@@ -39,7 +39,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 const tempUser = await checkAuthState();
                 console.log("User authentication state:", tempUser);
                 if (tempUser) {
-                    changeUser(tempUser.phoneNumber);
+                    await changeUser(tempUser.phoneNumber);
                     setIsAuthenticated(true);
                     console.log("User is authenticated:", isAuthenticated);
                 } else {
@@ -63,9 +63,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 setUser(userData as User);
                 setIsAuthenticated(true);
                 console.log("uuuu: " + userData.id,expoPushToken?.data);
-                while (!expoPushToken?.data) {
-                    console.log("Waiting for expoPushToken to be available...");
-                }
                 await updateExpoToken(userData.id, expoPushToken.data);
             } else {
                 console.error("User not found ");
