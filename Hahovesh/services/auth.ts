@@ -1,5 +1,5 @@
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { auth, db } from "@/FirebaseConfig";
+import { app, auth, db } from "@/FirebaseConfig";
 import { 
   PhoneAuthProvider, 
   signInWithCredential, 
@@ -10,6 +10,12 @@ import {
 } from 'firebase/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAllUsers } from "./users";
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+type ValidateResponse = {
+  valid: boolean;
+  error?: string;
+};
 
 export type LoginResult = {
   success: boolean;
@@ -59,47 +65,26 @@ export const sendVerificationCode = async (phoneNumber: string,recaptchaVerifier
   }
 };
 
-export const loginWithPhoneAndId = async (phone: string, identifier: string): Promise<LoginResult> => {
+export async function loginWithPhoneAndId(phone: string, identifier: string): Promise<LoginResult> {
+  const functions = getFunctions(app);
+  console.log("Attempting login with phone:", phone, "and ID:", identifier);
+  const validateUser = httpsCallable<{ phoneNumber: string, id: string }, ValidateResponse>(functions, 'validateUser');
+  
   try {
-    // Format the phone number for consistency
-    const formattedPhone = phone;
-    console.log("Formatted phone number:", formattedPhone);
-    const localPhone = formattedPhone.replace('+972', '0');
+    const result = await validateUser({ phoneNumber: phone, id: identifier });
+    const data = result.data;
+    console.log("Validation result:", data);
     
-    const volunteersRef = collection(db, "volunteers");
-    const q = query(
-      volunteersRef,
-      where("phone", "in", [formattedPhone, localPhone, phone]),
-      where("id", "==", identifier)
-    );
-
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      return { success: false, error: "הפרטים שהוזנו שגויים" };
+    if (data.valid) {
+      return { success: true };
+    } else {
+      return { success: false, error: data.error || "Invalid credentials" };
     }
-
-    const volunteerData = querySnapshot.docs[0].data();
-
-    if (
-      volunteerData.permissions &&
-      (volunteerData.permissions.includes("pending") || volunteerData.permissions.includes("Pending"))
-    ) {
-      return { success: false, error: "חשבונך עדיין בבדיקה וממתין לאישור מנהל. נא לנסות שוב מאוחר יותר." };
-    }
-
-    return { 
-      success: true, 
-      data: {
-        ...volunteerData,
-        id: querySnapshot.docs[0].id
-      }
-    };
   } catch (error) {
     console.error("Login error:", error);
-    return { success: false, error: "אירעה שגיאה בהתחברות. אנא נסה שוב." };
+    return { success: false, error: "Authentication failed. Please try again." };
   }
-};
+}
 
 export const signOutUser = async (): Promise<void> => {
   try {

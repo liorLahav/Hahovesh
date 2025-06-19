@@ -6,6 +6,7 @@ import {
   ReactNode,
 } from "react";
 import { Message, subscribeToMessages } from "@/services/messages";
+import { useUserContext } from "./UserContext";
 
 // טיפוס חדש לאובייקט שנחזיר
 type MessagesContextType = {
@@ -24,20 +25,25 @@ export const useMessages = () => useContext(MessagesContext);
 export function MessagesProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
+  const {isAuthenticated} = useUserContext();
 
   useEffect(() => {
-    const unsubscribe = subscribeToMessages((fetchedMessages, error) => {
-      if (error) {
-        console.error("שגיאה בטעינת הודעות:", error);
+    if (!isAuthenticated) {
+      setMessages([]);
+    }
+    else{
+      const unsubscribe = subscribeToMessages((fetchedMessages, error) => {
+        if (error) {
+          console.error("שגיאה בטעינת הודעות:", error);
+          setLoadingMessages(false);
+          return;
+        }
+        setMessages(fetchedMessages || []);
         setLoadingMessages(false);
-        return;
-      }
-      setMessages(fetchedMessages || []);
-      setLoadingMessages(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
+        return () => unsubscribe();
+      });
+    }
+  }, [isAuthenticated]);
 
   return (
     <MessagesContext.Provider value={{ messages, loadingMessages }}>

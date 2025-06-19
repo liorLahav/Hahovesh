@@ -13,7 +13,7 @@ const {
   firebaseMessagingSenderId,
   firebaseAppId,
   firebaseMeasurementId,
-  firebaseDatabaseUrl, // ✅ Now available
+  firebaseDatabaseUrl, 
 } = Constants.expoConfig?.extra ?? {};
 
 export const firebaseConfig = {

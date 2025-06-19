@@ -12,6 +12,7 @@ import { firebaseConfig } from "@/FirebaseConfig";
 import PhoneVerification from "./PhoneVerification";
 import {auth} from "@/FirebaseConfig";
 
+
 const Login = () => {
   const recaptchaVerifier = useRef(null);
   // State for form fields

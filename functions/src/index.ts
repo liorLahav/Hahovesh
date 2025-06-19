@@ -1,4 +1,6 @@
 import { onValueCreated } from "firebase-functions/v2/database";
+import { onCall } from "firebase-functions/v2/https";
+
 import * as admin from "firebase-admin";
 import { Expo, ExpoPushMessage } from "expo-server-sdk";
 
@@ -82,3 +84,21 @@ export const onNewEvent = onValueCreated({
     console.error("❌ Error sending push:", err);
   }
 });
+
+export const validateUser = onCall(async (request) => {
+  const phone = request.data.phoneNumber;
+  const id = request.data.id;
+  if (!phone || !id) {
+    return { valid: false, error: "Missing phone number or ID"};
+  }
+  const userSnap = await admin.firestore().collection("volunteers").doc(id).get();
+  if (!userSnap.exists) {
+    return { valid: false, error: "הטלפון או תעודת הזהות לא נכונים"};
+  }
+  const userData = userSnap.data();
+  console.debug("User snapshot:", userSnap.exists, userSnap.data());
+  if (userData?.phone !== phone) {
+    return { valid: false, error: "הטלפון או תעודת הזהות לא נכונים" };
+  }
+  return { valid: true, userId: id };
+ })
