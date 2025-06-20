@@ -35,7 +35,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 const user = await checkAuthState();
                 console.log("User authentication state:", user);
                 if (user) {
-                    changeUser(user.phoneNumber);
+                    await changeUser(user.phoneNumber);
                     setIsAuthenticated(true);
                     console.log("User is authenticated:", isAuthenticated);
                 } else {
