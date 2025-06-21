@@ -34,7 +34,7 @@ export default function OperationEvent() {
 
       await sendMessageToDB({
         message_description: description,
-        distribution_by_role: "All", 
+        distribution_by_role: "All",
       });
 
       Alert.alert("הבקשה נשלחה");
