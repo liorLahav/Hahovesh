@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import { useState } from "react";
-import { updateUserStatus } from "@/services/users";
+import { removeExpoToken, updateExpoToken, updateUserStatus } from "@/services/users";
 import { useUserContext } from "@/hooks/UserContext";
 import { useError } from "@/hooks/UseError";
 
@@ -20,6 +20,12 @@ export default function UserStatus() {
     try {
       const newStatus =
         userStatus === "available" ? "unavailable" : "available";
+      if (newStatus === "available"){
+        updateExpoToken(user.id, user.expoPushToken);
+      }
+      else {
+        removeExpoToken(user.id);
+      }
       await updateUserStatus(user.id, newStatus);
       setUserStatus(newStatus);
     } catch (error) { 
