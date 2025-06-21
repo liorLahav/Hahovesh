@@ -132,7 +132,10 @@ export default function DateRangePicker({
             onConfirm={onConfirmStart}
             onCancel={onCancelStart}
             maximumDate={endDate || undefined}
-            headerTextIOS="בחר תאריך התחלה"
+            // Use title instead of headerTextIOS for cross-platform support
+            title="בחר תאריך התחלה"
+            confirmTextIOS="אישור" 
+            cancelTextIOS="ביטול"
           />
 
           {/* End DateTimePickerModal */}
@@ -142,7 +145,10 @@ export default function DateRangePicker({
             onConfirm={onConfirmEnd}
             onCancel={onCancelEnd}
             minimumDate={startDate || undefined}
-            headerTextIOS="בחר תאריך סיום"
+            // Use title instead of headerTextIOS for cross-platform support
+            title="בחר תאריך סיום"
+            confirmTextIOS="אישור"
+            cancelTextIOS="ביטול"
           />
         </View>
       )}

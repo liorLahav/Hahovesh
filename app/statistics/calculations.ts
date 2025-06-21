@@ -1,15 +1,19 @@
+// calculations.ts
 import { Timestamp } from 'firebase/firestore';
 import { StatsPeriod } from './volApi';
 
 // Calculate date range based on period type
-export function calculateDateRange(period: StatsPeriod, startDate?: Date, endDate?: Date): { start: Date | null, end: Date } {
+export function calculateDateRange(
+  period: StatsPeriod,
+  startDate?: Date,
+  endDate?: Date
+): { start: Date | null; end: Date } {
   if (period === 'custom' && startDate) {
     return { start: startDate, end: endDate || new Date() };
   }
 
   const now = new Date();
   let start: Date | null = null;
-  
   switch (period) {
     case 'daily':
       start = new Date(now);
@@ -28,33 +32,42 @@ export function calculateDateRange(period: StatsPeriod, startDate?: Date, endDat
       break;
     case 'all':
     default:
-      start = null; // All data
+      start = null;
   }
-  
-  console.log(`Calculated date range for ${period}: ${start?.toISOString() || 'all'} to ${now.toISOString()}`);
   return { start, end: now };
 }
 
-/**
- * Function to calculate average response time (for future use)
- * Currently returns a constant value as an example
- */
-export function calculateResponseTime(events: Array<{ eventId: string, eventDate: Timestamp }>): number {
-  // In the future, we can calculate the actual response time based on event data
-  // For example: the difference between "taking the event" time and the volunteer's initial arrival time
-  return 15; // Constant value in minutes
+// Helper: weekday names in Hebrew
+export const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+
+export function formatWeekday(date: Date): string {
+  return dayNames[date.getDay()];
 }
 
-/**
- * Function to calculate form completion quality
- * The function checks how many fields of the form were filled, with emphasis on critical fields
- * @param summaryData The summary object from Firestore
- * @returns Quality score between 1-10
- */
+export function formatHour(date: Date): number {
+  return date.getHours();
+}
+
+export function formatMonthKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  return `${year}-${month}`;
+}
+
+export function formatYear(date: Date): number {
+  return date.getFullYear();
+}
+
+// Function to calculate average response time (for future use)
+export function calculateResponseTime(
+  events: Array<{ eventId: string; eventDate: Timestamp }>
+): number {
+  return 15;
+}
+
+// Function to calculate form completion quality
 export function calculateFormQuality(summaryData: any): number {
   if (!summaryData) return 0;
-  
-  // All fields in the form
   const allFields = [
     'additional_notes', 'address', 'arrival_time', 'blood_pressure',
     'breath_rate', 'breathing', 'car_accident', 'consciousness',
@@ -67,81 +80,34 @@ export function calculateFormQuality(summaryData: any): number {
     'title_end', 'title_event', 'title_measurements', 'title_medic',
     'title_patient', 'title_treatment', 'transport'
   ];
-  
-  // Critical fields that have a significant impact on the form's quality
   const criticalFields = [
-    'consciousness', 'breathing', 'pulse', 'oxygen', 'summary', 
+    'consciousness', 'breathing', 'pulse', 'oxygen', 'summary',
     'blood_pressure', 'breath_rate', 'medications'
   ];
-  
-  // Titles of the fields that are not relevant for the quality calculation
   const titleFields = [
     'title_end', 'title_event', 'title_measurements', 'title_medic',
     'title_patient', 'title_treatment'
   ];
-  
-  // List of all fields that are relevant for the quality calculation
-  const relevantFields = allFields.filter(field => !titleFields.includes(field));
-  
-  // Counting how many fields are filled
+  const relevantFields = allFields.filter(f => !titleFields.includes(f));
+
   let filledCount = 0;
   let criticalFilledCount = 0;
-  let totalCriticalFields = 0;
-  
-  for (const field of relevantFields) {
-    // Check if the field has a value (not empty, not null, not undefined)
-    const hasValue = summaryData[field] !== undefined && 
-                     summaryData[field] !== null && 
-                     summaryData[field] !== '';
-    
-    if (hasValue) {
+  let totalCritical = 0;
+  relevantFields.forEach(field => {
+    const has = summaryData[field] !== undefined && summaryData[field] !== null && summaryData[field] !== '';
+    if (has) {
       filledCount++;
-      
-      // If it's a critical field, count it separately
-      if (criticalFields.includes(field)) {
-        criticalFilledCount++;
-      }
+      if (criticalFields.includes(field)) criticalFilledCount++;
     }
-    
-    // Count how many critical fields exist in the form
-    if (criticalFields.includes(field)) {
-      totalCriticalFields++;
-    }
+    if (criticalFields.includes(field)) totalCritical++;
+  });
+  const regularCount = relevantFields.length - totalCritical;
+  const regularScore = regularCount > 0 ? (filledCount - criticalFilledCount) / regularCount * 10 * 0.6 : 0;
+  const criticalScore = totalCritical > 0 ? (criticalFilledCount / totalCritical) * 10 * 0.4 : 0;
+  let score = regularScore + criticalScore;
+  if (typeof summaryData.summary === 'string') {
+    if (summaryData.summary.length > 50) score += 1;
+    else if (summaryData.summary.length > 15) score += 0.5;
   }
-  
-  /* Calculate the score:
-   60% of the score is based on the percentage of regular fields filled
-   40% of the score is based on the percentage of critical fields filled
-   */
-  const regularFieldsWeight = 0.6;
-  const criticalFieldsWeight = 0.4;
-  
-  const regularFieldsCount = relevantFields.length - totalCriticalFields;
-  const regularFieldsFilled = filledCount - criticalFilledCount;
-  
-  const regularScore = regularFieldsCount > 0 
-    ? (regularFieldsFilled / regularFieldsCount) * 10 * regularFieldsWeight 
-    : 0;
-    
-  const criticalScore = totalCriticalFields > 0
-    ? (criticalFilledCount / totalCriticalFields) * 10 * criticalFieldsWeight
-    : 0;
-  
-  // Calculate the final score (between 1-10)
-  let finalScore = regularScore + criticalScore;
-  
-  // Give a bonus for detailed summaries (more than 15 characters)
-  if (summaryData.summary && typeof summaryData.summary === 'string') {
-    if (summaryData.summary.length > 50) {
-      finalScore += 1; // Large bonus for very detailed summaries
-    } else if (summaryData.summary.length > 15) {
-      finalScore += 0.5; // Partial bonus for medium-length summaries
-    }
-  }
-  
-  // Ensure the score is within the range 1-10
-  finalScore = Math.max(1, Math.min(10, finalScore));
-  
-  // Round to one decimal place
-  return Math.round(finalScore * 10) / 10;
+  return Math.round(Math.max(1, Math.min(10, score)) * 10) / 10;
 }
