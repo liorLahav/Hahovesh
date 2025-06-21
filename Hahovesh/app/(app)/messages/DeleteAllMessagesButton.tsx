@@ -1,12 +1,17 @@
+import { useError } from "@/hooks/UseError";
 import { deleteAllMessages } from "@/services/messages";
+import { set } from "firebase/database";
 import { Alert, Pressable, Text } from "react-native";
 
 export default function DeleteAllMessagesButton() {
+  const { setErrorMessage, cleanError } = useError();
   const handleDeleteAllMessages = async () => {
+    cleanError();
     try {
       await deleteAllMessages();
     } catch (err) {
       console.error("שגיאה במחיקת ההודעות:", err);
+      setErrorMessage("שגיאה במחיקת ההודעות");
     }
   };
   return (

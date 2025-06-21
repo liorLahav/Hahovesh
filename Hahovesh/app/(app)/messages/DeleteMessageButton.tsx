@@ -1,13 +1,19 @@
 import { Alert, Pressable } from "react-native";
 import { deleteMessage } from "@/services/messages";
 import { Ionicons } from "@expo/vector-icons";
+import { useError } from "@/hooks/UseError";
 
 export default function DeleteMessageButton({ msgId }: { msgId: string }) {
+  const { setErrorMessage, cleanError } = useError();
+
   const handleDeleteMessage = async () => {
     try {
-      await deleteMessage(msgId);
+      cleanError(); 
+      console.log("ID:", msgId);
+      await deleteMessage(msgId); // 👈 כאן תכניס את ה-ID של ההודעה שברצונך למחוק
     } catch (err) {
       console.error("שגיאה במחיקת הודעה:", err);
+      setErrorMessage("שגיאה במחיקת הודעה");
     }
   };
 

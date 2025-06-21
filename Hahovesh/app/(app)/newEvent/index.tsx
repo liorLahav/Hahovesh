@@ -1,12 +1,8 @@
 import { ScrollView, Text, Alert, View, StatusBar } from "react-native";
-
 import formSchema from "../../../data/formSchema";
 import DynamicForm from "../../../components/DynamicForm";
 import { useState } from "react";
 import { createEvent } from "@/services/events";
-import { router } from "expo-router";
-
-import HomePageHeader from "../home/HomePageHeader";
 import NewEventHeader from "./newEventHeader";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,16 +10,14 @@ export default function NewEventScreen() {
   const [formKey, setFormKey] = useState(0);
   /** Push a new event object to RTDB */
   const onSubmit = async (values: Record<string, string>) => {
-    createEvent(values, () => setFormKey((k) => k + 1))
-      .then(() => {
-        console.log("Event created successfully");
-      })
-      .catch((error: any) => {
-        Alert.alert(
-          "Error saving the event",
-          error.message || "Unexpected error event"
-        );
-      });
+    try{
+      await createEvent(values, () => setFormKey((k) => k + 1))
+      console.log("Event created successfully");
+    }
+    catch (error) {
+      console.error("Error creating event:", error);
+      Alert.alert("שגיאה", "אירעה שגיאה ביצירת האירוע, אנא פנה למנהל המערכת")
+    }
   };
 
   return (

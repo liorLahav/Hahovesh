@@ -22,7 +22,7 @@ export default function MessagesScreen() {
 
   useEffect(() => {
     if (isFocused && messages.length && userId) {
-      markMessagesAsRead(userId, messages, roles);
+      markMessagesAsRead(userId, messages);
     }
   }, [isFocused, userId, messages]);
 

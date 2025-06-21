@@ -2,7 +2,6 @@ import messageFormSchema from "@/data/MessagesSchema";
 import {
   View,
   Text,
-  ScrollView,
   TextInput,
   Pressable,
   Alert,
@@ -12,19 +11,17 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useState } from "react";
 import { MessageField } from "@/data/MessagesSchema";
 import { sendMessageToDB } from "@/services/messages";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MessagesHeader from "./MessagesHeader";
-import { router } from "expo-router";
 import MessagesFormHeader from "./MessagesFormHeader";
+import { useUserContext } from "@/hooks/UserContext";
+import { useError } from "@/hooks/UseError";
 
 export default function MessagesForm() {
   const [form, setForm] = useState<{ [key: string]: string }>({
-    // message_description: "",
     distribution_by_role: "All",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,7 +34,11 @@ export default function MessagesForm() {
       []
   );
 
+  const { user } = useUserContext();
+  const { cleanError, setErrorMessage } = useError();
+
   const onSubmit = async () => {
+    cleanError(); // Clear any previous error messages
     if (isSubmitting) return;
     if (!form.message_description?.trim()) {
       Alert.alert("שגיאה", "יש למלא את תוכן ההודעה");
@@ -46,14 +47,20 @@ export default function MessagesForm() {
     setIsSubmitting(true);
 
     try {
-      await sendMessageToDB(form);
+      await sendMessageToDB(
+        form.message_description,
+        form.distribution_by_role,
+        user.id
+      ); // replace "currentUserId" with actual user ID
       console.log("ההודעה נשלחה בהצלחה");
       setForm({ message_description: "", distribution_by_role: "All" });
       setValue("All");
     } catch (error) {
       console.error("שגיאה בשליחת ההודעה:", error);
+      setErrorMessage("אירעה שגיאה בשליחת ההודעה");
     } finally {
       setIsSubmitting(false);
+      Keyboard.dismiss();
     }
   };
 

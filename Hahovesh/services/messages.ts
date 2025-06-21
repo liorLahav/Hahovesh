@@ -12,9 +12,16 @@ export type Message = {
   read_by?: { [userId: string]: boolean };
 };
 
-export const sendMessageToDB = async (messageData: {
-  [key: string]: string;
-}) => {
+export const sendMessageToDB = async (
+  message_description: string,
+  distribution_by_role: string,
+  sender_id: string
+) => {
+
+  if (distribution_by_role !== "All" ) {
+    throw new Error(
+      "הפצת הודעות אפשרית רק לכל המשתמשים, לא ניתן לשלוח הודעה למשתמשים ספציפיים" )
+  }
   const now = new Date();
   const date = now.toLocaleDateString("he-IL");
   const time = now.toLocaleTimeString("he-IL", {
@@ -26,12 +33,13 @@ export const sendMessageToDB = async (messageData: {
   const newMessageRef = push(messagesRef); // create a new message reference and unique key
 
   const fullMessage = {
-    ...messageData,
+    message_description,
+    distribution_by_role,
     date,
     time,
-    sender_id: "admin123", // replace with actual sender ID
+    sender_id,
+    read_by: { [sender_id]: true }, 
     message_id: newMessageRef.key,
-    // read_by: {},
   };
   console.log("fullMessage:", fullMessage);
 
@@ -91,6 +99,7 @@ export const subscribeToMessages = (
 
 export const deleteMessage = async (messageId: string) => {
   try {
+
     const messageRef = ref(realtimeDb, `messages/${messageId}`);
     await remove(messageRef);
     console.log(`Message with ID ${messageId} deleted successfully.`);
@@ -120,14 +129,14 @@ export const deleteAllMessages = async () => {
 export const markMessagesAsRead = async (
   userId: string,
   messages: Message[],
-  userRoles: string[]
 ) => {
+  const {userHasRoles} = useUserContext();
   const updates: Record<string, any> = {};
 
   messages.forEach((msg) => {
     const shouldSee =
       msg.distribution_by_role === "All" ||
-      userHasRoles(userRoles, msg.distribution_by_role);
+      userHasRoles(msg.distribution_by_role);
 
     if (shouldSee && !msg.read_by?.[userId]) {
       updates[`messages/${msg.message_id}/read_by/${userId}`] = true;

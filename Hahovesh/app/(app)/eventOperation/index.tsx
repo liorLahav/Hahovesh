@@ -20,28 +20,25 @@ export default function OperationEvent() {
   const { user } = useUserContext();
   const { event, changeActiveStatus } = useEventContext();
   const { id: eventId, anamnesis: eventTitle } = event;
-  
 
   const options = ["קריאה לחובש נוסף", "קריאה לאמבולנס", "אחר"];
 
   const handleSend = async () => {
     if (!selectedOption) {
-      Alert.alert("יש לבחור אופציה", "שגיאה");
+      Alert.alert("נא לבחור אפשרות");
       return;
     }
-     try {
-      const description = `לאירוע -  ${eventTitle} צריך : ${selectedOption === "אחר" ? otherText : selectedOption.slice(7)}`;
-
-      await sendMessageToDB({
-        message_description: description,
-        distribution_by_role: "All",
-      });
-
+    try {
+      const description = `לאירוע -  ${eventTitle} צריך : ${
+        selectedOption === "אחר" ? otherText : selectedOption.slice(7)
+      }`;
+      await sendMessageToDB(description, "All", user.id);
       Alert.alert("הבקשה נשלחה");
       setSelectedOption("");
       setOtherText("");
-    } catch (e: any) {
-      Alert.alert("אירעה שגיאה בשליחה", e.message || "");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      Alert.alert("שגיאה", "לא ניתן לשלוח את הבקשה, אנא פנה למנהל");
     }
   };
 
@@ -64,7 +61,7 @@ export default function OperationEvent() {
       return;
     }
 
-    changeActiveStatus (false);
+    changeActiveStatus(false);
 
     if (isFirstVolunteer) {
       router.replace("/endEvent");
@@ -76,7 +73,6 @@ export default function OperationEvent() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-
       <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center">
         <Text className="text-3xl font-bold text-white tracking-wide">
           {eventTitle}
@@ -132,9 +128,7 @@ export default function OperationEvent() {
           className="bg-red-600 rounded-full py-4 items-center shadow-lg elevation-5"
         >
           <Text className="text-lg text-white font-bold">
-            {isFirstVolunteer
-              ? "סיום אירוע ומילוי דוח סיכום"
-              : "סיום אירוע"}
+            {isFirstVolunteer ? "סיום אירוע ומילוי דוח סיכום" : "סיום אירוע"}
           </Text>
         </Pressable>
       </ScrollView>

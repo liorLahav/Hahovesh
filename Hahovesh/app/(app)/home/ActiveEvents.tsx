@@ -1,49 +1,54 @@
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useEffect, useState, useRef } from "react";
 import { router } from "expo-router";
-import { subscribeToEvents, Event, addVolunteerToEvent } from "@/services/events";
+import {
+  subscribeToEvents,
+  Event,
+  addVolunteerToEvent,
+} from "@/services/events";
 import { updateUserStatus } from "@/services/users";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEventContext } from "@/hooks/EventContext";
-import { useOnlineContext } from "@/hooks/OnlineContext";
 import { useUserContext } from "@/hooks/UserContext";
 import Loading from "@/components/Loading";
-
-
+import { useError } from "@/hooks/UseError";
 
 export default function ActiveEvents() {
   const { user, userLoading } = useUserContext();
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
   const unsubscribeRef = useRef<() => void | null>(null);
-  const { event, isEventActive, changeEvent } = useEventContext();
-  const { isOnline } = useOnlineContext();
+  const { isEventActive, changeEvent } = useEventContext();
   const roles = user.permissions || [];
+  const { setErrorMessage, cleanError } = useError();
 
-  const receiveEvent = (event: Event) => {
+  const receiveEvent = async (event: Event) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
-    console.log("Changing user status to Arriving for event ID:", event.id);
-    updateUserStatus(user.id, "Arriving : " + event.id)
-      .then(() => {
-        console.log("User status updated successfully");
-        addVolunteerToEvent(event.id, user.id)
-          .then(() => {
-            console.log("Volunteer added to event successfully");
-          })
-      })
-      .catch((error) => {
-        console.error("Error updating user status:", error);
-      });
+    try {
+      cleanError(); 
+      console.log("Changing user status to Arriving for event ID:", event.id);
+      await updateUserStatus(user.id, "Arriving : " + event.id);
+      console.log("User status updated successfully");
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      setErrorMessage("שגיאה בעדכון הסטטוס שלך באירוע"); // change message if needed
+    }
+    try {
+      cleanError();
+      await addVolunteerToEvent(event.id, user.id);
+      console.log("Volunteer added to event successfully");
+    } catch (error) {
+      console.error("Error adding volunteer to event:", error);
+      setErrorMessage("שגיאה בצירופך לאירוע, פנה למנהל");
+    }
 
     changeEvent(event);
   };
 
-
-
   // Subscribe only once when component mounts
   useEffect(() => {
+    cleanError(); // Clear any previous errors
     setLoadingEvents(true);
     console.log("isEventActive:", isEventActive);
     if (!isEventActive) {
@@ -51,6 +56,7 @@ export default function ActiveEvents() {
       const unsubscribeFunction = subscribeToEvents((fetchedEvents, error) => {
         if (error) {
           console.error("שגיאה בשליפת אירועים:", error);
+          setErrorMessage("שגיאה בשליפת אירועים");
           setLoadingEvents(false);
           return;
         }
@@ -77,9 +83,7 @@ export default function ActiveEvents() {
   }, [isEventActive]); // only subscribe when isEventActive false
 
   if (userLoading || loadingEvents) {
-    return (
-      <Loading/>
-    );
+    return <Loading />;
   }
 
   return (
