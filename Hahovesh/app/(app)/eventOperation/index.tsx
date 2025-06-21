@@ -32,7 +32,7 @@ export default function OperationEvent() {
       const description = `לאירוע -  ${eventTitle} צריך : ${
         selectedOption === "אחר" ? otherText : selectedOption.slice(7)
       }`;
-      await sendMessageToDB(description, "All", user.id);
+      await sendMessageToDB(description, "All", user.id,true);
       Alert.alert("הבקשה נשלחה");
       setSelectedOption("");
       setOtherText("");

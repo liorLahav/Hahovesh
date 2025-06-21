@@ -15,7 +15,8 @@ export type Message = {
 export const sendMessageToDB = async (
   message_description: string,
   distribution_by_role: string,
-  sender_id: string
+  sender_id: string,
+  urgency?: boolean
 ) => {
 
   if (distribution_by_role !== "All" ) {
@@ -40,6 +41,7 @@ export const sendMessageToDB = async (
     sender_id,
     read_by: { [sender_id]: true }, 
     message_id: newMessageRef.key,
+    urgency: urgency || false,
   };
   console.log("fullMessage:", fullMessage);
 

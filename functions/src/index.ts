@@ -13,7 +13,7 @@ export const onNewMessage = onValueCreated(  {
 }, async (event) => {
   const messageData = event.data?.val();
 
-  const title = messageData?.urgency === "high" ? "🚨 הודעה דחופה" : "📢התקבלה הודעה";
+  const title = messageData.urgency == true ?  "🚨 הודעה דחופה" : "📢התקבלה הודעה";
   const body = messageData?.message_description|| "";
 
   const tokens: string[] = [];

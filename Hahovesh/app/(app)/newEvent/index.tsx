@@ -5,6 +5,7 @@ import { useState } from "react";
 import { createEvent } from "@/services/events";
 import NewEventHeader from "./newEventHeader";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
 export default function NewEventScreen() {
   const [formKey, setFormKey] = useState(0);
@@ -12,7 +13,12 @@ export default function NewEventScreen() {
   const onSubmit = async (values: Record<string, string>) => {
     try{
       await createEvent(values, () => setFormKey((k) => k + 1))
-      console.log("Event created successfully");
+      Alert.alert("הצלחה", "האירוע נוצר בהצלחה",[        {
+        text: "OK",
+        onPress: () => {
+          router.replace("/home");
+        }
+      }]);
     }
     catch (error) {
       console.error("Error creating event:", error);
