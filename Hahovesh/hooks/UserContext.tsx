@@ -32,6 +32,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const {  expoPushToken } = usePushNotifications();
 
     useEffect(() => {
+        console.log("expoPushToken in UserProvider:", expoPushToken);
+        if (expoPushToken && isAuthenticated && user) {
+            updateExpoToken(user.id, expoPushToken)
+        }
+    }, [expoPushToken,isAuthenticated,user]);
+
+
+    useEffect(() => {
         console.log("token :",expoPushToken);
         const checkIfAuthenticated = async () => {
             try {
@@ -62,8 +70,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             if (userData) {
                 setUser(userData as User);
                 setIsAuthenticated(true);
-                console.log("uuuu: " + userData.id,expoPushToken?.data);
-                await updateExpoToken(userData.id, expoPushToken.data);
             } else {
                 console.error("User not found ");
                 setIsAuthenticated(false);

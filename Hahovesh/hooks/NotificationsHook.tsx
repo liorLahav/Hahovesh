@@ -8,7 +8,7 @@ import { router } from 'expo-router';
 
 export interface PushNotificationState{
     notification? : Notification.Notification;
-    expoPushToken?: Notification.ExpoPushToken;
+    expoPushToken?: string;
 }
 
 export const usePushNotifications = () : PushNotificationState => {
@@ -21,7 +21,7 @@ export const usePushNotifications = () : PushNotificationState => {
             shouldShowList: false,
         }),
     });
-    const [expoPushToken, setExpoPushToken] = useState<Notification.ExpoPushToken | undefined>();
+    const [expoPushToken, setExpoPushToken] = useState<string>();
     const [notification, setNotification] = useState<Notification.Notification | undefined>();
     const notificationsListener = useRef<Notification.EventSubscription | null>(null);
     const responseListener = useRef<Notification.EventSubscription | null>(null);
@@ -59,7 +59,7 @@ export const usePushNotifications = () : PushNotificationState => {
         registerForPushNotifications().then(token => {
             console.log("Expo Push Token:", token);
             if (token) {
-                setExpoPushToken(token);
+                setExpoPushToken(token.data);
             }
         });
     
@@ -82,7 +82,7 @@ export const usePushNotifications = () : PushNotificationState => {
     }, []);
     return {
         notification,
-        expoPushToken
+        expoPushToken,
     };
 }
 

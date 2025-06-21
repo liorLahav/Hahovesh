@@ -8,13 +8,11 @@ import {
 import { Message, subscribeToMessages } from "@/services/messages";
 import { useUserContext } from "./UserContext";
 
-// טיפוס חדש לאובייקט שנחזיר
 type MessagesContextType = {
   messages: Message[];
   loadingMessages: boolean;
 };
 
-// יצירת context עם ערך ברירת מחדל
 const MessagesContext = createContext<MessagesContextType>({
   messages: [],
   loadingMessages: true,
