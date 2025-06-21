@@ -2,16 +2,19 @@ import { View, Text, Pressable } from "react-native";
 import { useState } from "react";
 import { updateUserStatus } from "@/services/users";
 import { useUserContext } from "@/hooks/UserContext";
+import { useError } from "@/hooks/UseError";
 
 export default function UserStatus() {
   const [userStatus, setUserStatus] = useState<"available" | "unavailable">(
     "available"
   );
   const [isLoading, setIsLoading] = useState(false);
-  const {user } = useUserContext();
+  const { user } = useUserContext();
+  const { error, cleanError, setErrorMessage } = useError();
 
   const handlePress = async () => {
     if (isLoading) return;
+    cleanError();
     setIsLoading(true);
 
     try {
@@ -19,8 +22,9 @@ export default function UserStatus() {
         userStatus === "available" ? "unavailable" : "available";
       await updateUserStatus(user.id, newStatus);
       setUserStatus(newStatus);
-    } catch (error) {
+    } catch (error) { 
       console.error("Error updating user status:", error);
+      setErrorMessage("שגיאה בעדכון הסטטוס, נסה שוב מאוחר יותר");
     } finally {
       setIsLoading(false);
     }

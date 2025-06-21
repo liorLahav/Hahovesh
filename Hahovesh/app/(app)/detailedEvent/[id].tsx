@@ -9,16 +9,20 @@ import EditModal from "./EditModal";
 import CancelEventButton from "./CancelEventButton";
 import { useUserContext } from "@/hooks/UserContext";
 import Loading from "@/components/Loading";
+import { useError } from "@/hooks/UseError";
+import { set } from "firebase/database";
+
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  const { user,userLoading } = useUserContext();
+  const { user, userLoading } = useUserContext();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [fieldToEdit, setFieldToEdit] = useState<string | null>(null);
   const [fieldLabel, setFieldLabel] = useState<string | null>(null);
   const [editedValue, setEditedValue] = useState("");
   const roles = user.permissions || [];
+  const { setErrorMessage, cleanError } = useError();
 
   useEffect(() => {
     const unsubscribe = subscribeToEvents((events, error) => {
@@ -37,9 +41,7 @@ export default function EventDetails() {
   }, [id]);
 
   if (loading || userLoading) {
-    return (
-      <Loading message="טוען פרטי אירוע..." />
-    );
+    return <Loading message="טוען פרטי אירוע..." />;
   }
   console.log("roles:", user.permissions);
 
@@ -52,6 +54,7 @@ export default function EventDetails() {
   }
 
   const handleSave = async () => {
+    cleanError(); // Clear any previous errors
     if (event) {
       try {
         await updateEvent(event.id, {
@@ -65,7 +68,9 @@ export default function EventDetails() {
 
         setEditModalVisible(false);
       } catch (error) {
+        setEditModalVisible(false);
         console.error("Error updating event:", error);
+        setErrorMessage("שגיאה בעדכון האירוע");
       }
     }
   };
@@ -100,8 +105,8 @@ export default function EventDetails() {
   return (
     <SafeAreaView className="flex-1 bg-grey-200">
       <DetailsHeader />
-              <StatusBar barStyle="dark-content" />
-      
+      <StatusBar barStyle="dark-content" />
+
       <ScrollView
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
         className=" bg-blue-50"

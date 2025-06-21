@@ -7,7 +7,6 @@ import { useRouter } from "expo-router";
 import logo from "../../../assets/images/logo.png";
 
 export default function DetailsHeader() {
-  const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
   const router = useRouter();
 
   return (

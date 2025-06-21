@@ -1,9 +1,7 @@
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, Alert } from "react-native";
 import { useState } from "react";
 import { updatePermissions } from "../../../services/users";
 import { User, useUserContext } from "@/hooks/UserContext";
-
-
 
 const ROLES = {
   Volunteer: ["Volunteer"],
@@ -11,17 +9,16 @@ const ROLES = {
   Admin: ["Volunteer", "Dispatcher", "Admin"],
 };
 type permissionsPanelProps = {
-  user : User;
+  user: User;
   refresh: () => void;
-}
+};
 
-const PermissionsPanel = (props : permissionsPanelProps) => {
+const PermissionsPanel = (props: permissionsPanelProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const userHasRoles = (role: keyof typeof ROLES) => {
     return props.user.permissions.includes(role);
   };
-  
 
   const handleRoleSelection = async (role: keyof typeof ROLES) => {
     if (isUpdating) return;
@@ -33,6 +30,7 @@ const PermissionsPanel = (props : permissionsPanelProps) => {
       props.refresh();
     } catch (error) {
       console.error("Error updating permissions: ", error);
+      Alert.alert("שגיאה", "לא ניתן לעדכן את ההרשאות כעת, פנה למנהל המערכת.");
     } finally {
       setIsUpdating(false);
     }

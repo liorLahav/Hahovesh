@@ -1,13 +1,16 @@
 import { Pressable, Text, Alert } from "react-native";
 import { Event, updateEvent } from "@/services/events";
 import { router } from "expo-router";
+import { useError } from "@/hooks/UseError";
 
 type Props = {
   event: Event;
 };
 
 export default function CancelEventButton({ event }: Props) {
+  const {setErrorMessage, cleanError} = useError();
   const handleCancel = async () => {
+    cleanError(); // Clear any previous errors
     if (event.id) {
       try {
         await updateEvent(event.id, {
@@ -17,6 +20,7 @@ export default function CancelEventButton({ event }: Props) {
         });
       } catch (error) {
         console.error("שגיאה בביטול האירוע:", error);
+        setErrorMessage("שגיאה בביטול האירוע");
       } finally {
         router.push("/home");
       }

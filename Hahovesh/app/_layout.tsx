@@ -7,6 +7,8 @@ import { MessagesProvider } from "@/hooks/MessagesContext";
 import { useFonts } from "expo-font";
 import { Text } from "react-native";
 import Loading from "@/components/Loading";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "@/toastConfig";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -22,6 +24,7 @@ export default function RootLayout() {
         <EventProvider>
           <MessagesProvider>
             <Slot />
+            <Toast config={toastConfig} />
           </MessagesProvider>
         </EventProvider>
       </OnlineProvider>

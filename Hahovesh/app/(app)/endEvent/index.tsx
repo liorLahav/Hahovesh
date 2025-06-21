@@ -50,7 +50,8 @@ export default function EventSummaryScreen() {
 
     setFormKey(k => k + 1);
   } catch (err: any) {
-    Alert.alert('שגיאה', err.message || 'שגיאה בלתי צפויה בשליחת הדוח');
+    console.error('Error saving event summary:', err);
+    Alert.alert('שגיאה', 'לא ניתן לשמור את דוח הסיכום, אנא פנה למנהל');
   }
 };
 
