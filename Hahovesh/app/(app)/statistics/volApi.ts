@@ -1,5 +1,5 @@
 // volunteerApi.ts
-import { db } from "../../FirebaseConfig";
+import { db } from "../../../FirebaseConfig";
 import {
   collection,
   getDocs,

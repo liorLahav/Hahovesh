@@ -1,5 +1,5 @@
 import { collection, getDocs, Timestamp } from "firebase/firestore";
-import { db } from "../../FirebaseConfig";
+import { db } from "../../../FirebaseConfig";
 import { StatsPeriod } from "./volApi";
 import { calculateDateRange, formatWeekday, formatHour, formatMonthKey, formatYear } from "./calculations";
 
