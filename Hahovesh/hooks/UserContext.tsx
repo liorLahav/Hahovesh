@@ -18,6 +18,8 @@ export type User = {
 type userContextType = {
     user: User;
     changeUser: (phoneNumber: string) => Promise<void>;
+    isAvaliable: boolean;
+    setIsAvailable: (status: boolean) => void;
     isAuthenticated: boolean;
     userLoading: boolean;
     userHasRoles: (roleToCheck: string) => boolean;
@@ -31,6 +33,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userLoading, setUserLoading] = useState(false);
     const {  expoPushToken } = usePushNotifications();
+    const [isAvaliable, setIsAvailable] = useState(false);
 
     useEffect(() => {
         console.log("expoPushToken in UserProvider:", expoPushToken);
@@ -39,6 +42,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }, [expoPushToken,isAuthenticated,user]);
 
+    useEffect(() => {
+        if (user && user.status) {
+            setIsAvailable(user.status === "available");
+        }
+    }, [user]);
 
     useEffect(() => {
         console.log("token :",expoPushToken);
@@ -130,7 +138,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             
 
     return (
-        <UserContext.Provider value={{userLoading, user, changeUser, isAuthenticated,userHasRoles,updateRoles,signOut }}>
+        <UserContext.Provider value={{userLoading, user, changeUser, isAuthenticated,userHasRoles,updateRoles,signOut,isAvaliable,setIsAvailable}}>
             {children}
         </UserContext.Provider>
     );

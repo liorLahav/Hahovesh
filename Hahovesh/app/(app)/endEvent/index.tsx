@@ -9,12 +9,13 @@ import { deleteEventById } from '@/services/events';
 import EventSummaryHeader from './EventSummaryHeader';
 import { useUserContext } from '@/hooks/UserContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { updateStatus } from '@/services/users';
 
 export default function EventSummaryScreen() {
   const [formKey, setFormKey] = useState(0);
   const [initialValues, setInitialValues] = useState<Record<string, string> | null>(null);
   const { event, changeActiveStatus } = useEventContext();
-  const { user } = useUserContext();
+  const { user,setIsAvailable } = useUserContext();
 
   useEffect(() => {
     const mappedValues: Record<string, string> = {
@@ -39,15 +40,13 @@ export default function EventSummaryScreen() {
     await saveEventSummary({ ...values, eventId: event.id });
 
     await deleteEventById(event.id);
+    await updateStatus(user.id, 'available');
+    setIsAvailable(true);
 
     changeActiveStatus(false);
 
     Alert.alert('הצלחה', 'דוח הסיכום נשלח ונשמר בהצלחה');
-
-    setTimeout(() => {
-      router.replace('/home');
-    }, 3000);
-
+    router.replace('/home');
     setFormKey(k => k + 1);
   } catch (err: any) {
     console.error('Error saving event summary:', err);

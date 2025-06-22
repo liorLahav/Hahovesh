@@ -32,7 +32,7 @@ export default function ActiveEvents() {
       console.log("User status updated successfully");
     } catch (error) {
       console.error("Error updating user status:", error);
-      setErrorMessage("שגיאה בעדכון הסטטוס שלך באירוע"); // change message if needed
+      setErrorMessage("שגיאה בעדכון הסטטוס שלך באירוע"); 
     }
     try {
       cleanError();

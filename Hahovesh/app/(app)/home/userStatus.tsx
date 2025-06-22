@@ -5,18 +5,10 @@ import { useUserContext } from "@/hooks/UserContext";
 import { useError } from "@/hooks/UseError";
 
 export default function UserStatus() {
-  const [userStatus, setUserStatus] = useState<"available" | "unavailable">(
-    "available"
-  );
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useUserContext();
+  const { user ,isAvaliable,setIsAvailable } = useUserContext();
   const { error, cleanError, setErrorMessage } = useError();
 
-  useEffect(() => {
-    if (user && user.status) {
-      setUserStatus(user.status === "available" ? "available" : "unavailable");
-    }
-  }, [user]);
 
   const handlePress = async () => {
     if (isLoading) return;
@@ -25,7 +17,7 @@ export default function UserStatus() {
 
     try {
       const newStatus =
-        userStatus === "available" ? "unavailable" : "available";
+        isAvaliable ? "unavailable" : "available";
       if (newStatus === "available"){
         updateExpoToken(user.id, user.expoPushToken);
       }
@@ -33,7 +25,7 @@ export default function UserStatus() {
         removeExpoToken(user.id);
       }
       await updateUserStatus(user.id, newStatus);
-      setUserStatus(newStatus);
+      setIsAvailable(!isAvaliable);
     } catch (error) { 
       console.error("Error updating user status:", error);
       setErrorMessage("שגיאה בעדכון הסטטוס, נסה שוב מאוחר יותר");
@@ -49,12 +41,12 @@ export default function UserStatus() {
           <Text className="text-xl font-semibold text-gray-800">סטטוס</Text>
           <View
             className={`px-3 py-1 rounded-full text-sm font-bold ${
-              userStatus === "available"
+              isAvaliable 
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-700"
             }`}
           >
-            <Text>{userStatus === "available" ? "זמין" : "לא זמין"}</Text>
+            <Text>{isAvaliable ? "זמין" : "לא זמין"}</Text>
           </View>
         </View>
 
@@ -62,14 +54,14 @@ export default function UserStatus() {
           onPress={handlePress}
           disabled={isLoading}
           className={`w-24 h-12 rounded-full p-1 border ${
-            userStatus === "available"
+            isAvaliable
               ? "bg-green-400 border-green-500"
               : "bg-red-400 border-red-500"
           } ${isLoading ? "opacity-50" : ""} relative`}
         >
           <View
             className={`w-8 h-8 bg-white rounded-full shadow-md absolute top-[6px] transition-transform duration-600 ease-in-out ${
-              userStatus === "available" ? "translate-x-14 " : "translate-x-1"
+              isAvaliable ? "translate-x-14 " : "translate-x-1"
             }`}
           />
         </Pressable>
