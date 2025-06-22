@@ -11,13 +11,10 @@ import ButtonsPanel from './ButtonsPanel';
 import { Event } from '@/services/events';
 import {useEventContext} from "@/hooks/EventContext";
 import Timer from './Timer';
-import MenuButton from '@/components/navigation/menuButton';
 
 
 
 const ArrivingToEventScreen = () => {
-  const [elapsedTime, setElapsedTime] = useState<string>("00:00:00");
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const { event ,refreshEvent} = useEventContext();
 
   useEffect(() => {
