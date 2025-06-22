@@ -1,5 +1,5 @@
 import { View, Text, Pressable } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { removeExpoToken, updateExpoToken, updateUserStatus } from "@/services/users";
 import { useUserContext } from "@/hooks/UserContext";
 import { useError } from "@/hooks/UseError";
@@ -11,6 +11,12 @@ export default function UserStatus() {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useUserContext();
   const { error, cleanError, setErrorMessage } = useError();
+
+  useEffect(() => {
+    if (user && user.status) {
+      setUserStatus(user.status === "available" ? "available" : "unavailable");
+    }
+  }, [user]);
 
   const handlePress = async () => {
     if (isLoading) return;
