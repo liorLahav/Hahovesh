@@ -12,6 +12,7 @@ export type User = {
     phone: string;
     permissions: string[];
     expoPushToken: string;
+    status?: string;
 }
 
 type userContextType = {
