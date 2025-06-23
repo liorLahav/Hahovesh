@@ -8,7 +8,7 @@ import VolunteerPicker from "./volSelector";
 import VolunteerCard from "./volCard";
 import UpdateHandler from "./updateHandler";
 
-import { StatsPeriod, VolunteerStats } from "./volApi";
+import { StatsPeriod, VolunteerStats } from "../../services/volunteerAnalyticsService";
 import { useStatistics } from "./useVolData";
 
 import {
@@ -21,7 +21,7 @@ import {
   getCountsByHour,
   getCountsByMonth,
   getCountsByYear,
-} from "./globalStats";
+} from "../../services/globalStatsService";
 
 export default function MainVolunteerStats() {
   // Date range & volunteer selection state

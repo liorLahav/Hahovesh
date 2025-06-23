@@ -1,5 +1,5 @@
 // volunteerApi.ts
-import { db } from "../../FirebaseConfig";
+import { db } from "../FirebaseConfig";
 import {
   collection,
   getDocs,
@@ -11,7 +11,7 @@ import {
 import {
   calculateDateRange,
   calculateResponseTime
-} from "./calculations";
+} from "../app/statistics/calculations";
 
 /** Volunteer for the picker */
 export interface Volunteer {
