@@ -40,7 +40,7 @@ export default function EventSummaryScreen() {
   const onSubmit = async (values: Record<string, string>) => {
   try {
     console.log('Submitting event summary with values:', values.volunteer_times);
-    await saveEventSummary({ ...values, eventId: event.id,volunteer_times : JSON.stringify(event.volunteers)
+    await saveEventSummary({ ...values, eventId: event.id,volunteer_times : event.volunteers
     });
 
     await deleteEventById(event.id);
