@@ -9,7 +9,7 @@ import VolunteerCard from "./volCard";
 import UpdateHandler from "./updateHandler";
 
 import { StatsPeriod, VolunteerStats } from "../../../services/volunteerAnalyticsService";
-import { useStatistics } from "./useVolData";
+import { useStatistics } from "../../../hooks/useVolData";
 
 import {
   getTotalEvents,

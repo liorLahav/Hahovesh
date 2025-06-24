@@ -185,6 +185,19 @@ export const removeVolunteerFromEvent = async (
     );
   }
 }
+export const addUserArrivalTime = async (
+  eventId: string,
+  volunteerId: string,
+): Promise<void> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}/arrivedAt`);
+    await set(eventRef, serverTimestamp());
+  } catch (error: any) {
+    throw new Error(
+      'Error adding user arrival time: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
 
 export const fetchEvent = async (eventId: string): Promise<Event | null> => {
   try {

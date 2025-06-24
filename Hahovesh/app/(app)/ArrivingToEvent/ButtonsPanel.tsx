@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Pressable, ScrollView, View, Text } from "react-native";
 import { useEventContext } from "@/hooks/EventContext";
-import { removeVolunteerFromEvent } from "@/services/events";
+import { addUserArrivalTime, removeVolunteerFromEvent } from "@/services/events";
 import { useUserContext } from "@/hooks/UserContext";
 import { updateUserStatus } from "@/services/users";
 import { useError } from "@/hooks/UseError";
@@ -22,6 +22,13 @@ const ButtonsPanel = () => {
       .catch((error) => {
         console.error("Error updating user status:", error);
         setErrorMessage("שגיאה בעדכון הסטטוס שלך, פנה למנהל");
+      });
+    addUserArrivalTime(event.id, user_id)
+      .then(() => {
+        console.log("User arrival time added successfully");
+      })
+      .catch((error) => {
+        console.error("Error adding user arrival time:", error);
       });
     router.push("/eventOperation");
   };

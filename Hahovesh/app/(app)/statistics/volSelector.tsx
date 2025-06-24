@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, FlatList, TextInput, ActivityIndicator } from 'react-native';
-import { useVolunteers } from './useVolData';
+import { useVolunteers } from '../../../hooks/useVolData';
 import { Volunteer } from "../../../services/volunteerAnalyticsService";
 import { Ionicons } from '@expo/vector-icons';
 

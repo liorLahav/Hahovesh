@@ -10,6 +10,7 @@ import EventSummaryHeader from './EventSummaryHeader';
 import { useUserContext } from '@/hooks/UserContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { updateStatus } from '@/services/users';
+import VolunteerCard from '../statistics/volCard';
 
 export default function EventSummaryScreen() {
   const [formKey, setFormKey] = useState(0);
@@ -18,6 +19,7 @@ export default function EventSummaryScreen() {
   const { user,setIsAvailable } = useUserContext();
 
   useEffect(() => {
+    console.log(event.volunteers);
     const mappedValues: Record<string, string> = {
       name: event.patient_name ?? '',
       gender: event.patient_sex ?? '',
@@ -37,7 +39,9 @@ export default function EventSummaryScreen() {
 
   const onSubmit = async (values: Record<string, string>) => {
   try {
-    await saveEventSummary({ ...values, eventId: event.id });
+    console.log('Submitting event summary with values:', values.volunteer_times);
+    await saveEventSummary({ ...values, eventId: event.id,volunteer_times : JSON.stringify(event.volunteers)
+    });
 
     await deleteEventById(event.id);
     await updateStatus(user.id, 'available');
