@@ -1,8 +1,8 @@
 
-import { db } from "../../FirebaseConfig";
+import { db } from "../FirebaseConfig";
 import { collection, getDocs, query, where, Timestamp } from "firebase/firestore";
 
-import { calculateDateRange, calculateResponseTime } from "../../app/statistics/calculations";
+import { calculateDateRange, calculateResponseTime } from "../app/(app)/statistics/calculations";
 
 /** Volunteer for the picker */
 export interface Volunteer {

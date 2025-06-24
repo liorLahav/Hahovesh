@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Platform } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { StatsPeriod } from "../../services/volunteerAnalyticsService";
+import { StatsPeriod } from "../../../services/volunteerAnalyticsService";
 
 interface DateRangePickerProps {
   period: StatsPeriod;

@@ -1,7 +1,7 @@
 import { collection, getDocs, Timestamp } from "firebase/firestore";
-import { db } from "../../FirebaseConfig";
+import { db } from "../FirebaseConfig";
 import { StatsPeriod } from "./volunteerAnalyticsService";
-import { calculateDateRange, formatWeekday, formatHour, formatMonthKey, formatYear } from "../../app/statistics/calculations";
+import { calculateDateRange, formatWeekday, formatHour, formatMonthKey, formatYear } from "../app/(app)/statistics/calculations";
 
 /**
  * 1. COUNT TOTAL EVENTS IN “volunteerStats” COLLECTION WITHIN DATE RANGE
