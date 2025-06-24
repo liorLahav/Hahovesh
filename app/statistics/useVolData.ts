@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchVolunteers, fetchStatistics, StatsPeriod, Volunteer, VolunteerStats } from "../../services/volunteerAnalyticsService";
+import { fetchVolunteers, fetchStatistics, StatsPeriod, Volunteer, VolunteerStats } from "../../Hahovesh/services/volunteerAnalyticsService";
 
 export type DateRange = { start: Date|null; end: Date };
 

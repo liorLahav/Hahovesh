@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, FlatList, TextInput, ActivityIndicator } from 'react-native';
 import { useVolunteers } from './useVolData';
-import { Volunteer } from "../../services/volunteerAnalyticsService";
+import { Volunteer } from "../../Hahovesh/services/volunteerAnalyticsService";
 import { Ionicons } from '@expo/vector-icons';
 
 interface VolunteerPickerProps {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { VolunteerStats } from "../../services/volunteerAnalyticsService";
+import { VolunteerStats } from "../../Hahovesh/services/volunteerAnalyticsService";
 import { Ionicons } from '@expo/vector-icons';
 
 interface VolunteerCardProps {
