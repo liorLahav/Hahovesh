@@ -82,14 +82,15 @@ export default function SummaryEdit() {
   const [fieldKey, setFieldKey] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
 
-  /* fetch once */
   useEffect(() => {
-    (async () => {
-      const snap = await getDoc(doc(db, 'eventSummaries', id));
-      if (snap.exists()) setDocData({ id: snap.id, ...snap.data() });
-      setLoading(false);
-    })();
-  }, [id]);
+    if (!modalOpen){
+      (async () => {
+        const snap = await getDoc(doc(db, 'eventSummaries', id));
+        if (snap.exists()) setDocData({ id: snap.id, ...snap.data() });
+        setLoading(false);
+      })();
+    }
+  }, [id,modalOpen]);
 
   if (loading)
     return (
