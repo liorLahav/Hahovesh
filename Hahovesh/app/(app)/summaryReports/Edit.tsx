@@ -26,7 +26,7 @@ const EditHeader = () => {
       <View className="w-full h-1 bg-red-500" />
       <View className="bg-blue-50 border-b border-blue-300 py-4 px-4 rounded-b-2xl shadow-sm">
         <View className="flex-row items-center justify-between">
-          <Pressable onPress={() => router.back()}>
+          <Pressable onPress={() => router.push('/summaryReports')}>
             <Ionicons name="arrow-back" size={28} color="#1e3a8a" />
           </Pressable>
           <Text className="text-xl font-bold text-blue-800">עריכת דוח</Text>
