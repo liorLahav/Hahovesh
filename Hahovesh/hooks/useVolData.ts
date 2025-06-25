@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { fetchVolunteers, fetchStatistics, StatsPeriod, Volunteer, VolunteerStats } from "../services/volunteerAnalyticsService";
+import { useUserContext } from "./UserContext";
 
 export type DateRange = { start: Date|null; end: Date };
 
@@ -15,7 +16,6 @@ export function useVolunteers() {
   const [list, setList]     = useState<Volunteer[]>([]);
   const [loading, setLoad]  = useState(true);
   const [error, setError]   = useState<string|null>(null);
-
   useEffect(()=>{
     fetchVolunteers()
       .then(v=> {
@@ -41,6 +41,8 @@ export function useStatistics(
   const [data, setData]     = useState<StatisticsData|null>(null);
   const [loading, setLoad]  = useState(false);
   const [error, setError]   = useState<string|null>(null);
+  const {user} = useUserContext();
+
 
   useEffect(()=>{
     if(!fullName) {
@@ -50,7 +52,7 @@ export function useStatistics(
       return;
     }
     setLoad(true);
-    fetchStatistics(period, fullName, startDate, endDate)
+    fetchStatistics(period,user.id, fullName, startDate, endDate)
       .then(stats=>setData(stats))
       .catch(e=>setError(`שגיאה בטעינת נתונים: ${e.message||e}`))
       .finally(()=>setLoad(false));

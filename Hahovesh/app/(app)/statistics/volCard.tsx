@@ -9,6 +9,7 @@ interface VolunteerCardProps {
 
 export default function VolunteerCard({ volunteer }: VolunteerCardProps) {
   const [showEvents, setShowEvents] = useState(false);
+  console.log("Rendering VolunteerCard for:", volunteer);
 
   // Helpers for form-quality display
   const getQualityColor = (q: number) => {

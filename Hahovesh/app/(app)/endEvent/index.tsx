@@ -32,7 +32,6 @@ export default function EventSummaryScreen() {
       event_date: event.createdAt
         ? new Date(event.createdAt).toLocaleDateString('he-IL')
         : '',
-        volenteer_id: user.id,
     };
 
     setInitialValues(mappedValues);
@@ -40,8 +39,9 @@ export default function EventSummaryScreen() {
 
   const onSubmit = async (values: Record<string, string>) => {
   try {
-    console.log('Submitting event summary with values:', values.volunteer_times);
-    await saveEventSummary({ ...values, eventId: event.id,volunteer_times : event.volunteers
+    console.log('Submitting event summary with values:', user.id);
+    await saveEventSummary({ ...values, eventId: event.id,volunteer_times : event.volunteers,
+      volenteer_id: user.id,
     });
 
     await deleteEventById(event.id);

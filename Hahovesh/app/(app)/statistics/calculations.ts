@@ -1,6 +1,7 @@
 // calculations.ts
 import { Timestamp } from 'firebase/firestore';
 import { StatsPeriod } from ".../../services/volunteerAnalyticsService";
+import { getEventSummaries } from '@/services/event_summary';
 
 // Calculate date range based on period type
 export function calculateDateRange(
@@ -58,11 +59,35 @@ export function formatYear(date: Date): number {
   return date.getFullYear();
 }
 
-// Function to calculate average response time (for future use)
 export function calculateResponseTime(
-  events: Array<{ eventId: string; eventDate: Timestamp }>
+  targetVolunteerId: string,
+  events : any
 ): number {
-  return 15;
+  try{
+  if (!events || events.length === 0) return 0;
+  let totalResponseTime = 0;
+  let eventCount = 0;
+
+  for (const event of events) {
+    const volunteerEntry = event.volunteer_times?.[targetVolunteerId];
+    if (
+      volunteerEntry &&
+      volunteerEntry.arrivedAt &&
+      volunteerEntry.joinedAt &&
+      volunteerEntry.arrivedAt > volunteerEntry.joinedAt
+    ) {
+      totalResponseTime += volunteerEntry.arrivedAt - volunteerEntry.joinedAt;
+      eventCount += 1;
+    }
+  }
+
+  if (eventCount === 0) return 0;
+  console.log(`Total response time for ${targetVolunteerId}: ${totalResponseTime} ms over ${eventCount} events`);
+  return totalResponseTime / eventCount;
+  } catch (error) {
+    console.error("Error calculating volunteer response time:", error);
+    return 0;
+  }
 }
 
 // Function to calculate form completion quality

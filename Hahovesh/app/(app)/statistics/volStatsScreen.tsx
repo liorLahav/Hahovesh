@@ -22,6 +22,7 @@ import {
   getCountsByMonth,
   getCountsByYear,
 } from "../../../services/globalStatsService";
+import { getEventSummaries } from "@/services/event_summary";
 
 export default function MainVolunteerStats() {
   // Date range & volunteer selection state
@@ -111,6 +112,7 @@ export default function MainVolunteerStats() {
 
   useEffect(() => {
     fetchGlobalStats();
+    getEventSummaries();
   }, [period, startDate, endDate]);
 
   // Per-volunteer statistics

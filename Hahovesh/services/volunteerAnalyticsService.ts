@@ -3,6 +3,7 @@ import { db } from "../FirebaseConfig";
 import { collection, getDocs, query, where, Timestamp } from "firebase/firestore";
 
 import { calculateDateRange, calculateResponseTime } from "../app/(app)/statistics/calculations";
+import { getEventSummaries } from "./event_summary";
 
 /** Volunteer for the picker */
 export interface Volunteer {
@@ -53,9 +54,10 @@ export async function fetchVolunteers(): Promise<Volunteer[]> {
 // Fetch precomputed statistics for a single volunteer.
 export async function fetchStatistics(
   period: StatsPeriod,
+  userId: string,
   selectedFullName?: string,
   startDate?: Date,
-  endDate?: Date
+  endDate?: Date,
 ) {
   // 1) No volunteer selected → empty result
   if (!selectedFullName) {
@@ -75,10 +77,11 @@ export async function fetchStatistics(
   }
   const { start, end } = calculateDateRange(period, startDate, endDate);
 
+  console.log("Fetching stats for:", userId);
   // 3) Query the volunteerStats collection
   const statsQ = query(
     collection(db, "volunteerStats"),
-    where("v_full_name", "==", selectedFullName)
+    where("volunteer_id", "==", userId),
   );
   const statsSnap = await getDocs(statsQ);
 
@@ -122,8 +125,17 @@ export async function fetchStatistics(
 
   // 8) Read counts and compute average response time
   const summariesCount = data.summariesCount || 0;
+  const eventsCount = data.eventsCount || 1;
   const formQuality = data.formQuality || 0;
-  const responseTimeAvg = calculateResponseTime(filtered);
+  let eventsSummeries : any[] = [];
+  try {
+    eventsSummeries = await getEventSummaries();
+  }
+  catch (error) {
+    console.error("Error fetching event summaries:", error);
+  }
+  
+  const responseTimeAvg = calculateResponseTime(userId, eventsSummeries);
 
   // 9) Return structured result
   return {
@@ -132,7 +144,7 @@ export async function fetchStatistics(
     volunteerStats: [{
       id: statDoc.id,
       name: data.v_full_name,
-      eventsCount: filtered.length,
+      eventsCount: eventsCount,
       summariesCount,
       responseTimeAvg,
       formQuality,
