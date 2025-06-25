@@ -118,7 +118,7 @@ export default function SummaryEdit() {
   const save = async () => {
     if (!fieldKey) return;
     await updateDoc(doc(db, 'eventSummaries', docData.id), { [fieldKey]: draft });
-    router.back();                      // חוזרים לרשימה
+    router.back();                    
   };
 
   return (

@@ -5,7 +5,7 @@ export type FilterType = 'all' | 'today' | 'week' | 'month' | 'year' | 'custom';
 
 const DAY_MS = 86_400_000;
 
-/** מסנן דוחות בהתאם לטווח שבחר המשתמש */
+
 export function filterReports(
   reports: EventSummary[],
   filter: FilterType,

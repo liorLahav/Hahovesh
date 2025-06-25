@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 
-/* אילו שדות אמורים להיות מוצגים כתאריך/שעה */
+
 const TIMESTAMP_KEYS = new Set([
   'event_date',
   'departure_time',
@@ -10,7 +10,7 @@ const TIMESTAMP_KEYS = new Set([
   'arrivedAt',
 ]);
 
-/** המרת ערך → מחרוזת תצוגה */
+
 export function formatValue(key: string, v: unknown): string {
   if (v === undefined || v === null) return '—';
   if (String(v).trim() === '') return '';
@@ -29,7 +29,7 @@ export function formatValue(key: string, v: unknown): string {
   return s;
 }
 
-/* raw → Date | null */
+
 export function toDate(raw: any): Date | null {
   if (raw instanceof Timestamp) return raw.toDate();
   const s = String(raw ?? '');

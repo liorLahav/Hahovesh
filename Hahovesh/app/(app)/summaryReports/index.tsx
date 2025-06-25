@@ -15,7 +15,6 @@ export default function SummaryReportsScreen() {
   const [filter, setFilter] = useState<FilterType>('all');
   const [customDate, setCustomDate] = useState<Date | null>(null);
 
-  /* שליפה */
   const loadReports = async () =>
     fetchEventSummaries().then(setReports).finally(() => setLoading(false));
 
