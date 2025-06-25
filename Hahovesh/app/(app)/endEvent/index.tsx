@@ -11,6 +11,7 @@ import { useUserContext } from '@/hooks/UserContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { updateStatus } from '@/services/users';
 import VolunteerCard from '../statistics/volCard';
+import { updateFinishedEventsCount } from '@/services/globalStatsService';
 
 export default function EventSummaryScreen() {
   const [formKey, setFormKey] = useState(0);
@@ -45,6 +46,7 @@ export default function EventSummaryScreen() {
 
     await deleteEventById(event.id);
     await updateStatus(user.id, 'available');
+    await updateFinishedEventsCount(user.id,true);
     setIsAvailable(true);
 
     changeActiveStatus(false);

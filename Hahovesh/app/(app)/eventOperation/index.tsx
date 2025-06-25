@@ -16,6 +16,7 @@ import { useUserContext } from "@/hooks/UserContext";
 import { fetchEvent } from "@/services/events";
 import { update } from "firebase/database";
 import { updateUserStatus } from "@/services/users";
+import { updateFinishedEventsCount } from "@/services/globalStatsService";
 
 export default function OperationEvent() {
   const [selectedOption, setSelectedOption] = useState<string>("");
@@ -66,6 +67,7 @@ export default function OperationEvent() {
       Alert.alert("האירוע נגמר", "תודה על העזרה! , חזרה למסך בית");
       changeActiveStatus(false);
       updateUserStatus(user.id, "available");
+      updateFinishedEventsCount(user.id,false);
       setIsAvailable(true);
       router.replace("/home");
     }

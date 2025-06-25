@@ -1,4 +1,4 @@
-import { collection, getDocs, Timestamp } from "firebase/firestore";
+import { collection, getDocs, Timestamp, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../FirebaseConfig";
 import { StatsPeriod } from "./volunteerAnalyticsService";
 import { calculateDateRange, formatWeekday, formatHour, formatMonthKey, formatYear } from "../app/(app)/statistics/calculations";
@@ -269,4 +269,27 @@ export async function getCountsByYear(
   });
 
   return counts;
+}
+
+export const updateFinishedEventsCount = async (userId : string, filledForm : boolean) => {
+  const statsRef = doc(db, "volunteerStats", userId);
+  const statsSnap = await getDoc(statsRef);
+  
+  if (statsSnap.exists()) {
+    const statsData = statsSnap.data();
+    const currentEvents = statsData.eventsCount || 0;
+    const currentSummaries = statsData.summariesCount || 0;
+    
+    await updateDoc(statsRef, {
+      eventsCount: currentEvents + 1,
+      summariesCount: currentSummaries + (filledForm ? 1 : 0),
+      last_updated: Timestamp.now()
+    });
+  } else {
+    await updateDoc(statsRef, {
+      eventsCount: 1,
+      summariesCount: filledForm ? 1 : 0,
+      last_updated: Timestamp.now()
+    });
+  }
 }
