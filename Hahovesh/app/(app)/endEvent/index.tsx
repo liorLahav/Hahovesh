@@ -30,8 +30,8 @@ export default function EventSummaryScreen() {
       receiver: event.recipient ?? '',
       event_location: event.location_type ?? '',
       event_date: event.createdAt
-        ? new Date(event.createdAt).toLocaleDateString('he-IL')
-        : '',
+        ? Math.floor(new Date(event.createdAt).getTime() / 1000).toString()
+        : Math.floor(Date.now() / 1000).toString(),
     };
 
     setInitialValues(mappedValues);
