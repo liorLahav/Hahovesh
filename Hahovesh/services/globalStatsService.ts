@@ -12,18 +12,16 @@ export async function getTotalEvents(
   customEnd?: Date
 ): Promise<number> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const statsCol = collection(db, "volunteerStats");
+  const statsCol = collection(db, "eventSummaries");
   const statsSnap = await getDocs(statsCol);
 
   let total = 0;
   statsSnap.forEach(docSnap => {
     const data = docSnap.data();
-    const events: Array<{ eventId: string; eventDate: Timestamp }> = Array.isArray(data.events)
-      ? data.events
-      : [];
+    const timestampStr = data.event_date;
 
-    events.forEach(ev => {
-      const evDate = ev.eventDate.toDate();
+    if (timestampStr) {
+      const evDate = new Date(parseInt(timestampStr) * 1000); // ממיר ל-milliseconds
 
       if (
         (!start || evDate.getTime() >= start.getTime()) &&
@@ -31,11 +29,13 @@ export async function getTotalEvents(
       ) {
         total++;
       }
-    });
+    }
   });
+  console.log(`Total events in range: ${total}`);
 
   return total;
 }
+
 
 /**
  * 2. COUNT “transport” BREAKDOWN FROM “eventSummaries” WITHIN DATE RANGE
