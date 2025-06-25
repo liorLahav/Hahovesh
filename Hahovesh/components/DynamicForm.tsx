@@ -35,10 +35,19 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
   };
 
   const handleSubmit = () => {
-  if (requireRefusalForm && !values['refusal_form']) {
-    Alert.alert('שגיאה', 'נדרש למלא טופס סירוב כאשר תיבת הסימון מסומנת');
-    return;
-  }
+    for (const field of schema) {
+      if (field.required) {
+        const val = values[field.key];
+        if (!val || (typeof val === 'string' && !val.trim())) {
+          Alert.alert('שגיאה', `אנא מלאו את השדה: ${field.label}`);
+          return;
+        }
+      }
+    }
+    if (requireRefusalForm && !values['refusal_form']) {
+      Alert.alert('שגיאה', 'נדרש למלא טופס סירוב כאשר תיבת הסימון מסומנת');
+      return;
+    }
 
   onSubmit({
     ...values,

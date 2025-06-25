@@ -11,6 +11,8 @@ export type SchemaField = {
 
     maxLength?: number; 
     rows?: number;
+
+    required?: boolean;
   };
   
   const formSchema: SchemaField[] = [
@@ -20,6 +22,7 @@ export type SchemaField = {
       key:  'street',
       label:'כתובת',
       placeholder:'רחוב',
+      required: true,
     },
     {
       type: 'text',
