@@ -5,6 +5,7 @@ export type SchemaField = {
   placeholder?: string;
   options?: { label: string; value: string }[];
   defaultValue?: string;
+  required?: boolean;
 };
 
 const formSchema_eventSummary: SchemaField[] = [
