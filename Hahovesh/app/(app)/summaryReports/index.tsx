@@ -1,3 +1,4 @@
+// index.tsx
 import React, { useEffect, useState } from 'react';
 import { FlatList, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,11 +9,12 @@ import Header from './Header';
 import FilterBar from './FilterBar';
 import ReportCard from './ReportCard';
 import { filterReports, FilterType } from './filterReports';
+import { toDate } from './format';   // ⬅️ חדש
 
 export default function SummaryReportsScreen() {
-  const [reports, setReports] = useState<EventSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterType>('all');
+  const [reports, setReports]   = useState<EventSummary[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [filter, setFilter]     = useState<FilterType>('all');
   const [customDate, setCustomDate] = useState<Date | null>(null);
 
   const loadReports = async () =>
@@ -20,11 +22,22 @@ export default function SummaryReportsScreen() {
 
   useEffect(() => { loadReports(); }, []);
 
-  useFocusEffect(
-    React.useCallback(() => { loadReports(); }, [])
-  );
+  useFocusEffect(React.useCallback(() => { loadReports(); }, []));
 
+  /* -------------------- סינון + מיון -------------------- */
   const filtered = filterReports(reports, filter, customDate);
+
+  // חדש ➡️ ממיינים כך שהמאוחר ביותר יהיה ראשון
+  const sorted = [...filtered].sort((a, b) => {
+    const da = toDate((a as any).event_date);
+    const db = toDate((b as any).event_date);
+    if (!da && !db) return 0;
+    if (!da)      return 1;
+    if (!db)      return -1;
+    return db.getTime() - da.getTime(); // יורד
+  });
+
+  /* ------------------------------------------------------ */
 
   if (loading)
     return (
@@ -38,7 +51,7 @@ export default function SummaryReportsScreen() {
     <SafeAreaView className="flex-1 bg-blue-200">
       <Header />
       <FlatList
-        data={filtered}
+        data={sorted}             
         keyExtractor={(it) => it.id}
         renderItem={({ item }) => <ReportCard item={item} />}
         showsVerticalScrollIndicator={false}
