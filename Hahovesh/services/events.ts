@@ -9,7 +9,6 @@ import {
   set,
   remove,
 } from "firebase/database";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export type Event = {
@@ -32,6 +31,7 @@ export type Event = {
   house_number?: string;
   isActive?: boolean;
   canceledAt?: number;
+  volunteers?: Record<string, { volunteerId: string; joinedAt: number , arrivedAt?: number }>;
 };
 
 export const deleteEvent = async (eventId: string) => {
@@ -147,7 +147,7 @@ export const createEvent = async (
       id,
       ...values,
       isActive: true,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date().getTime(),
     });
 
     onReset();
@@ -184,6 +184,34 @@ export const removeVolunteerFromEvent = async (
   } catch (error: any) {
     throw new Error(
       'Error removing volunteer from event: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
+export const fetchEvent = async (eventId: string): Promise<Event | null> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}`);
+    const snapshot = await get(eventRef);
+    if (snapshot.exists()) {
+      return snapshot.val() as Event;
+    } else {
+      return null;
+    }
+  } catch (error: any) {
+    throw new Error(
+      'Error fetching event: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
+export const addUserArrivalTime = async (
+  eventId: string,
+  volunteerId: string,
+): Promise<void> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}/arrivedAt`);
+    await set(eventRef, serverTimestamp());
+  } catch (error: any) {
+    throw new Error(
+      'Error adding user arrival time: ' + (error?.message || JSON.stringify(error))
     );
   }
 }

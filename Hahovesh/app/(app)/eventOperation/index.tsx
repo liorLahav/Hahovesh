@@ -8,20 +8,24 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useEventContext } from "@/hooks/EventContext";
 import { sendMessageToDB } from "@/services/messages";
 import { router } from "expo-router";
 import { useUserContext } from "@/hooks/UserContext";
+import { fetchEvent } from "@/services/events";
+import { update } from "firebase/database";
+import { updateUserStatus } from "@/services/users";
 
 export default function OperationEvent() {
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [otherText, setOtherText] = useState<string>("");
-  const { user } = useUserContext();
-  const { event, changeActiveStatus } = useEventContext();
+  const { user,setIsAvailable } = useUserContext();
+  const { event, changeActiveStatus,refreshEvent } = useEventContext();
   const { id: eventId, anamnesis: eventTitle } = event;
+  const [isFirstVolunteer, setIsFirstVolunteer] = useState(false);
 
-  const options = ["קריאה לחובש נוסף", "קריאה לאמבולנס", "אחר"];
+  const options = ["קריאה לחובש נוסף", "קריאה לאמבולנס","קריאה לאמבולנס חירום", "אחר"];
 
   const handleSend = async () => {
     if (!selectedOption) {
@@ -42,31 +46,27 @@ export default function OperationEvent() {
     }
   };
 
-  const volunteersObj = (event as any).volunteers as
-    | Record<string, { volunteerId: string; joinedAt: number }>
-    | undefined;
 
-  const volunteersArr = volunteersObj
-    ? Object.values(volunteersObj).sort(
-        (a, b) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0)
-      )
-    : [];
-
-  const firstVolunteerId = volunteersArr[0]?.volunteerId;
-  const isFirstVolunteer = firstVolunteerId === user.id;
-
-  const handleEnd = () => {
-    if (!volunteersObj) {
+  const handleEnd = async () => {
+    refreshEvent();
+    const fetchedEvent = await fetchEvent(eventId);
+    if (!fetchedEvent || !fetchedEvent.volunteers ) {
       Alert.alert("אין מתנדבים לאירוע");
       return;
     }
-
+    const volunteersArr = fetchedEvent?.volunteers
+    ? Object.values(fetchedEvent.volunteers).sort(
+        (a, b) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0)
+      )
+    : [];
     changeActiveStatus(false);
-
-    if (isFirstVolunteer) {
+    if (volunteersArr[0]?.volunteerId === user.id) {
       router.replace("/endEvent");
     } else {
       Alert.alert("האירוע נגמר", "תודה על העזרה! , חזרה למסך בית");
+      changeActiveStatus(false);
+      updateUserStatus(user.id, "available");
+      setIsAvailable(true);
       router.replace("/home");
     }
   };
@@ -127,9 +127,7 @@ export default function OperationEvent() {
           onPress={handleEnd}
           className="bg-red-600 rounded-full py-4 items-center shadow-lg elevation-5"
         >
-          <Text className="text-lg text-white font-bold">
-            {isFirstVolunteer ? "סיום אירוע ומילוי דוח סיכום" : "סיום אירוע"}
-          </Text>
+          <Text className="text-lg text-white font-bold">סיום אירוע</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>

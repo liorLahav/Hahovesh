@@ -10,9 +10,10 @@ interface Props {
   schema: SchemaField[];
   onSubmit: (values: Record<string, string>) => void;
   initialValues?: Record<string, string>;
+  submitLabel?: string;
 }
 
-export default function DynamicForm({ schema, onSubmit, initialValues }: Props) {
+export default function DynamicForm({ schema, onSubmit, initialValues , submitLabel = "שלח" }: Props) {
   const [values, setValues] = useState<Record<string, string>>(
     schema.reduce((acc, f) => ({
       ...acc,
@@ -150,7 +151,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
           onPress={handleSubmit}
           className="w-full rounded-full h-14 bg-blue-600 shadow-md items-center justify-center"
         >
-          <Text className="text-white font-bold text-xl">שלח</Text>
+          <Text className="text-white font-bold text-xl">{submitLabel}</Text>
         </Pressable>
       </View>
     </ScrollView>
