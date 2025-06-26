@@ -15,7 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export type Event = {
   anamnesis?: string;
   apartment_details?: string;
-  createdAt: number;
+  createdAt: string;
   haznk_code?: string;
   informat_location?: string;
   location_type?: string;

@@ -86,6 +86,8 @@ export default function ActiveEvents() {
     return <Loading />;
   }
 
+const orderedEvents = events.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
   return (
     <View className="flex-1 bg-white">
       <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
@@ -114,7 +116,7 @@ export default function ActiveEvents() {
             לא נמצאו אירועים פעילים
           </Text>
         ) : (
-          events.reverse().map((event) => (
+          orderedEvents.map((event) => (
             <View
               key={event.id}
               className="bg-blue-50 border border-blue-300 rounded-xl shadow-sm mb-4 p-4"
