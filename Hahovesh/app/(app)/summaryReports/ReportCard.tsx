@@ -26,18 +26,18 @@ export default function ReportCard({ item }: { item: EventSummary }) {
       className="mb-4 bg-blue-50 p-4 rounded-xl shadow-sm border border-blue-200"
     >
       <View className="flex-row-reverse justify-between items-center">
-        <Text className="text-sm text-gray-500">
+        <Text className="text-md text-gray-500">
           {formatValue('event_date', (item as any).event_date)}
         </Text>
-        <Text className="text-sm font-bold text-gray-800">
-          {(item as any).title_event ?? 'ללא כותרת'}
+        <Text className="text-lg font-bold text-gray-800">
+          {(item as any).summary ?? 'ללא כותרת'}
         </Text>
       </View>
 
       {open && (
         <View className="mt-3 space-y-1">
           {details.map(({ key, label, value }) => (
-            <Text key={key} className="text-right text-gray-800">
+            <Text key={key} className="text-right text-gray-800 text-lg leading-relaxed">
               <Text className="font-semibold">{label}: </Text>
               {value}
             </Text>
