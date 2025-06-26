@@ -25,7 +25,7 @@ export default function OperationEvent() {
   const { id: eventId, anamnesis: eventTitle } = event;
   const [isFirstVolunteer, setIsFirstVolunteer] = useState(false);
 
-  const options = ["קריאה לחובש נוסף", "קריאה לאמבולנס", "אחר"];
+  const options = ["קריאה לחובש נוסף", "קריאה לאמבולנס","קריאה לאמבולנס חירום", "אחר"];
 
   const handleSend = async () => {
     if (!selectedOption) {
