@@ -9,7 +9,7 @@ import Header from './Header';
 import FilterBar from './FilterBar';
 import ReportCard from './ReportCard';
 import { filterReports, FilterType } from './filterReports';
-import { toDate } from './format';   // ⬅️ חדש
+import { toDate } from './format'; 
 
 export default function SummaryReportsScreen() {
   const [reports, setReports]   = useState<EventSummary[]>([]);
@@ -24,20 +24,18 @@ export default function SummaryReportsScreen() {
 
   useFocusEffect(React.useCallback(() => { loadReports(); }, []));
 
-  /* -------------------- סינון + מיון -------------------- */
+
   const filtered = filterReports(reports, filter, customDate);
 
-  // חדש ➡️ ממיינים כך שהמאוחר ביותר יהיה ראשון
   const sorted = [...filtered].sort((a, b) => {
     const da = toDate((a as any).event_date);
     const db = toDate((b as any).event_date);
     if (!da && !db) return 0;
     if (!da)      return 1;
     if (!db)      return -1;
-    return db.getTime() - da.getTime(); // יורד
+    return db.getTime() - da.getTime();
   });
 
-  /* ------------------------------------------------------ */
 
   if (loading)
     return (
