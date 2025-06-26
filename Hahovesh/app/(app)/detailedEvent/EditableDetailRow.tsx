@@ -8,7 +8,12 @@ type Props = {
   onEdit: () => void;
 };
 
-export default function EditableDetailRow({ label, value, canEdit, onEdit }: Props) {
+export default function EditableDetailRow({
+  label,
+  value,
+  canEdit,
+  onEdit,
+}: Props) {
   return (
     <View className="mb-4 border-b border-gray-200 pb-2">
       <Text className="text-sm text-gray-500 text-right">{label}</Text>
