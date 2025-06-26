@@ -1,25 +1,18 @@
-import { db, realtimeDb } from '@/FirebaseConfig';
-import { collection, doc, addDoc, getDocs, orderBy, updateDoc, query ,Timestamp, DocumentData } from 'firebase/firestore';
-import { ref, get ,remove } from 'firebase/database';
+import {
+  collection,
+  doc,
+  addDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  Timestamp,
+} from 'firebase/firestore';
+import { db } from '@/FirebaseConfig';
 
-
-export const saveEventSummary = async (data: Record<string, string>) => {
-  try {
-    const docRef = await addDoc(collection(db, 'eventSummaries'), data);
-    console.log('✅ דוח נשמר:', docRef.id);
-    return docRef.id;
-  } catch (error) {
-    console.error('❌ שגיאה בשמירה:', error);
-    throw error;
-  }
-};
-
-export const updateEventSummary = async (
-  id: string,
-  data: Partial<EventSummary>,
-) => {
-  await updateDoc(doc(db, 'eventSummaries', id), data);
-};
+/* טיפוס בסיסי לדוח */
 export interface EventSummary {
   id: string;
   createdAt?: Timestamp;
@@ -27,29 +20,48 @@ export interface EventSummary {
   [key: string]: any;
 }
 
-export const fetchEventSummaries = async (): Promise<EventSummary[]> => {
-  const colRef = collection(db, 'eventSummaries');
+/* ────────────────── CRUD ────────────────── */
 
-  try {
-    const snapOrdered = await getDocs(query(colRef, orderBy('createdAt', 'desc')));
-    if (!snapOrdered.empty) {
-      return snapOrdered.docs.map<EventSummary>((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }) as EventSummary);
-    }
-  } catch (err) {
-    console.warn('⚠️ fetchEventSummaries: orderBy failed – ייתכן שאין createdAt', err);
-  }
-
-  const snap = await getDocs(colRef);
-  return snap.docs.map<EventSummary>((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }) as EventSummary);
+/** יצירת דוח חדש */
+export const saveEventSummary = async (
+  data: Omit<EventSummary, 'id'>,
+): Promise<string> => {
+  const ref = await addDoc(collection(db, 'eventSummaries'), data);
+  return ref.id;
 };
 
+/** עדכון מאפיינים חלקי */
+export const updateEventSummary = async (
+  id: string,
+  data: Partial<EventSummary>,
+) => updateDoc(doc(db, 'eventSummaries', id), data);
 
+/** שליפת דוח יחיד (פעם אחת) */
+export const getEventSummary = async (
+  id: string,
+): Promise<EventSummary | null> => {
+  const snap = await getDoc(doc(db, 'eventSummaries', id));
+  return snap.exists() ? ({ id: snap.id, ...snap.data() } as EventSummary) : null;
+};
 
+export const subscribeEventSummary = (
+  id: string,
+  cb: (d: EventSummary | null) => void,
+) =>
+  onSnapshot(doc(db, 'eventSummaries', id), (snap) =>
+    cb(snap.exists() ? ({ id: snap.id, ...snap.data() } as EventSummary) : null),
+  );
 
-
+export const fetchEventSummaries = async (): Promise<EventSummary[]> => {
+  const col = collection(db, 'eventSummaries');
+  try {
+    const ordered = await getDocs(query(col, orderBy('createdAt', 'desc')));
+    if (!ordered.empty)
+      return ordered.docs.map(
+        (d) => ({ id: d.id, ...d.data() } as EventSummary),
+      );
+  } catch {
+  }
+  const snap = await getDocs(col);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as EventSummary));
+};

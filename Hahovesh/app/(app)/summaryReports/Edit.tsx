@@ -10,15 +10,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '@/FirebaseConfig';
 import { Ionicons } from '@expo/vector-icons';
 
 import EditableDetailRow from '../detailedEvent/EditableDetailRow';
 import { FIELD_LABELS, READ_ONLY_KEYS } from './fields';
 import { formatValue } from './format';
+import {
+  getEventSummary,
+  updateEventSummary,
+  EventSummary,
+} from '@/services/event_summary';
 
-/* Header */
+/* ---------- Header ---------- */
 const EditHeader = () => {
   const router = useRouter();
   return (
@@ -26,7 +29,7 @@ const EditHeader = () => {
       <View className="w-full h-1 bg-red-500" />
       <View className="bg-blue-50 border-b border-blue-300 py-4 px-4 rounded-b-2xl shadow-sm">
         <View className="flex-row items-center justify-between">
-          <Pressable onPress={() => router.push('/summaryReports')}>
+          <Pressable onPress={() => router.replace('/summaryReports')}>
             <Ionicons name="arrow-back" size={28} color="#1e3a8a" />
           </Pressable>
           <Text className="text-xl font-bold text-blue-800">עריכת דוח</Text>
@@ -37,7 +40,7 @@ const EditHeader = () => {
   );
 };
 
-/* Modal */
+/* ---------- Modal ---------- */
 const EditModal = ({
   visible,
   fieldLabel,
@@ -45,7 +48,14 @@ const EditModal = ({
   onChange,
   onCancel,
   onSave,
-}: any) => (
+}: {
+  visible: boolean;
+  fieldLabel: string | null;
+  editedValue: string;
+  onChange: (v: string) => void;
+  onCancel: () => void;
+  onSave: () => void;
+}) => (
   <Modal visible={visible} transparent animationType="fade">
     <View className="flex-1 bg-black/40 justify-center items-center">
       <View className="bg-white w-[90%] p-5 rounded-2xl shadow-lg">
@@ -59,10 +69,16 @@ const EditModal = ({
           placeholder="ערך חדש…"
         />
         <View className="flex-row justify-center gap-4 mt-6">
-          <Pressable onPress={onCancel} className="bg-red-600 px-6 py-2 rounded-full shadow">
+          <Pressable
+            onPress={onCancel}
+            className="bg-red-600 px-6 py-2 rounded-full shadow"
+          >
             <Text className="text-white font-bold">ביטול</Text>
           </Pressable>
-          <Pressable onPress={onSave} className="bg-green-600 px-6 py-2 rounded-full shadow">
+          <Pressable
+            onPress={onSave}
+            className="bg-green-600 px-6 py-2 rounded-full shadow"
+          >
             <Text className="text-white font-bold">שמור</Text>
           </Pressable>
         </View>
@@ -71,26 +87,26 @@ const EditModal = ({
   </Modal>
 );
 
+/* ---------- Main ---------- */
 export default function SummaryEdit() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const [docData, setDocData] = useState<Record<string, any> | null>(null);
+  const [docData, setDocData] = useState<EventSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [fieldKey, setFieldKey] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
 
+  /* fetch once */
   useEffect(() => {
-    if (!modalOpen){
-      (async () => {
-        const snap = await getDoc(doc(db, 'eventSummaries', id));
-        if (snap.exists()) setDocData({ id: snap.id, ...snap.data() });
-        setLoading(false);
-      })();
-    }
-  }, [id,modalOpen]);
+    (async () => {
+      const data = await getEventSummary(id);
+      setDocData(data);
+      setLoading(false);
+    })();
+  }, [id]);
 
   if (loading)
     return (
@@ -118,8 +134,8 @@ export default function SummaryEdit() {
 
   const save = async () => {
     if (!fieldKey) return;
-    await updateDoc(doc(db, 'eventSummaries', docData.id), { [fieldKey]: draft });
-    setModalOpen(false);
+    await updateEventSummary(docData.id, { [fieldKey]: draft });
+    router.replace('/summaryReports');       // חזרה + רענון בליסטה
   };
 
   return (
