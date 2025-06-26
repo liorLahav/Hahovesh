@@ -9,7 +9,6 @@ import {
   set,
   remove,
 } from "firebase/database";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export type Event = {
@@ -200,6 +199,19 @@ export const fetchEvent = async (eventId: string): Promise<Event | null> => {
   } catch (error: any) {
     throw new Error(
       'Error fetching event: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
+export const addUserArrivalTime = async (
+  eventId: string,
+  volunteerId: string,
+): Promise<void> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}/arrivedAt`);
+    await set(eventRef, serverTimestamp());
+  } catch (error: any) {
+    throw new Error(
+      'Error adding user arrival time: ' + (error?.message || JSON.stringify(error))
     );
   }
 }
