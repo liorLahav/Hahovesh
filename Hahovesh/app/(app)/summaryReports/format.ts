@@ -18,6 +18,9 @@ export function formatValue(key: string, v: unknown): string {
   if (['true', '1', 1, true].includes(v as any))  return 'כן';
   if (['false', '0', 0, false].includes(v as any)) return 'לא';
 
+  if ('female' === v) return 'נקבה';
+  if ('male' === v) return 'זכר';
+
   if (v instanceof Timestamp) return v.toDate().toLocaleString('he-IL');
 
   const s = String(v).trim();

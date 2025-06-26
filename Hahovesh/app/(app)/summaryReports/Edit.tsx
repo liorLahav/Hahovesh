@@ -1,27 +1,24 @@
+/* summaryReports/Edit.tsx – טופס עריכת דוח קיים */
+
 import {
   View,
   Text,
   ScrollView,
+  ActivityIndicator,
+  Alert,
   Pressable,
-  TextInput,
-  Modal,
-  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
-import EditableDetailRow from '../detailedEvent/EditableDetailRow';
+import DynamicForm from '@/components/DynamicForm';
+import formSchema_eventSummary from '@/data/fromSchema_eventSummary';
+import { getEventSummary, updateEventSummary } from '@/services/event_summary';
 import { FIELD_LABELS, READ_ONLY_KEYS } from './fields';
-import { formatValue } from './format';
-import {
-  getEventSummary,
-  updateEventSummary,
-  EventSummary,
-} from '@/services/event_summary';
 
-/* ---------- Header ---------- */
+
 const EditHeader = () => {
   const router = useRouter();
   return (
@@ -33,6 +30,7 @@ const EditHeader = () => {
             <Ionicons name="arrow-back" size={28} color="#1e3a8a" />
           </Pressable>
           <Text className="text-xl font-bold text-blue-800">עריכת דוח</Text>
+          {/* רווח מאוזן לימין */}
           <View style={{ width: 35 }} />
         </View>
       </View>
@@ -40,135 +38,65 @@ const EditHeader = () => {
   );
 };
 
-/* ---------- Modal ---------- */
-const EditModal = ({
-  visible,
-  fieldLabel,
-  editedValue,
-  onChange,
-  onCancel,
-  onSave,
-}: {
-  visible: boolean;
-  fieldLabel: string | null;
-  editedValue: string;
-  onChange: (v: string) => void;
-  onCancel: () => void;
-  onSave: () => void;
-}) => (
-  <Modal visible={visible} transparent animationType="fade">
-    <View className="flex-1 bg-black/40 justify-center items-center">
-      <View className="bg-white w-[90%] p-5 rounded-2xl shadow-lg">
-        <Text className="text-center text-lg font-bold mb-4 text-blue-900">
-          ערוך {fieldLabel}
-        </Text>
-        <TextInput
-          value={editedValue}
-          onChangeText={onChange}
-          className="border border-blue-200 p-3 rounded-md text-right"
-          placeholder="ערך חדש…"
-        />
-        <View className="flex-row justify-center gap-4 mt-6">
-          <Pressable
-            onPress={onCancel}
-            className="bg-red-600 px-6 py-2 rounded-full shadow"
-          >
-            <Text className="text-white font-bold">ביטול</Text>
-          </Pressable>
-          <Pressable
-            onPress={onSave}
-            className="bg-green-600 px-6 py-2 rounded-full shadow"
-          >
-            <Text className="text-white font-bold">שמור</Text>
-          </Pressable>
-        </View>
-      </View>
-    </View>
-  </Modal>
-);
-
-/* ---------- Main ---------- */
-export default function SummaryEdit() {
-  const router = useRouter();
+export default function EditSummaryForm() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
 
-  const [docData, setDocData] = useState<EventSummary | null>(null);
+  const [initialValues, setInitialValues] = useState<Record<string, string> | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [fieldKey, setFieldKey] = useState<string | null>(null);
-  const [draft, setDraft] = useState('');
 
-  /* fetch once */
   useEffect(() => {
     (async () => {
-      if(!modalOpen){
-        const data = await getEventSummary(id);
-        setDocData(data);
-        setLoading(false);
-      }
+      const doc = await getEventSummary(id);
+      if (!doc) return setLoading(false);
+    
+      const defaults = formSchema_eventSummary.reduce(
+        (acc, f) => ({ ...acc, [f.key]: (doc as any)[f.key] ?? '' }),
+        {} as Record<string, string>,
+      );
+
+      setInitialValues(defaults);
+      setLoading(false);
     })();
-  }, [id,modalOpen]);
+  }, [id]);
 
-  if (loading)
-    return (
-      <SafeAreaView className="flex-1 justify-center items-center">
-        <Text>טוען דוח…</Text>
-      </SafeAreaView>
-    );
-  if (!docData)
-    return (
-      <SafeAreaView className="flex-1 justify-center items-center">
-        <Text>הדוח לא נמצא</Text>
-      </SafeAreaView>
-    );
 
-  const editableKeys = Object.keys(FIELD_LABELS).filter(
-    (k) => !(READ_ONLY_KEYS as readonly string[]).includes(k),
+  const onSubmit = useCallback(
+    async (values: Record<string, string>) => {
+      READ_ONLY_KEYS.forEach((k) => delete values[k]);
+      try {
+        await updateEventSummary(id, values);
+        Alert.alert('הצלחה', 'הדוח עודכן בהצלחה');
+        router.replace('/summaryReports');
+      } catch (err) {
+        console.error(err);
+        Alert.alert('שגיאה', 'לא ניתן לשמור את השינויים');
+      }
+    },
+    [id],
   );
 
-  const details = editableKeys.map((k) => ({
-    key: k,
-    label: FIELD_LABELS[k],
-    raw: docData[k] ?? '',
-    formatted: formatValue(k, docData[k]),
-  }));
 
-  const save = async () => {
-    if (!fieldKey) return;
-    await updateEventSummary(docData.id, { [fieldKey]: draft });
-    setModalOpen(false);
-  };
+  if (loading || !initialValues) {
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-50">
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView className="flex-1 bg-white">
       <EditHeader />
-
-      <ScrollView className="px-6 py-4">
-        {details.map((d) => (
-          <EditableDetailRow
-            key={d.key}
-            label={d.label}
-            value={String(d.formatted)}
-            canEdit
-            onEdit={() => {
-              setFieldKey(d.key);
-              setDraft(String(d.raw));
-              setModalOpen(true);
-            }}
-          />
-        ))}
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+        <DynamicForm
+          schema={formSchema_eventSummary}
+          initialValues={initialValues}
+          onSubmit={onSubmit}
+          submitLabel="שמור שינויים"
+        />
       </ScrollView>
-
-      <EditModal
-        visible={modalOpen}
-        fieldLabel={fieldKey ? FIELD_LABELS[fieldKey] : null}
-        editedValue={draft}
-        onChange={setDraft}
-        onCancel={() => setModalOpen(false)}
-        onSave={save}
-      />
     </SafeAreaView>
   );
 }
