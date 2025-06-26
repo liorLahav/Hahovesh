@@ -148,7 +148,7 @@ export const createEvent = async (
       id,
       ...values,
       isActive: true,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date().getTime(),
     });
 
     onReset();

@@ -26,7 +26,7 @@ export default function EventSummaryScreen() {
       receiver: event.recipient ?? '',
       event_location: event.location_type ?? '',
       event_date: event.createdAt
-        ? new Date(event.createdAt).toLocaleDateString('he-IL')
+        ? new Date(event.createdAt).getTime().toString()
         : '',
         volenteer_id: user.id,
     };
