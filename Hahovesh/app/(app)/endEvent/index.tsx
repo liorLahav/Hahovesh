@@ -36,18 +36,16 @@ export default function EventSummaryScreen() {
 
   const onSubmit = async (values: Record<string, string>) => {
   try {
-    await saveEventSummary({ ...values, eventId: event.id });
-
+    await saveEventSummary({ ...values, eventId: event.id,volunteer_times : event.volunteers,
+      volenteer_id: user.id, endTime: Date.now(),
+    });
     await deleteEventById(event.id);
 
     changeActiveStatus(false);
 
     Alert.alert('הצלחה', 'דוח הסיכום נשלח ונשמר בהצלחה');
 
-    setTimeout(() => {
-      router.replace('/home');
-    }, 3000);
-
+    router.replace('/home');
     setFormKey(k => k + 1);
   } catch (err: any) {
     console.error('Error saving event summary:', err);

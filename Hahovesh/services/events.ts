@@ -32,6 +32,7 @@ export type Event = {
   house_number?: string;
   isActive?: boolean;
   canceledAt?: number;
+  volunteers?: Record<string, { volunteerId: string; joinedAt: number , arrivedAt?: number }>;
 };
 
 export const deleteEvent = async (eventId: string) => {
@@ -184,6 +185,21 @@ export const removeVolunteerFromEvent = async (
   } catch (error: any) {
     throw new Error(
       'Error removing volunteer from event: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
+export const fetchEvent = async (eventId: string): Promise<Event | null> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}`);
+    const snapshot = await get(eventRef);
+    if (snapshot.exists()) {
+      return snapshot.val() as Event;
+    } else {
+      return null;
+    }
+  } catch (error: any) {
+    throw new Error(
+      'Error fetching event: ' + (error?.message || JSON.stringify(error))
     );
   }
 }

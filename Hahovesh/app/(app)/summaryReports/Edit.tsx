@@ -102,11 +102,13 @@ export default function SummaryEdit() {
   /* fetch once */
   useEffect(() => {
     (async () => {
-      const data = await getEventSummary(id);
-      setDocData(data);
-      setLoading(false);
+      if(!modalOpen){
+        const data = await getEventSummary(id);
+        setDocData(data);
+        setLoading(false);
+      }
     })();
-  }, [id]);
+  }, [id,modalOpen]);
 
   if (loading)
     return (
@@ -135,7 +137,7 @@ export default function SummaryEdit() {
   const save = async () => {
     if (!fieldKey) return;
     await updateEventSummary(docData.id, { [fieldKey]: draft });
-    router.replace('/summaryReports');       // חזרה + רענון בליסטה
+    setModalOpen(false);
   };
 
   return (
