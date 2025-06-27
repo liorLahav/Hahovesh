@@ -40,7 +40,7 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
   return (
     <View className="bg-white rounded-lg p-4 mb-4 shadow-sm">
       <Text className="text-lg font-bold text-blue-800 mb-3 text-right">
-        בחירת מתנדב
+       סטטיסטיקות אישיות
       </Text>
       
       <TouchableOpacity 
@@ -58,7 +58,7 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
                 ? "שגיאה בטעינת מתנדבים" 
                 : volunteers.length === 0
                   ? "לא נמצאו מתנדבים"
-                  : "בחר מתנדב לצפייה בסטטיסטיקות"}
+                  : "בחר מתנדב"}
         </Text>
       </TouchableOpacity>      
       {/* Option to clear volunteer selection */}
