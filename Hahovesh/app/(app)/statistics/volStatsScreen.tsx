@@ -56,56 +56,76 @@ export default function MainVolunteerStats() {
   const [volError, setVolError] = useState<string | null>(null);
   const [volStats, setVolStats] = useState<VolunteerStats[]>([]);
 
-  // 1) Fetch global stats
-  const fetchGlobalStats = async () => {
-    setGlobalLoading(true);
-    setGlobalError(null);
-    try {
-      const [
-        totalRes,
-        transRes,
-        recvRes,
-        noRepRes,
-        byWeekday,
-        byHour,
-        byMonth,
-        byYear,
-      ] = await Promise.all([
-        getTotalEvents(period, startDate, endDate),
-        getTransportCounts(period, startDate, endDate),
-        getReceiverCounts(period, startDate, endDate),
-        getNoReportCount(period, startDate, endDate),
-        getCountsByWeekday(period, startDate, endDate),
-        getCountsByHour(period, startDate, endDate),
-        getCountsByMonth(period, startDate, endDate),
-        getCountsByYear(period, startDate, endDate),
-      ]);
-      setTotalEvents(totalRes);
-      setTransportBreakdown(transRes);
-      setReceiverBreakdown(recvRes);
-      setAddressBreakdown(await getAddressCounts(period, startDate, endDate));
-      setNoReportCount(noRepRes);
-      setActiveVolunteersCount(Object.keys(recvRes).length);
-      setCountsByWeekday(byWeekday);
-      setCountsByHour(byHour);
-      setCountsByMonth(byMonth);
-      setCountsByYear(byYear);
-    } catch (e) {
-      setGlobalError(e instanceof Error ? e.message : 'שגיאה');
-      setTotalEvents(0);
-      setTransportBreakdown({});
-      setReceiverBreakdown({});
-      setAddressBreakdown({});
-      setNoReportCount(0);
-      setActiveVolunteersCount(0);
-      setCountsByWeekday({});
-      setCountsByHour({});
-      setCountsByMonth({});
-      setCountsByYear({});
-    } finally {
-      setGlobalLoading(false);
-    }
-  };
+  // Initialization flag to block render until data is ready
+  const [initializing, setInitializing] = useState(true);
+
+// 1) Fetch global stats
+const fetchGlobalStats = async () => {
+  setGlobalLoading(true);
+  setGlobalError(null);
+  try {
+    const [
+      totalRes,
+      transRes,
+      recvRes,
+      noRepRes,
+      byWeekday,
+      byHour,
+      byMonth,
+      byYear,
+    ] = await Promise.all([
+      getTotalEvents(period, startDate, endDate),
+      getTransportCounts(period, startDate, endDate),
+      getReceiverCounts(period, startDate, endDate),
+      getNoReportCount(period, startDate, endDate),
+      getCountsByWeekday(period, startDate, endDate),
+      getCountsByHour(period, startDate, endDate),
+      getCountsByMonth(period, startDate, endDate),
+      getCountsByYear(period, startDate, endDate),
+    ]);
+
+    setTotalEvents(totalRes);
+    setTransportBreakdown(transRes);
+    setReceiverBreakdown(recvRes);
+    setAddressBreakdown(await getAddressCounts(period, startDate, endDate));
+    setNoReportCount(noRepRes);
+    // --------------------------------------------------
+    // OLD: setActiveVolunteersCount(Object.keys(recvRes).length);
+    //
+    // NEW: count docs in volunteerStats where eventsCount >= 1
+    const statsSnap = await getDocs(collection(db, 'volunteerStats'));
+    let activeCount = 0;
+    statsSnap.forEach(docSnap => {
+      const d = docSnap.data();
+      if ((d.eventsCount || 0) >= 1) {
+        activeCount++;
+      }
+    });
+    setActiveVolunteersCount(activeCount);
+    // --------------------------------------------------
+
+    setCountsByWeekday(byWeekday);
+    setCountsByHour(byHour);
+    setCountsByMonth(byMonth);
+    setCountsByYear(byYear);
+  } catch (e) {
+    setGlobalError(e instanceof Error ? e.message : 'שגיאה');
+    setTotalEvents(0);
+    setTransportBreakdown({});
+    setReceiverBreakdown({});
+    setAddressBreakdown({});
+    setNoReportCount(0);
+    setActiveVolunteersCount(0);
+    setCountsByWeekday({});
+    setCountsByHour({});
+    setCountsByMonth({});
+    setCountsByYear({});
+  } finally {
+    setGlobalLoading(false);
+  }
+};
+
+
 
   // 2) Fetch volunteer stats by v_full_name
   const fetchVolStats = async () => {
@@ -149,21 +169,29 @@ export default function MainVolunteerStats() {
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        try {
-          await triggerStatisticsUpdate();
-          await fetchGlobalStats();
-          await fetchVolStats();
-        } catch (err) {
-          console.error(err);
-        }
+        setInitializing(true);
+        await triggerStatisticsUpdate();
+        await fetchGlobalStats();
+        await fetchVolStats();
+        setInitializing(false);
       })();
-    }, [period, startDate, endDate, selectedVolunteerName])
+    }, [])  // ← run only once on first focus
   );
 
   // 4) Also re-fetch volunteer stats any time they pick a different name
   useEffect(() => {
-    fetchVolStats();
-  }, [selectedVolunteerName]);
+    fetchGlobalStats();
+  }, [period, startDate, endDate]);
+
+  // If we’re still initializing, show a full-screen loader
+  if (initializing) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-blue-100">
+        <ActivityIndicator size="large" color="#1d4ed8" />
+        <Text className="mt-4 text-blue-800">מעדכן נתונים...</Text>
+      </SafeAreaView>
+    );
+  }
 
   // Helper for dropdown sections
   const renderDropdown = (
@@ -266,7 +294,7 @@ export default function MainVolunteerStats() {
               )}
               <View className="border-t border-gray-200 my-4" />
               <View className="flex-row-reverse items-center justify-between mb-5">
-                <Text className="text-gray-700 text-base">אירועים ללא סיכום:</Text>
+                <Text className="text-gray-700 text-base">דוחות ללא סיכום אירוע:</Text>
                 <Text className="text-red-600 font-medium">{noReportCount}</Text>
               </View>
               <View className="border-t border-gray-200 my-4" />
@@ -304,34 +332,42 @@ export default function MainVolunteerStats() {
         </View>
 
         {/* Dropdowns */}
+{renderDropdown(
+  "אירועים לפי יום בשבוע",
+  showWeekday,
+  () => setShowWeekday(!showWeekday),
+  Object.entries(countsByWeekday)
+    // sort by count descending
+    .sort(([, a], [, b]) => b - a)
+    .map(([day, cnt]) => (
+      <View
+        key={day}
+        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+      >
+        <Text className="text-gray-800 text-sm text-right">{day}</Text>
+        <Text className="text-blue-600 font-medium">{cnt}</Text>
+      </View>
+    ))
+)}
         {renderDropdown(
-          "אירועים לפי יום בשבוע",
-          showWeekday,
-          () => setShowWeekday(!showWeekday),
-          Object.entries(countsByWeekday).map(([d, c]) => (
-            <View
-              key={d}
-              className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-            >
-              <Text className="text-gray-800 text-sm text-right">{d}</Text>
-              <Text className="text-blue-600 font-medium">{c}</Text>
-            </View>
-          ))
-        )}
-        {renderDropdown(
-          "אירועים לפי שעה",
-          showHour,
-          () => setShowHour(!showHour),
-          Object.entries(countsByHour).map(([h, c]) => (
-            <View
-              key={h}
-              className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-            >
-              <Text className="text-gray-800 text-sm text-right">{h}:00</Text>
-              <Text className="text-blue-600 font-medium">{c}</Text>
-            </View>
-          ))
-        )}
+  "אירועים לפי שעה",
+  showHour,
+  () => setShowHour(!showHour),
+  Object.entries(countsByHour)
+    // 1) keep only hours with at least 1 event
+    .filter(([, cnt]) => cnt >= 1)
+    // 2) sort by count descending
+    .sort(([, a], [, b]) => b - a)
+    .map(([hour, cnt]) => (
+      <View
+        key={hour}
+        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+      >
+        <Text className="text-gray-800 text-sm text-right">{hour}:00</Text>
+        <Text className="text-blue-600 font-medium">{cnt}</Text>
+      </View>
+    ))
+)}
         {renderDropdown(
           "אירועים לפי חודש",
           showMonth,
