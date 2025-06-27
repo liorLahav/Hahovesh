@@ -1,367 +1,280 @@
+// services/globalStatsService.ts
+
 import { collection, getDocs, Timestamp, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../FirebaseConfig";
 import { StatsPeriod } from "./volunteerAnalyticsService";
-import { calculateDateRange, formatWeekday, formatHour, formatMonthKey, formatYear } from "../app/(app)/statistics/calculations";
+import {
+  calculateDateRange,
+  formatWeekday,
+  formatHour,
+  formatMonthKey,
+  formatYear
+} from "../app/(app)/statistics/calculations";
 
+/**
+ * Helper: normalize any event_date (Firestore Timestamp, ms, sec, ISO string)
+ */
 function parseEventDate(raw: any): Date {
   if (!raw) return new Date(0);
-
-  // 1) Firestore Timestamp
   if (typeof raw === 'object' && typeof raw.toDate === 'function') {
     return raw.toDate();
   }
-
-  // 2) Numeric (could be ms or sec)
   if (typeof raw === 'number') {
-    // If it's larger than ~1e12, assume it's ms
     return raw > 1e12 ? new Date(raw) : new Date(raw * 1000);
   }
-
-  // 3) String
   if (typeof raw === 'string') {
-    // Pure‐digit?  
     const num = Number(raw);
     if (!isNaN(num)) {
-      // Use string length to decide ms vs sec
-      // 13+ digits → ms, 10 digits → secs
       const digits = raw.replace(/^\-/, '').length;
-      if (digits >= 13 || num > 1e12) {
-        return new Date(num);
-      } else {
-        return new Date(num * 1000);
-      }
+      return digits >= 13 || num > 1e12
+        ? new Date(num)
+        : new Date(num * 1000);
     }
-    // Fallback: ISO string
     const iso = new Date(raw);
     return isNaN(iso.getTime()) ? new Date(0) : iso;
   }
-
-  // Everything else → epoch
   return new Date(0);
 }
 
-/**
- * 1. COUNT TOTAL EVENTS IN “volunteerStats” COLLECTION WITHIN DATE RANGE
- */
+/** 1. Total events within date range */
 export async function getTotalEvents(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<number> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-
-  const col = collection(db, "eventSummaries");
-  const snap = await getDocs(col);
-
+  const snap = await getDocs(collection(db, "eventSummaries"));
   let total = 0;
   snap.forEach(docSnap => {
     const d = docSnap.data();
-    // normalize Unix-secs, ms, ISO, Timestamp, etc.
     const evDate = parseEventDate(d.event_date);
-
-    // include ALL when period==='all', otherwise within [start,end]
-    const include =
-      period === "all"
-        ? true
-        : (
-            (!start || evDate.getTime() >= start.getTime()) &&
-            (!end   || evDate.getTime() <= end.getTime())
-          );
-
-    if (include) {
-      total++;
-    }
+    const include = period === "all"
+      ? true
+      : (
+          (!start || evDate.getTime() >= start.getTime()) &&
+          (!end   || evDate.getTime() <= end.getTime())
+        );
+    if (include) total++;
   });
-
-  console.log(`Total events in range: ${total}`);
   return total;
 }
 
-
-/**
- * 2. COUNT “transport” BREAKDOWN FROM “eventSummaries” WITHIN DATE RANGE
- */
+/** 2. Breakdown by transport */
 export async function getTransportCounts(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const summariesCol = collection(db, "eventSummaries");
-  const snap = await getDocs(summariesCol);
-
-  const transportCounts: Record<string, number> = {};
+  const snap = await getDocs(collection(db, "eventSummaries"));
+  const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
     if (
-      (!start || evDate.getTime() >= start.getTime()) &&
-      (!end   || evDate.getTime() <= end.getTime())
+      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+      (period === "all" || evDate.getTime() <= end.getTime())
     ) {
-      const tRaw = (d.transport as string || "").trim();
-      const key = tRaw === "" ? "ללא הובלה" : tRaw;
-      transportCounts[key] = (transportCounts[key] || 0) + 1;
+      const key = (d.transport as string || "").trim() || "ללא הובלה";
+      counts[key] = (counts[key] || 0) + 1;
     }
   });
-
-  return transportCounts;
+  return counts;
 }
 
-/**
- * 3. COUNT “receiver” BREAKDOWN FROM “eventSummaries” WITHIN DATE RANGE
- */
+/** 3. Breakdown by receiver */
 export async function getReceiverCounts(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const summariesCol = collection(db, "eventSummaries");
-  const snap = await getDocs(summariesCol);
-
-  const receiverCounts: Record<string, number> = {};
+  const snap = await getDocs(collection(db, "eventSummaries"));
+  const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-
     if (
-      (!start || evDate.getTime() >= start.getTime()) &&
-      (!end   || evDate.getTime() <= end.getTime())
+      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+      (period === "all" || evDate.getTime() <= end.getTime())
     ) {
-      const raw = ((d.receiver as string) || "").trim();
-      const key = raw === "" ? "לא ידוע" : raw;
-      receiverCounts[key] = (receiverCounts[key] || 0) + 1;
+      const key = ((d.receiver as string) || "").trim() || "לא ידוע";
+      counts[key] = (counts[key] || 0) + 1;
     }
   });
-
-  return receiverCounts;
+  return counts;
 }
 
-/**
- * 4. CLASSIFICATION BY ADDRESS FROM “eventSummaries” WITHIN DATE RANGE
- */
+/** 4. Breakdown by address */
 export async function getAddressCounts(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const summariesCol = collection(db, "eventSummaries");
-  const snap = await getDocs(summariesCol);
-
-  const addressCounts: Record<string, number> = {};
+  const snap = await getDocs(collection(db, "eventSummaries"));
+  const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-
-    const include =
-      period === 'all'
-        ? true
-        : (
-            (!start || evDate.getTime() >= start.getTime()) &&
-            (!end   || evDate.getTime() <= end.getTime())
-          );
-
+    const include = period === "all"
+      ? true
+      : (
+          (!start || evDate.getTime() >= start.getTime()) &&
+          (!end   || evDate.getTime() <= end.getTime())
+        );
     if (include) {
-      const raw = ((d.address as string) || "").trim();
-      const key = raw === "" ? "לא ידוע" : raw;
-      addressCounts[key] = (addressCounts[key] || 0) + 1;
+      const key = ((d.address as string) || "").trim() || "לא ידוע";
+      counts[key] = (counts[key] || 0) + 1;
     }
   });
-
-  return addressCounts;
+  return counts;
 }
 
-
-/**
- * 5. COUNT CASES WITH NO REPORT (“summary” EMPTY) IN “eventSummaries” WITHIN DATE RANGE
- */
+/** 5. Count cases with empty summary (no report) */
 export async function getNoReportCount(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<number> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const summariesCol = collection(db, "eventSummaries");
-  const snap = await getDocs(summariesCol);
-
+  const snap = await getDocs(collection(db, "eventSummaries"));
   let countNoReport = 0;
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-
     if (
-      (!start || evDate.getTime() >= start.getTime()) &&
-      (!end   || evDate.getTime() <= end.getTime())
+      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+      (period === "all" || evDate.getTime() <= end.getTime())
     ) {
-      const summaryText = ((d.summary as string) || "").trim();
-      if (summaryText === "") {
+      if (((d.summary as string) || "").trim() === "") {
         countNoReport++;
       }
     }
   });
-
   return countNoReport;
 }
 
-/**
- * 6. BREAKDOWN BY DAY OF WEEK
- */
+/** 6. Breakdown by weekday (Hebrew) */
 export async function getCountsByWeekday(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const summariesCol = collection(db, "eventSummaries");
-  const snap = await getDocs(summariesCol);
-
+  const snap = await getDocs(collection(db, "eventSummaries"));
   const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
-    // ← normalize Unix‐secs, Firestore Timestamp, ISO, ms, etc.
     const evDate = parseEventDate(d.event_date);
-
-    // ← include only those within your selected window
     if (
-      (!start || evDate.getTime() >= start.getTime()) &&
-      (!end   || evDate.getTime() <= end.getTime())
+      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+      (period === "all" || evDate.getTime() <= end.getTime())
     ) {
-      // ← map to Hebrew weekday name
       const day = formatWeekday(evDate);
       counts[day] = (counts[day] || 0) + 1;
     }
   });
-
   return counts;
 }
 
-/**
- * 7. BREAKDOWN BY HOUR OF DAY
- */
+/** 7. Breakdown by hour */
 export async function getCountsByHour(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<Record<number, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const summariesCol = collection(db, "eventSummaries");
-  const snap = await getDocs(summariesCol);
-
-  // init all 24 hours to zero
+  const snap = await getDocs(collection(db, "eventSummaries"));
   const counts: Record<number, number> = {};
   for (let h = 0; h < 24; h++) counts[h] = 0;
-
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-
-    // only filter by date-range when NOT doing “all”
-    const include =
-      period === "all"
-        ? true
-        : (
-            (!start || evDate.getTime() >= start.getTime()) &&
-            (!end   || evDate.getTime() <= end.getTime())
-          );
-    if (!include) return;
-
-    const hour = evDate.getHours();
-    counts[hour] = (counts[hour] || 0) + 1;
+    if (
+      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+      (period === "all" || evDate.getTime() <= end.getTime())
+    ) {
+      counts[evDate.getHours()]++;
+    }
   });
-
   return counts;
 }
 
-/**
- * 8. BREAKDOWN BY MONTH
- */
+/** 8. Breakdown by month key “YYYY-MM” */
 export async function getCountsByMonth(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const summariesCol = collection(db, "eventSummaries");
-  const snap = await getDocs(summariesCol);
-
+  const snap = await getDocs(collection(db, "eventSummaries"));
   const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
-    // normalize Unix-secs, Timestamp, ISO, ms, etc.
     const evDate = parseEventDate(d.event_date);
-
-    // include all if period==='all', otherwise filter into [start,end]
-    const include =
-      period === "all"
-        ? true
-        : (
-            (!start || evDate.getTime() >= start.getTime()) &&
-            (!end   || evDate.getTime() <= end.getTime())
-          );
-    if (!include) return;
-
-    const key = formatMonthKey(evDate);  // "YYYY-MM"
-    counts[key] = (counts[key] || 0) + 1;
+    if (
+      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+      (period === "all" || evDate.getTime() <= end.getTime())
+    ) {
+      const key = formatMonthKey(evDate);
+      counts[key] = (counts[key] || 0) + 1;
+    }
   });
-
   return counts;
 }
 
-/**
- * 9. BREAKDOWN BY YEAR
- */
+/** 9. Breakdown by year */
 export async function getCountsByYear(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<Record<number, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const summariesCol = collection(db, "eventSummaries");
-  const snap = await getDocs(summariesCol);
-
+  const snap = await getDocs(collection(db, "eventSummaries"));
   const counts: Record<number, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-
-    // include all if period==='all', otherwise filter by [start,end]
-    const include =
-      period === "all"
-        ? true
-        : (
-            (!start || evDate.getTime() >= start.getTime()) &&
-            (!end   || evDate.getTime() <= end.getTime())
-          );
-    if (!include) return;
-
-    const year = evDate.getFullYear();
-    counts[year] = (counts[year] || 0) + 1;
+    if (
+      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+      (period === "all" || evDate.getTime() <= end.getTime())
+    ) {
+      const year = formatYear(evDate);
+      counts[year] = (counts[year] || 0) + 1;
+    }
   });
-
   return counts;
 }
 
+/**
+ * NEW: Count how many volunteers in volunteerStats have at least one event
+ */
+export async function getActiveVolunteersCount(): Promise<number> {
+  const snap = await getDocs(collection(db, "volunteerStats"));
+  let count = 0;
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    if ((d.eventsCount || 0) >= 1) count++;
+  });
+  return count;
+}
 
-export const updateFinishedEventsCount = async (userId : string, filledForm : boolean) => {
+/**
+ * (Unchanged) Incremental update when a single event finishes
+ */
+export const updateFinishedEventsCount = async (
+  userId: string,
+  filledForm: boolean
+) => {
   const statsRef = doc(db, "volunteerStats", userId);
   const statsSnap = await getDoc(statsRef);
-  
   if (statsSnap.exists()) {
-    const statsData = statsSnap.data();
-    const currentEvents = statsData.eventsCount || 0;
-    const currentSummaries = statsData.summariesCount || 0;
-    
+    const d = statsSnap.data();
     await updateDoc(statsRef, {
-      eventsCount: currentEvents + 1,
-      summariesCount: currentSummaries + (filledForm ? 1 : 0),
-      last_updated: Timestamp.now()
-    });
-  } else {
-    await updateDoc(statsRef, {
-      eventsCount: 1,
-      summariesCount: filledForm ? 1 : 0,
-      last_updated: Timestamp.now()
+      eventsCount:    (d.eventsCount || 0) + 1,
+      summariesCount: (d.summariesCount || 0) + (filledForm ? 1 : 0),
+      last_updated:   Timestamp.now()
     });
   }
-}
+};

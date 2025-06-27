@@ -1,4 +1,5 @@
-// volStatsScreen.tsx
+// app/(app)/statistics/volStatsScreen.tsx
+
 import React, { useState, useCallback, useEffect } from "react";
 import { View, Text, ScrollView, ActivityIndicator, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,128 +7,107 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 
 import DateRangePicker from "./dateRangeSelector";
-import VolunteerPicker from "./volSelector";
-import VolunteerCard from "./volCard";
-
+import VolunteerPicker  from "./volSelector";
+import VolunteerCard    from "./volCard";
 import { triggerStatisticsUpdate } from "./volStatsUpdater";
 import { StatsPeriod, VolunteerStats } from "../../../services/volunteerAnalyticsService";
-import {
-  getTotalEvents,
-  getTransportCounts,
-  getReceiverCounts,
-  getAddressCounts,
-  getNoReportCount,
-  getCountsByWeekday,
-  getCountsByHour,
-  getCountsByMonth,
-  getCountsByYear,
-} from "../../../services/globalStatsService";
-
-// Firestore imports for manual volunteerStats fetch
-import { db } from '../../../FirebaseConfig';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { getTotalEvents, getTransportCounts, getReceiverCounts, getAddressCounts, getNoReportCount, getCountsByWeekday, getCountsByHour, getCountsByMonth, getCountsByYear, getActiveVolunteersCount } from "../../../services/globalStatsService";
+import { fetchVolunteerStatsByName } from "../../../services/volunteerAnalyticsService";
 
 export default function MainVolunteerStats() {
+  // — filter & picker state
   const [period, setPeriod] = useState<StatsPeriod>("all");
   const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
-  const [selectedVolunteerName, setSelectedVolunteerName] = useState<string | null>(null);
+  const [endDate,   setEndDate]   = useState<Date>();
+  const [selectedVolunteerName, setSelectedVolunteerName] =
+    useState<string | null>(null);
 
-  // Global stats state
+  // — global overview state
   const [globalLoading, setGlobalLoading] = useState(false);
-  const [globalError, setGlobalError] = useState<string | null>(null);
-  const [totalEvents, setTotalEvents] = useState(0);
-  const [activeVolunteersCount, setActiveVolunteersCount] = useState(0);
-  const [transportBreakdown, setTransportBreakdown] = useState<Record<string, number>>({});
-  const [receiverBreakdown, setReceiverBreakdown] = useState<Record<string, number>>({});
-  const [addressBreakdown, setAddressBreakdown] = useState<Record<string, number>>({});
-  const [noReportCount, setNoReportCount] = useState(0);
-  const [countsByWeekday, setCountsByWeekday] = useState<Record<string, number>>({});
-  const [countsByHour, setCountsByHour] = useState<Record<number, number>>({});
-  const [countsByMonth, setCountsByMonth] = useState<Record<string, number>>({});
-  const [countsByYear, setCountsByYear] = useState<Record<number, number>>({});
+  const [globalError,   setGlobalError]   = useState<string | null>(null);
+  const [totalEvents,   setTotalEvents]   = useState(0);
+  const [activeVolunteersCount, setActiveVolunteersCount] =
+    useState(0);
+  const [transportBreakdown, setTransportBreakdown] =
+    useState<Record<string, number>>({});
+  const [receiverBreakdown, setReceiverBreakdown] =
+    useState<Record<string, number>>({});
+  const [addressBreakdown, setAddressBreakdown] =
+    useState<Record<string, number>>({});
+  const [noReportCount, setNoReportCount] =
+    useState(0);
+  const [countsByWeekday, setCountsByWeekday] =
+    useState<Record<string, number>>({});
+  const [countsByHour, setCountsByHour] =
+    useState<Record<number, number>>({});
+  const [countsByMonth, setCountsByMonth] =
+    useState<Record<string, number>>({});
+  const [countsByYear, setCountsByYear] =
+    useState<Record<number, number>>({});
   const [showWeekday, setShowWeekday] = useState(false);
-  const [showHour, setShowHour] = useState(false);
-  const [showMonth, setShowMonth] = useState(false);
-  const [showYear, setShowYear] = useState(false);
+  const [showHour,    setShowHour]    = useState(false);
+  const [showMonth,   setShowMonth]   = useState(false);
+  const [showYear,    setShowYear]    = useState(false);
 
-  // Volunteer stats state
+  // — per‐volunteer state
   const [volLoading, setVolLoading] = useState(false);
-  const [volError, setVolError] = useState<string | null>(null);
-  const [volStats, setVolStats] = useState<VolunteerStats[]>([]);
+  const [volError,   setVolError]   = useState<string | null>(null);
+  const [volStats,   setVolStats]   = useState<VolunteerStats[]>([]);
 
-  // Initialization flag to block render until data is ready
+  // blocks initial render until update+fetch complete
   const [initializing, setInitializing] = useState(true);
 
-// 1) Fetch global stats
-const fetchGlobalStats = async () => {
-  setGlobalLoading(true);
-  setGlobalError(null);
-  try {
-    const [
-      totalRes,
-      transRes,
-      recvRes,
-      noRepRes,
-      byWeekday,
-      byHour,
-      byMonth,
-      byYear,
-    ] = await Promise.all([
-      getTotalEvents(period, startDate, endDate),
-      getTransportCounts(period, startDate, endDate),
-      getReceiverCounts(period, startDate, endDate),
-      getNoReportCount(period, startDate, endDate),
-      getCountsByWeekday(period, startDate, endDate),
-      getCountsByHour(period, startDate, endDate),
-      getCountsByMonth(period, startDate, endDate),
-      getCountsByYear(period, startDate, endDate),
-    ]);
+  /** 1) Fetch global overview */
+  const fetchGlobalStats = async () => {
+    setGlobalLoading(true);
+    setGlobalError(null);
+    try {
+      const [
+        totalRes, transRes, recvRes,
+        noRepRes,
+        byWeekday, byHour, byMonth, byYear
+      ] = await Promise.all([
+        getTotalEvents(period, startDate, endDate),
+        getTransportCounts(period, startDate, endDate),
+        getReceiverCounts(period, startDate, endDate),
+        getNoReportCount(period, startDate, endDate),
+        getCountsByWeekday(period, startDate, endDate),
+        getCountsByHour(period, startDate, endDate),
+        getCountsByMonth(period, startDate, endDate),
+        getCountsByYear(period, startDate, endDate),
+      ]);
 
-    setTotalEvents(totalRes);
-    setTransportBreakdown(transRes);
-    setReceiverBreakdown(recvRes);
-    setAddressBreakdown(await getAddressCounts(period, startDate, endDate));
-    setNoReportCount(noRepRes);
-    // --------------------------------------------------
-    // OLD: setActiveVolunteersCount(Object.keys(recvRes).length);
-    //
-    // NEW: count docs in volunteerStats where eventsCount >= 1
-    const statsSnap = await getDocs(collection(db, 'volunteerStats'));
-    let activeCount = 0;
-    statsSnap.forEach(docSnap => {
-      const d = docSnap.data();
-      if ((d.eventsCount || 0) >= 1) {
-        activeCount++;
-      }
-    });
-    setActiveVolunteersCount(activeCount);
-    // --------------------------------------------------
+      setTotalEvents(totalRes);
+      setTransportBreakdown(transRes);
+      setReceiverBreakdown(recvRes);
+      setAddressBreakdown(await getAddressCounts(period, startDate, endDate));
+      setNoReportCount(noRepRes);
 
-    setCountsByWeekday(byWeekday);
-    setCountsByHour(byHour);
-    setCountsByMonth(byMonth);
-    setCountsByYear(byYear);
-  } catch (e) {
-    setGlobalError(e instanceof Error ? e.message : 'שגיאה');
-    setTotalEvents(0);
-    setTransportBreakdown({});
-    setReceiverBreakdown({});
-    setAddressBreakdown({});
-    setNoReportCount(0);
-    setActiveVolunteersCount(0);
-    setCountsByWeekday({});
-    setCountsByHour({});
-    setCountsByMonth({});
-    setCountsByYear({});
-  } finally {
-    setGlobalLoading(false);
-  }
-};
+      // ← NEW: use service for active volunteers
+      setActiveVolunteersCount(await getActiveVolunteersCount());
 
+      setCountsByWeekday(byWeekday);
+      setCountsByHour(byHour);
+      setCountsByMonth(byMonth);
+      setCountsByYear(byYear);
+    } catch (e) {
+      setGlobalError(e instanceof Error ? e.message : 'שגיאה כללית');
+      setTotalEvents(0);
+      setTransportBreakdown({});
+      setReceiverBreakdown({});
+      setAddressBreakdown({});
+      setNoReportCount(0);
+      setActiveVolunteersCount(0);
+      setCountsByWeekday({});
+      setCountsByHour({});
+      setCountsByMonth({});
+      setCountsByYear({});
+    } finally {
+      setGlobalLoading(false);
+    }
+  };
 
-
-  // 2) Fetch volunteer stats by v_full_name
+  /** 2) Fetch stats for the selected volunteer */
   const fetchVolStats = async () => {
     if (!selectedVolunteerName) {
       setVolStats([]);
@@ -136,64 +116,50 @@ const fetchGlobalStats = async () => {
     setVolLoading(true);
     setVolError(null);
     try {
-      const statsQ = query(
-        collection(db, 'volunteerStats'),
-        where('v_full_name', '==', selectedVolunteerName)
-      );
-      const snap = await getDocs(statsQ);
-      if (snap.empty) {
-        setVolStats([]);
-        setVolError('לא נמצאו נתונים למתנדב זה');
-      } else {
-        const docSnap = snap.docs[0];
-        const data = docSnap.data();
-        setVolStats([{
-          id: docSnap.id,
-          name: data.v_full_name,
-          eventsCount: data.eventsCount || 0,
-          summariesCount: data.summariesCount || 0,
-          responseTimeAvg: data.responseTimeAvg || 0,
-          formQuality: data.formQuality || 0,
-          events: data.events || []
-        }]);
-      }
+      const stats = await fetchVolunteerStatsByName(selectedVolunteerName);
+      setVolStats(stats);
     } catch (e) {
-      setVolError(e instanceof Error ? e.message : 'שגיאה בטעינת נתונים');
+      setVolError(e instanceof Error ? e.message : 'שגיאה בטעינת מתנדב');
       setVolStats([]);
     } finally {
       setVolLoading(false);
     }
   };
 
-  // 3) On screen focus (or filter change), await update then fetch both sets
+  /** 3) On first focus (only once), update then fetch everything */
   useFocusEffect(
     useCallback(() => {
       (async () => {
         setInitializing(true);
-        await triggerStatisticsUpdate();
+        await triggerStatisticsUpdate(); 
         await fetchGlobalStats();
         await fetchVolStats();
         setInitializing(false);
       })();
-    }, [])  // ← run only once on first focus
+    }, [])
   );
 
-  // 4) Also re-fetch volunteer stats any time they pick a different name
+  /** 4) When filters change (period/date), re-fetch global */
   useEffect(() => {
     fetchGlobalStats();
   }, [period, startDate, endDate]);
 
-  // If we’re still initializing, show a full-screen loader
+  /** 5) When volunteer selection changes, fetch just that */
+  useEffect(() => {
+    fetchVolStats();
+  }, [selectedVolunteerName]);
+
+  // If still initializing, block UI with full-screen loader
   if (initializing) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-blue-100">
         <ActivityIndicator size="large" color="#1d4ed8" />
-        <Text className="mt-4 text-blue-800">מעדכן נתונים...</Text>
+        <Text className="mt-4 text-blue-800">מעדכן נתונים…</Text>
       </SafeAreaView>
     );
   }
 
-  // Helper for dropdown sections
+  /** Helper to render a dropdown section */
   const renderDropdown = (
     title: string,
     open: boolean,
@@ -217,7 +183,7 @@ const fetchGlobalStats = async () => {
         <View className="w-16 h-1 bg-white mt-2 rounded-full" />
       </View>
 
-      {/* Date Picker */}
+      {/* Date Range Picker */}
       <DateRangePicker
         period={period}
         setPeriod={setPeriod}
@@ -228,15 +194,13 @@ const fetchGlobalStats = async () => {
       />
 
       <ScrollView className="flex-1 p-4">
-        {/* Core Stats */}
+        {/* Core Overview */}
         <View className="bg-white rounded-lg p-5 mb-6 shadow-md">
           <Text className="text-lg font-bold text-blue-800 mb-4 text-right">סקירה כללית</Text>
           {globalLoading ? (
             <View className="items-center justify-center py-6">
               <ActivityIndicator size="small" color="#1d4ed8" />
-              <Text className="mt-3 text-gray-600 text-right">
-                טוען סטטיסטיקות כלליות...
-              </Text>
+              <Text className="mt-3 text-gray-600 text-right">טוען…</Text>
             </View>
           ) : globalError ? (
             <View className="bg-red-50 p-3 rounded-md border border-red-200">
@@ -244,130 +208,120 @@ const fetchGlobalStats = async () => {
             </View>
           ) : (
             <>
+              {/* total events */}
               <View className="flex-row-reverse items-center justify-between mb-4">
                 <Text className="text-gray-700 text-base">סה״כ אירועים:</Text>
                 <Text className="text-2xl font-semibold text-gray-800">{totalEvents}</Text>
               </View>
+
+              {/* active volunteers */}
               <View className="flex-row-reverse items-center justify-between mb-5">
                 <Text className="text-gray-700 text-base">מתנדבים פעילים:</Text>
                 <Text className="text-2xl font-semibold text-gray-800">
                   {activeVolunteersCount}
                 </Text>
               </View>
+
               <View className="border-t border-gray-200 my-4" />
+
+              {/* transport breakdown */}
               <Text className="text-gray-700 mb-2 text-right font-medium">אמצעי פינוי:</Text>
               {Object.entries(transportBreakdown).length > 0 ? (
                 Object.entries(transportBreakdown)
                   .sort(([, a], [, b]) => b - a)
                   .map(([t, c]) => (
-                    <View
-                      key={t}
-                      className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-                    >
+                    <View key={t} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
                       <Text className="text-gray-800 text-sm flex-1 text-right">{t}</Text>
                       <Text className="text-blue-600 font-medium">{c}</Text>
                     </View>
                   ))
               ) : (
-                <Text className="text-gray-500 text-sm text-right">
-                  אין נתונים לאמצעי פינוי.
-                </Text>
+                <Text className="text-gray-500 text-sm text-right">אין נתונים.</Text>
               )}
+
               <View className="border-t border-gray-200 my-4" />
+
+              {/* receiver breakdown */}
               <Text className="text-gray-700 mb-2 text-right font-medium">מקור הפנייה:</Text>
               {Object.entries(receiverBreakdown).length > 0 ? (
                 Object.entries(receiverBreakdown)
                   .sort(([, a], [, b]) => b - a)
                   .map(([r, c]) => (
-                    <View
-                      key={r}
-                      className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-                    >
+                    <View key={r} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
                       <Text className="text-gray-800 text-sm flex-1 text-right">{r}</Text>
                       <Text className="text-blue-600 font-medium">{c}</Text>
                     </View>
                   ))
               ) : (
-                <Text className="text-gray-500 text-sm text-right">
-                  אין נתונים להצגה.
-                </Text>
+                <Text className="text-gray-500 text-sm text-right">אין נתונים.</Text>
               )}
+
               <View className="border-t border-gray-200 my-4" />
+
+              {/* no-report count */}
               <View className="flex-row-reverse items-center justify-between mb-5">
                 <Text className="text-gray-700 text-base">דוחות ללא סיכום אירוע:</Text>
                 <Text className="text-red-600 font-medium">{noReportCount}</Text>
               </View>
+
               <View className="border-t border-gray-200 my-4" />
+
+              {/* address breakdown */}
               <Text className="text-gray-700 mb-2 text-right font-medium">חלוקת כתובות:</Text>
               {Object.entries(addressBreakdown).length > 0 ? (
                 Object.entries(addressBreakdown)
                   .sort(([, a], [, b]) => b - a)
                   .slice(0, 10)
                   .map(([a, c]) => (
-                    <View
-                      key={a}
-                      className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-                    >
-                      <Text
-                        className="text-gray-800 text-sm flex-1 text-right"
-                        numberOfLines={1}
-                      >
+                    <View key={a} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
+                      <Text className="text-gray-800 text-sm flex-1 text-right" numberOfLines={1}>
                         {a}
                       </Text>
                       <Text className="text-blue-600 font-medium">{c}</Text>
                     </View>
                   ))
               ) : (
-                <Text className="text-gray-500 text-sm text-right">
-                  אין נתונים להצגה.
-                </Text>
+                <Text className="text-gray-500 text-sm text-right">אין נתונים.</Text>
               )}
               {Object.entries(addressBreakdown).length > 10 && (
                 <Text className="text-gray-400 text-xs text-right mt-2">
-                  ועוד {Object.entries(addressBreakdown).length - 10} כתובות...
+                  ועוד {Object.entries(addressBreakdown).length - 10} כתובות…
                 </Text>
               )}
             </>
           )}
         </View>
 
-        {/* Dropdowns */}
-{renderDropdown(
-  "אירועים לפי יום בשבוע",
-  showWeekday,
-  () => setShowWeekday(!showWeekday),
-  Object.entries(countsByWeekday)
-    // sort by count descending
-    .sort(([, a], [, b]) => b - a)
-    .map(([day, cnt]) => (
-      <View
-        key={day}
-        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-      >
-        <Text className="text-gray-800 text-sm text-right">{day}</Text>
-        <Text className="text-blue-600 font-medium">{cnt}</Text>
-      </View>
-    ))
-)}
+        {/* breakdown dropdowns */}
         {renderDropdown(
-  "אירועים לפי שעה",
-  showHour,
-  () => setShowHour(!showHour),
-  Object.entries(countsByHour)
-    // 1) keep only hours with at least 1 event
-    .filter(([, cnt]) => cnt >= 1)
-    // 2) sort by count descending
-    .sort(([, a], [, b]) => b - a)
-    .map(([hour, cnt]) => (
-      <View
-        key={hour}
-        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-      >
-        <Text className="text-gray-800 text-sm text-right">{hour}:00</Text>
-        <Text className="text-blue-600 font-medium">{cnt}</Text>
-      </View>
-    ))
-)}
+          "אירועים לפי יום בשבוע",
+          showWeekday,
+          () => setShowWeekday(!showWeekday),
+          Object.entries(countsByWeekday)
+            .sort(([, a], [, b]) => b - a)
+            .map(([day, cnt]) => (
+              <View key={day} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
+                <Text className="text-gray-800 text-sm text-right">{day}</Text>
+                <Text className="text-blue-600 font-medium">{cnt}</Text>
+              </View>
+            ))
+        )}
+
+        {renderDropdown(
+          "אירועים לפי שעה",
+          showHour,
+          () => setShowHour(!showHour),
+          Object.entries(countsByHour)
+            .filter(([, cnt]) => cnt >= 1)
+            .sort(([, a], [, b]) => b - a)
+            .map(([hour, cnt]) => (
+              <View key={hour} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
+                <Text className="text-gray-800 text-sm text-right">{hour}:00</Text>
+                <Text className="text-blue-600 font-medium">{cnt}</Text>
+              </View>
+            ))
+        )}
+
         {renderDropdown(
           "אירועים לפי חודש",
           showMonth,
@@ -375,46 +329,43 @@ const fetchGlobalStats = async () => {
           Object.entries(countsByMonth)
             .sort()
             .map(([m, c]) => (
-              <View
-                key={m}
-                className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-              >
+              <View key={m} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
                 <Text className="text-gray-800 text-sm text-right">{m}</Text>
                 <Text className="text-blue-600 font-medium">{c}</Text>
               </View>
             ))
         )}
+
         {renderDropdown(
           "אירועים לפי שנה",
           showYear,
           () => setShowYear(!showYear),
-          Object.entries(countsByYear).map(([y, c]) => (
-            <View
-              key={y}
-              className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-            >
-              <Text className="text-gray-800 text-sm text-right">{y}</Text>
-              <Text className="text-blue-600 font-medium">{c}</Text>
-            </View>
-          ))
+          Object.entries(countsByYear)
+            .map(([y, c]) => (
+              <View key={y} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
+                <Text className="text-gray-800 text-sm text-right">{y}</Text>
+                <Text className="text-blue-600 font-medium">{c}</Text>
+              </View>
+            ))
         )}
 
-        {/* Volunteer Picker & Stats */}
+        {/* volunteer picker & cards */}
         <VolunteerPicker
           selectedVolunteerName={selectedVolunteerName}
           onSelectVolunteer={setSelectedVolunteerName}
         />
+
         {selectedVolunteerName == null ? (
           <View className="bg-white rounded-lg p-6 shadow-sm items-center justify-center mt-4">
             <Ionicons name="people" size={60} color="#93c5fd" />
             <Text className="text-lg font-bold text-blue-800 mt-4 mb-2 text-center">
-              בחר מתנדב כדי לצפות בסטטיסטיקות
+             בחר מתנדב להצגת סטטיסטיקה אישית
             </Text>
           </View>
         ) : volLoading ? (
           <View className="items-center justify-center py-8">
             <ActivityIndicator size="large" color="#1d4ed8" />
-            <Text className="mt-4 text-blue-800 text-lg text-right">טוען נתונים...</Text>
+            <Text className="mt-4 text-blue-800 text-lg text-right">טוען…</Text>
           </View>
         ) : volError ? (
           <View className="bg-red-50 p-4 rounded-lg border border-red-200 items-center my-4">
