@@ -1,47 +1,90 @@
-import { onValueCreated } from "firebase-functions/v2/database";
-import { onCall } from "firebase-functions/v2/https";
-
 import * as admin from "firebase-admin";
+import { onValueCreated } from "firebase-functions/v2/database";
 import { Expo, ExpoPushMessage } from "expo-server-sdk";
 
 admin.initializeApp();
 const expo = new Expo();
 
-export const onNewMessage = onValueCreated(  {
+export const onNewMessage = onValueCreated({
   region: "europe-west1",
-  ref: "/messages/{messageId}"  
+  ref: "/messages/{messageId}"
 }, async (event) => {
   const messageData = event.data?.val();
+  if (!messageData) {
+    console.log("No message data found.");
+    return;
+  }
 
-  const title = messageData.urgency == true ?  "🚨 הודעה דחופה" : "📢התקבלה הודעה";
-  const body = messageData?.message_description|| "";
+  const title = messageData.urgency === true ? "🚨 הודעה דחופה" : "📢 התקבלה הודעה";
+  const body = messageData.message_description || "";
 
-  const tokens: string[] = [];
+  // Separate tokens into Expo tokens vs. native device tokens
+  const expoTokens: string[] = [];
+  const deviceTokens: string[] = [];
 
+  // Fetch volunteers
   const volunteersSnap = await admin.firestore().collection("volunteers").get();
   volunteersSnap.forEach(doc => {
     const token = doc.get("expoPushToken");
-    if (token && Expo.isExpoPushToken(token) &&(messageData.distribution_by_role === "All" || doc.get("permissions").includes(messageData.distribution_by_role))) {
-      tokens.push(token);
+    if (typeof token !== "string") return;
+
+    // Check if volunteer can receive this message
+    const canReceive =
+      messageData.distribution_by_role === "All" ||
+      doc.get("permissions").includes(messageData.distribution_by_role);
+
+    if (canReceive) {
+      if (Expo.isExpoPushToken(token)) {
+        expoTokens.push(token);
+      } else {
+        deviceTokens.push(token);
+      }
     }
   });
 
-  const messages: ExpoPushMessage[] = tokens.map(token => ({
-    to: token,
+  // 1) Send notifications to Expo tokens
+  const expoMessages: ExpoPushMessage[] = expoTokens.map(to => ({
+    to,
     sound: "default",
     title,
     body,
   }));
 
   try {
-    const chunks = expo.chunkPushNotifications(messages);
+    const chunks = expo.chunkPushNotifications(expoMessages);
     for (const chunk of chunks) {
       await expo.sendPushNotificationsAsync(chunk);
     }
-    console.log("📤 Sent to", tokens.length, "devices");
-  } catch (err) {
-    console.error("❌ Error sending push:", err);
+    console.log("📤 Sent push to", expoTokens.length, "Expo devices");
+  } catch (error) {
+    console.error("❌ Error sending Expo push:", error);
   }
+
+  // 2) Send notifications to native device tokens (FCM/APNs)
+  const fcmMessages = deviceTokens.map(token => ({
+    token,
+    notification: { title, body },
+    android: {
+      notification: {
+        sound: "default",
+      },
+    },
+    apns: {
+      payload: {
+        aps: { sound: "default" },
+      },
+    },
+  }));
+
+  for (const msg of fcmMessages) {
+    try {
+      await admin.messaging().send(msg);
+    } catch (err) {
+      console.error("❌ Error sending device token push:", err);
+    }
+  }
+
+  console.log("📤 Sent push to", deviceTokens.length, "native devices");
 });
 
 export const onNewEvent = onValueCreated({
@@ -60,29 +103,44 @@ export const onNewEvent = onValueCreated({
   const tokens: string[] = [];
 
   const volunteersSnap = await admin.firestore().collection("volunteers").get();
-  volunteersSnap.forEach(doc => {
-    const token = doc.get("expoPushToken");
-    if (token && Expo.isExpoPushToken(token)) {
-      tokens.push(token);
-    }
-  });
+  const expoTokens: string[] = [];
+const deviceTokens: string[] = [];
 
-  const messages: ExpoPushMessage[] = tokens.map(token => ({
-    to: token,
-    sound: "default",
+volunteersSnap.forEach(doc => {
+  const token = doc.get("expoPushToken");
+  if (typeof token !== 'string') return;
+  if (doc.get("status") !== "available"){
+    if (Expo.isExpoPushToken(token)) {
+      expoTokens.push(token);
+    } else {
+      // assume it’s a native FCM/APNs token
+      deviceTokens.push(token);
+    }
+  }
+});
+
+  // 1) Expo pushes
+  const expoMessages: ExpoPushMessage[] = expoTokens.map(to => ({
+    to,
     title,
     body,
+    channelId: 'events', // use the channel created in app.config.ts
   }));
-
-  try {
-    const chunks = expo.chunkPushNotifications(messages);
-    for (const chunk of chunks) {
-      await expo.sendPushNotificationsAsync(chunk);
-    }
-    console.log("📤 Sent to", tokens.length, "devices");
-  } catch (err) {
-    console.error("❌ Error sending push:", err);
+  for (const chunk of expo.chunkPushNotifications(expoMessages)) {
+    await expo.sendPushNotificationsAsync(chunk);
   }
+
+  // 2) Native FCM/APNs pushes
+  const fcmMessages = deviceTokens.map(token => ({
+    token,
+    notification: { title, body },
+    android: { notification: { channelId: 'events', sound: 'events.wav' } },
+    apns: { payload: { aps: { sound: 'events.wav' } } },
+  }));
+  for (const msg of fcmMessages) {
+    await admin.messaging().send(msg);
+  }
+  
 });
 
 export const validateUser = onCall(async (request) => {

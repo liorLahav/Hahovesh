@@ -10,7 +10,6 @@ import EventSummaryHeader from './EventSummaryHeader';
 import { useUserContext } from '@/hooks/UserContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { updateStatus } from '@/services/users';
-import VolunteerCard from '../statistics/volCard';
 import { updateFinishedEventsCount } from '@/services/globalStatsService';
 
 export default function EventSummaryScreen() {

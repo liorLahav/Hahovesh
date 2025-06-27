@@ -39,7 +39,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         backgroundColor: "#ffffff"
       }
     ],
-    "expo-font"
+    "expo-font",
+    [
+      "expo-notifications",
+      {
+        sounds: ["./assets/notifications/events.wav"]
+      }
+    ],
   ],
   experiments: {
     typedRoutes: true

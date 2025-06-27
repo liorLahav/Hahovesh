@@ -1,5 +1,5 @@
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { app, auth, db } from "@/FirebaseConfig";
+import { app, db } from "@/FirebaseConfig";
 import { 
   PhoneAuthProvider, 
   signInWithCredential, 
@@ -11,6 +11,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAllUsers } from "./users";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import auth from '@react-native-firebase/auth';
+
 
 type ValidateResponse = {
   valid: boolean;
@@ -30,20 +32,23 @@ export type VerificationResult = {
 
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 
-export const sendVerificationCode = async (phoneNumber: string,recaptchaVerifier : any): Promise<LoginResult> => {
+export const sendVerificationCode = async (phoneNumber: string): Promise<LoginResult> => {
   try {
     console.log("Verification code sent to:", phoneNumber);
 
-    const confirmationResult = await signInWithPhoneNumber(
-      auth,
-      phoneNumber,
-      recaptchaVerifier
-    );
+    const confirmationResult = await await auth().signInWithPhoneNumber(phoneNumber);
     return {
       success: true,
       verificationCallback: async (code : string) => {
         try {
-          const result : UserCredential = await confirmationResult.confirm(code);
+          
+          const result : any = await confirmationResult.confirm(code);
+          if (!result || !result.user) {
+            return {
+              success: false,
+              error: "Invalid verification code or user not found."
+            };
+          }
           return {
             success: true,
             user: result,
@@ -88,10 +93,10 @@ export async function loginWithPhoneAndId(phone: string, identifier: string): Pr
 
 export const signOutUser = async (): Promise<void> => {
   try {
-    await auth.signOut();
+    // Use auth() for @react-native-firebase/auth
+    await auth().signOut();
     console.log("User signed out successfully");
     await AsyncStorage.removeItem('user');
-    
   } catch (error: unknown) {
     console.error("Error signing out:", error);
     const message = error instanceof Error ? error.message : String(JSON.stringify(error));

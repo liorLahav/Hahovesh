@@ -7,10 +7,9 @@ import { loginWithPhoneAndId, sendVerificationCode } from "../../../services/aut
 import LoginForm from "./LoginForm";
 import StatusMessage from "./StatusMessage";
 import LoginFooter from "./LoginFooter";
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { firebaseConfig } from "@/FirebaseConfig";
 import PhoneVerification from "./PhoneVerification";
-import {auth} from "@/FirebaseConfig";
+// import {auth} from "@/FirebaseConfig";
 
 
 const Login = () => {
@@ -82,7 +81,7 @@ const Login = () => {
       const formattedPhone = formatPhoneNumber(phoneNumber);
 
       // Send verification code
-      const verificationResult = await sendVerificationCode(formattedPhone,recaptchaVerifier.current);
+      const verificationResult = await sendVerificationCode(formattedPhone);
 
       if (!verificationResult.success) {
         setLoginError(verificationResult.error || "שגיאה בשליחת קוד האימות");
@@ -146,7 +145,7 @@ const Login = () => {
     setVerificationError("");
 
     try {
-      const result = await sendVerificationCode(phoneNumber, recaptchaVerifier.current);
+      const result = await sendVerificationCode(phoneNumber);
 
       if (!result.success) {
         setVerificationError(result.error || "שגיאה בשליחת קוד האימות");
@@ -180,13 +179,7 @@ const Login = () => {
   // Main login screen
   return (
     <SafeAreaView className="flex-1 bg-blue-200">
-      {auth && (
-        <FirebaseRecaptchaVerifierModal
-          ref={recaptchaVerifier}
-          firebaseConfig={firebaseConfig} // עדיף להשתמש בזה!
-          attemptInvisibleVerification={true}
-        />
-      )}
+
 
       <StatusBar style="light" />
       <KeyboardAvoidingView
