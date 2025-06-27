@@ -10,9 +10,10 @@ interface Props {
   schema: SchemaField[];
   onSubmit: (values: Record<string, string>) => void;
   initialValues?: Record<string, string>;
+  submitLabel?: string;
 }
 
-export default function DynamicForm({ schema, onSubmit, initialValues }: Props) {
+export default function DynamicForm({ schema, onSubmit, initialValues , submitLabel = "שלח" }: Props) {
   const [values, setValues] = useState<Record<string, string>>(
     schema.reduce((acc, f) => ({
       ...acc,
@@ -35,10 +36,19 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
   };
 
   const handleSubmit = () => {
-  if (requireRefusalForm && !values['refusal_form']) {
-    Alert.alert('שגיאה', 'נדרש למלא טופס סירוב כאשר תיבת הסימון מסומנת');
-    return;
-  }
+    for (const field of schema) {
+      if (field.required) {
+        const val = values[field.key];
+        if (!val || (typeof val === 'string' && !val.trim())) {
+          Alert.alert('שגיאה', `אנא מלאו את השדה: ${field.label}`);
+          return;
+        }
+      }
+    }
+    if (requireRefusalForm && !values['refusal_form']) {
+      Alert.alert('שגיאה', 'נדרש למלא טופס סירוב כאשר תיבת הסימון מסומנת');
+      return;
+    }
 
   onSubmit({
     ...values,
@@ -141,7 +151,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues }: Props) 
           onPress={handleSubmit}
           className="w-full rounded-full h-14 bg-blue-600 shadow-md items-center justify-center"
         >
-          <Text className="text-white font-bold text-xl">שלח</Text>
+          <Text className="text-white font-bold text-xl">{submitLabel}</Text>
         </Pressable>
       </View>
     </ScrollView>

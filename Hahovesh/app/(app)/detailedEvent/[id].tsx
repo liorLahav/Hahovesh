@@ -77,7 +77,17 @@ export default function EventDetails() {
 
   const getDetails = () => [
     { label: "סוג האירוע", key: "anamnesis", value: event?.anamnesis },
-    { label: "תאריך", key: "createdAt", value: event?.createdAt },
+    {
+      label: "תאריך",
+      key: "createdAt",
+      value: new Date(event?.createdAt).toLocaleString("he-il", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    },
     { label: "רחוב", key: "street", value: event?.street },
     { label: "מספר בית", key: "house_number", value: event?.house_number },
     {
@@ -116,7 +126,10 @@ export default function EventDetails() {
             key={detail.label}
             label={detail.label}
             value={String(detail.value || "")}
-            canEdit={roles.includes("Dispatcher") || roles.includes("Admin")}
+            canEdit={
+              (roles.includes("Dispatcher") || roles.includes("Admin")) &&
+              detail.label !== "תאריך"
+            }
             onEdit={() => {
               setFieldToEdit(detail.key);
               setEditedValue(String(detail.value || ""));

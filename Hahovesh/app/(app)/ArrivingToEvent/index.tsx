@@ -1,7 +1,6 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import { useEffect, useState, useRef, use } from 'react';
 import { View, Text, ScrollView, Pressable, Linking, Platform } from 'react-native';
-import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AdressCard from './AdressCard';
 import EventDetailsCard from './EventDetailsCard';

@@ -9,13 +9,12 @@ import {
   set,
   remove,
 } from "firebase/database";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export type Event = {
   anamnesis?: string;
   apartment_details?: string;
-  createdAt: number;
+  createdAt: string;
   haznk_code?: string;
   informat_location?: string;
   location_type?: string;
@@ -32,7 +31,7 @@ export type Event = {
   house_number?: string;
   isActive?: boolean;
   canceledAt?: number;
-  volunteers?: Record<string, { volunteerId: string; joinedAt: number }>;
+  volunteers?: Record<string, { volunteerId: string; joinedAt: number , arrivedAt?: number }>;
 };
 
 export const deleteEvent = async (eventId: string) => {
@@ -145,7 +144,7 @@ export const createEvent = async (
       id,
       ...values,
       isActive: true,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date().getTime(),
     });
 
     onReset();

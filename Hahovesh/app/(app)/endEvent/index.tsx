@@ -30,8 +30,9 @@ export default function EventSummaryScreen() {
       receiver: event.recipient ?? '',
       event_location: event.location_type ?? '',
       event_date: event.createdAt
-        ? Math.floor(new Date(event.createdAt).getTime() / 1000).toString()
-        : Math.floor(Date.now() / 1000).toString(),
+        ? new Date(event.createdAt).getTime().toString()
+        : '',
+        volenteer_id: user.id,
     };
 
     setInitialValues(mappedValues);
@@ -39,11 +40,9 @@ export default function EventSummaryScreen() {
 
   const onSubmit = async (values: Record<string, string>) => {
   try {
-    console.log('Submitting event summary with values:', user.id);
     await saveEventSummary({ ...values, eventId: event.id,volunteer_times : event.volunteers,
-      volenteer_id: user.id,
+      volenteer_id: user.id, endTime: Date.now(),
     });
-
     await deleteEventById(event.id);
     await updateStatus(user.id, 'available');
     await updateFinishedEventsCount(user.id,true);

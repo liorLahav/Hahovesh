@@ -57,11 +57,13 @@
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
     "react-native-toast-message": "^2.3.0",
+    "react-native-uuid": "^2.0.3",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "0.20.0",
     "react-native-webview": "13.13.5",
     "tailwind-merge": "^3.2.0",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "@react-native-community/datetimepicker": "8.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

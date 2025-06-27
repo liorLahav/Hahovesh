@@ -16,7 +16,6 @@ import { useUserContext } from "@/hooks/UserContext";
 import { fetchEvent } from "@/services/events";
 import { update } from "firebase/database";
 import { updateUserStatus } from "@/services/users";
-import { updateFinishedEventsCount } from "@/services/globalStatsService";
 
 export default function OperationEvent() {
   const [selectedOption, setSelectedOption] = useState<string>("");
@@ -26,7 +25,7 @@ export default function OperationEvent() {
   const { id: eventId, anamnesis: eventTitle } = event;
   const [isFirstVolunteer, setIsFirstVolunteer] = useState(false);
 
-  const options = ["קריאה לחובש נוסף", "קריאה לאמבולנס", "אחר"];
+  const options = ["קריאה לחובש נוסף", "קריאה לאמבולנס","קריאה לאמבולנס חירום", "אחר"];
 
   const handleSend = async () => {
     if (!selectedOption) {
@@ -65,10 +64,6 @@ export default function OperationEvent() {
       router.replace("/endEvent");
     } else {
       Alert.alert("האירוע נגמר", "תודה על העזרה! , חזרה למסך בית");
-      changeActiveStatus(false);
-      updateUserStatus(user.id, "available");
-      updateFinishedEventsCount(user.id,false);
-      setIsAvailable(true);
       router.replace("/home");
     }
   };

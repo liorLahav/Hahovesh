@@ -1,35 +1,66 @@
-import { db, realtimeDb } from '@/FirebaseConfig';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
-import { ref, get ,remove } from 'firebase/database';
+import {
+  collection,
+  doc,
+  addDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  Timestamp,
+} from 'firebase/firestore';
+import { db } from '@/FirebaseConfig';
 
-
-export const saveEventSummary = async (data: Record<string, any>) => {
-  try {
-    const docRef = await addDoc(collection(db, 'eventSummaries'), data);
-    console.log('✅ דוח נשמר:', docRef.id);
-    return docRef.id;
-  } catch (error) {
-    console.error('❌ שגיאה בשמירה:', error);
-    throw error;
-  }
-};
-
-
-export const getEventSummaries = async (): Promise<Record<string, any>[]> => {
-  try {
-    const summariesCol = collection(db, 'eventSummaries');
-    const snap = await getDocs(summariesCol);
-    const summaries: Record<string, any>[] = [];
-    
-    snap.forEach(docSnap => {
-      summaries.push({ id: docSnap.id, ...docSnap.data() });
-    });
-    
-    return summaries;
-  } catch (error) {
-    console.error('❌ שגיאה בקבלת דוחות:', error);
-    throw error;
-  }
+/* טיפוס בסיסי לדוח */
+export interface EventSummary {
+  id: string;
+  createdAt?: Timestamp;
+  title?: string;
+  [key: string]: any;
 }
 
 
+/** יצירת דוח חדש */
+export const saveEventSummary = async (
+  data: Omit<EventSummary, 'id'>,
+): Promise<string> => {
+  const ref = await addDoc(collection(db, 'eventSummaries'), data);
+  return ref.id;
+};
+
+/** עדכון מאפיינים חלקי */
+export const updateEventSummary = async (
+  id: string,
+  data: Partial<EventSummary>,
+) => updateDoc(doc(db, 'eventSummaries', id), data);
+
+/** שליפת דוח יחיד (פעם אחת) */
+export const getEventSummary = async (
+  id: string,
+): Promise<EventSummary | null> => {
+  const snap = await getDoc(doc(db, 'eventSummaries', id));
+  return snap.exists() ? ({ id: snap.id, ...snap.data() } as EventSummary) : null;
+};
+
+export const subscribeEventSummary = (
+  id: string,
+  cb: (d: EventSummary | null) => void,
+) =>
+  onSnapshot(doc(db, 'eventSummaries', id), (snap) =>
+    cb(snap.exists() ? ({ id: snap.id, ...snap.data() } as EventSummary) : null),
+  );
+
+export const fetchEventSummaries = async (): Promise<EventSummary[]> => {
+  const col = collection(db, 'eventSummaries');
+  try {
+    const ordered = await getDocs(query(col, orderBy('createdAt', 'desc')));
+    if (!ordered.empty)
+      return ordered.docs.map(
+        (d) => ({ id: d.id, ...d.data() } as EventSummary),
+      );
+  } catch {
+  }
+  const snap = await getDocs(col);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as EventSummary));
+};
