@@ -17,6 +17,7 @@ import ButtonsPanel from "./ButtonsPanel";
 import { Event } from "@/services/events";
 import { useEventContext } from "@/hooks/EventContext";
 import Timer from "./Timer";
+import JoinedAndArrivedCard from "./JoinedAndArrivedCard";
 
 const ArrivingToEventScreen = () => {
   const { event, refreshEvent } = useEventContext();
@@ -52,6 +53,7 @@ const ArrivingToEventScreen = () => {
                 apartment_details={event.apartment_details}
               />
             )}
+            {event && <JoinedAndArrivedCard event={event} />}
             {event && <EventDetailsCard event={event} />}
             {event?.phone_number1 && <PhoneCard phone={event.phone_number1} />}
             {event?.phone_number2 && <PhoneCard phone={event.phone_number2} />}
