@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
+// volStatsScreen.tsx
+import React, { useState, useCallback, useEffect } from "react";
 import { View, Text, ScrollView, ActivityIndicator, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 import DateRangePicker from "./dateRangeSelector";
 import VolunteerPicker from "./volSelector";
 import VolunteerCard from "./volCard";
-import UpdateHandler from "./updateHandler";
 
+import { triggerStatisticsUpdate } from "./volStatsUpdater";
 import { StatsPeriod, VolunteerStats } from "../../../services/volunteerAnalyticsService";
-import { useStatistics } from "../../../hooks/useVolData";
-
 import {
   getTotalEvents,
   getTransportCounts,
@@ -22,54 +22,54 @@ import {
   getCountsByMonth,
   getCountsByYear,
 } from "../../../services/globalStatsService";
-import { getEventSummaries } from "@/services/event_summary";
+
+// Firestore imports for manual volunteerStats fetch
+import { db } from '../../../FirebaseConfig';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export default function MainVolunteerStats() {
-  // Date range & volunteer selection state
   const [period, setPeriod] = useState<StatsPeriod>("all");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [selectedVolunteerName, setSelectedVolunteerName] = useState<string | null>(null);
 
   // Global stats state
-  const [globalLoading, setGlobalLoading] = useState<boolean>(false);
+  const [globalLoading, setGlobalLoading] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
-
-  // Core stats
-  const [totalEvents, setTotalEvents] = useState<number>(0);
-  const [activeVolunteersCount, setActiveVolunteersCount] = useState<number>(0);
+  const [totalEvents, setTotalEvents] = useState(0);
+  const [activeVolunteersCount, setActiveVolunteersCount] = useState(0);
   const [transportBreakdown, setTransportBreakdown] = useState<Record<string, number>>({});
   const [receiverBreakdown, setReceiverBreakdown] = useState<Record<string, number>>({});
   const [addressBreakdown, setAddressBreakdown] = useState<Record<string, number>>({});
-  const [noReportCount, setNoReportCount] = useState<number>(0);
-
-  // Time-based breakdown states
+  const [noReportCount, setNoReportCount] = useState(0);
   const [countsByWeekday, setCountsByWeekday] = useState<Record<string, number>>({});
   const [countsByHour, setCountsByHour] = useState<Record<number, number>>({});
   const [countsByMonth, setCountsByMonth] = useState<Record<string, number>>({});
   const [countsByYear, setCountsByYear] = useState<Record<number, number>>({});
-
-  // Dropdown visibility state
   const [showWeekday, setShowWeekday] = useState(false);
   const [showHour, setShowHour] = useState(false);
   const [showMonth, setShowMonth] = useState(false);
   const [showYear, setShowYear] = useState(false);
 
-  // Fetch global stats whenever period, startDate, or endDate change
+  // Volunteer stats state
+  const [volLoading, setVolLoading] = useState(false);
+  const [volError, setVolError] = useState<string | null>(null);
+  const [volStats, setVolStats] = useState<VolunteerStats[]>([]);
+
+  // 1) Fetch global stats
   const fetchGlobalStats = async () => {
     setGlobalLoading(true);
     setGlobalError(null);
-
     try {
       const [
-        totalEventsResult,
-        transportCountsResult,
-        receiverCountsResult,
-        noReportCountResult,
-        countsByWeekdayResult,
-        countsByHourResult,
-        countsByMonthResult,
-        countsByYearResult,
+        totalRes,
+        transRes,
+        recvRes,
+        noRepRes,
+        byWeekday,
+        byHour,
+        byMonth,
+        byYear,
       ] = await Promise.all([
         getTotalEvents(period, startDate, endDate),
         getTransportCounts(period, startDate, endDate),
@@ -80,21 +80,18 @@ export default function MainVolunteerStats() {
         getCountsByMonth(period, startDate, endDate),
         getCountsByYear(period, startDate, endDate),
       ]);
-
-      setTotalEvents(totalEventsResult || 0);
-      setTransportBreakdown(transportCountsResult || {});
-      setReceiverBreakdown(receiverCountsResult || {});
-      setAddressBreakdown(addressBreakdown || {});
-      setNoReportCount(noReportCountResult || 0);
-      setActiveVolunteersCount(Object.keys(receiverBreakdown).length);
-
-      setCountsByWeekday(countsByWeekdayResult);
-      setCountsByHour(countsByHourResult);
-      setCountsByMonth(countsByMonthResult);
-      setCountsByYear(countsByYearResult);
-    } catch (error) {
-      setGlobalError(error instanceof Error ? error.message : 'שגיאה לא ידועה');
-      // Reset on error
+      setTotalEvents(totalRes);
+      setTransportBreakdown(transRes);
+      setReceiverBreakdown(recvRes);
+      setAddressBreakdown(await getAddressCounts(period, startDate, endDate));
+      setNoReportCount(noRepRes);
+      setActiveVolunteersCount(Object.keys(recvRes).length);
+      setCountsByWeekday(byWeekday);
+      setCountsByHour(byHour);
+      setCountsByMonth(byMonth);
+      setCountsByYear(byYear);
+    } catch (e) {
+      setGlobalError(e instanceof Error ? e.message : 'שגיאה');
       setTotalEvents(0);
       setTransportBreakdown({});
       setReceiverBreakdown({});
@@ -110,19 +107,65 @@ export default function MainVolunteerStats() {
     }
   };
 
-  useEffect(() => {
-    fetchGlobalStats();
-    getEventSummaries();
-  }, [period, startDate, endDate]);
+  // 2) Fetch volunteer stats by v_full_name
+  const fetchVolStats = async () => {
+    if (!selectedVolunteerName) {
+      setVolStats([]);
+      return;
+    }
+    setVolLoading(true);
+    setVolError(null);
+    try {
+      const statsQ = query(
+        collection(db, 'volunteerStats'),
+        where('v_full_name', '==', selectedVolunteerName)
+      );
+      const snap = await getDocs(statsQ);
+      if (snap.empty) {
+        setVolStats([]);
+        setVolError('לא נמצאו נתונים למתנדב זה');
+      } else {
+        const docSnap = snap.docs[0];
+        const data = docSnap.data();
+        setVolStats([{
+          id: docSnap.id,
+          name: data.v_full_name,
+          eventsCount: data.eventsCount || 0,
+          summariesCount: data.summariesCount || 0,
+          responseTimeAvg: data.responseTimeAvg || 0,
+          formQuality: data.formQuality || 0,
+          events: data.events || []
+        }]);
+      }
+    } catch (e) {
+      setVolError(e instanceof Error ? e.message : 'שגיאה בטעינת נתונים');
+      setVolStats([]);
+    } finally {
+      setVolLoading(false);
+    }
+  };
 
-  // Per-volunteer statistics
-  const { data: volunteerData, loading: volLoading, error: volError } = useStatistics(
-    period,
-    selectedVolunteerName || undefined,
-    startDate,
-    endDate
+  // 3) On screen focus (or filter change), await update then fetch both sets
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        try {
+          await triggerStatisticsUpdate();
+          await fetchGlobalStats();
+          await fetchVolStats();
+        } catch (err) {
+          console.error(err);
+        }
+      })();
+    }, [period, startDate, endDate, selectedVolunteerName])
   );
 
+  // 4) Also re-fetch volunteer stats any time they pick a different name
+  useEffect(() => {
+    fetchVolStats();
+  }, [selectedVolunteerName]);
+
+  // Helper for dropdown sections
   const renderDropdown = (
     title: string,
     open: boolean,
@@ -130,16 +173,9 @@ export default function MainVolunteerStats() {
     content: React.ReactNode
   ) => (
     <View className="bg-white rounded-lg p-4 mb-4 shadow-md">
-      <Pressable
-        onPress={toggle}
-        className="flex-row-reverse items-center justify-between"
-      >
+      <Pressable onPress={toggle} className="flex-row-reverse items-center justify-between">
         <Text className="text-lg font-bold text-blue-800 text-right">{title}</Text>
-        <Ionicons
-          name={open ? "chevron-up" : "chevron-down"}
-          size={24}
-          color="#1d4ed8"
-        />
+        <Ionicons name={open ? "chevron-up" : "chevron-down"} size={24} color="#1d4ed8" />
       </Pressable>
       {open && <View className="mt-2">{content}</View>}
     </View>
@@ -153,12 +189,7 @@ export default function MainVolunteerStats() {
         <View className="w-16 h-1 bg-white mt-2 rounded-full" />
       </View>
 
-      {/* Update Button */}
-      <View className="px-4 py-2 flex-row justify-end">
-        <UpdateHandler />
-      </View>
-
-      {/* Date range Picker */}
+      {/* Date Picker */}
       <DateRangePicker
         period={period}
         setPeriod={setPeriod}
@@ -169,10 +200,9 @@ export default function MainVolunteerStats() {
       />
 
       <ScrollView className="flex-1 p-4">
-        {/* Core Stats Section */}
+        {/* Core Stats */}
         <View className="bg-white rounded-lg p-5 mb-6 shadow-md">
           <Text className="text-lg font-bold text-blue-800 mb-4 text-right">סקירה כללית</Text>
-
           {globalLoading ? (
             <View className="items-center justify-center py-6">
               <ActivityIndicator size="small" color="#1d4ed8" />
@@ -190,194 +220,159 @@ export default function MainVolunteerStats() {
                 <Text className="text-gray-700 text-base">סה״כ אירועים:</Text>
                 <Text className="text-2xl font-semibold text-gray-800">{totalEvents}</Text>
               </View>
-
               <View className="flex-row-reverse items-center justify-between mb-5">
                 <Text className="text-gray-700 text-base">מתנדבים פעילים:</Text>
                 <Text className="text-2xl font-semibold text-gray-800">
                   {activeVolunteersCount}
                 </Text>
               </View>
-
               <View className="border-t border-gray-200 my-4" />
-
-              <View className="mb-5">
-                <Text className="text-gray-700 mb-2 text-right font-medium">
-                  אמצעי פינוי:
+              <Text className="text-gray-700 mb-2 text-right font-medium">אמצעי פינוי:</Text>
+              {Object.entries(transportBreakdown).length > 0 ? (
+                Object.entries(transportBreakdown)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([t, c]) => (
+                    <View
+                      key={t}
+                      className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+                    >
+                      <Text className="text-gray-800 text-sm flex-1 text-right">{t}</Text>
+                      <Text className="text-blue-600 font-medium">{c}</Text>
+                    </View>
+                  ))
+              ) : (
+                <Text className="text-gray-500 text-sm text-right">
+                  אין נתונים לאמצעי פינוי.
                 </Text>
-                {Object.entries(transportBreakdown).length > 0 ? (
-                  Object.entries(transportBreakdown)
-                    .sort(([, a], [, b]) => b - a)
-                    .map(([type, cnt]) => (
-                      <View
-                        key={type}
-                        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-                      >
-                        <Text className="text-gray-800 text-sm flex-1 text-right">
-                          {type}
-                        </Text>
-                        <Text className="text-blue-600 font-medium">{cnt}</Text>
-                      </View>
-                    ))
-                ) : (
-                  <Text className="text-gray-500 text-sm text-right">
-                    אין נתונים לאמצעי פינוי.
-                  </Text>
-                )}
-              </View>
-
+              )}
               <View className="border-t border-gray-200 my-4" />
-
-              <View className="mb-5">
-                <Text className="text-gray-700 mb-2 text-right font-medium">
-                  מקור הפנייה:
+              <Text className="text-gray-700 mb-2 text-right font-medium">מקור הפנייה:</Text>
+              {Object.entries(receiverBreakdown).length > 0 ? (
+                Object.entries(receiverBreakdown)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([r, c]) => (
+                    <View
+                      key={r}
+                      className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+                    >
+                      <Text className="text-gray-800 text-sm flex-1 text-right">{r}</Text>
+                      <Text className="text-blue-600 font-medium">{c}</Text>
+                    </View>
+                  ))
+              ) : (
+                <Text className="text-gray-500 text-sm text-right">
+                  אין נתונים להצגה.
                 </Text>
-                {Object.entries(receiverBreakdown).length > 0 ? (
-                  Object.entries(receiverBreakdown)
-                    .sort(([, a], [, b]) => b - a)
-                    .map(([rec, cnt]) => (
-                      <View
-                        key={rec}
-                        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
-                      >
-                        <Text className="text-gray-800 text-sm flex-1 text-right">
-                          {rec}
-                        </Text>
-                        <Text className="text-blue-600 font-medium">{cnt}</Text>
-                      </View>
-                    ))
-                ) : (
-                  <Text className="text-gray-500 text-sm text-right">
-                    אין נתונים להצגה.
-                  </Text>
-                )}
-              </View>
-
+              )}
               <View className="border-t border-gray-200 my-4" />
-
               <View className="flex-row-reverse items-center justify-between mb-5">
-                <Text className="text-gray-700 text-base">
-                  אירועים ללא סיכום:
-                </Text>
+                <Text className="text-gray-700 text-base">אירועים ללא סיכום:</Text>
                 <Text className="text-red-600 font-medium">{noReportCount}</Text>
               </View>
-
               <View className="border-t border-gray-200 my-4" />
-
-              <View>
-                <Text className="text-gray-700 mb-2 text-right font-medium">
-                  חלוקת כתובות:
-                </Text>
-                {Object.entries(addressBreakdown).length > 0 ? (
-                  Object.entries(addressBreakdown)
-                    .sort(([, a], [, b]) => b - a)
-                    .slice(0, 10)
-                    .map(([addr, cnt]) => (
-                      <View
-                        key={addr}
-                        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+              <Text className="text-gray-700 mb-2 text-right font-medium">חלוקת כתובות:</Text>
+              {Object.entries(addressBreakdown).length > 0 ? (
+                Object.entries(addressBreakdown)
+                  .sort(([, a], [, b]) => b - a)
+                  .slice(0, 10)
+                  .map(([a, c]) => (
+                    <View
+                      key={a}
+                      className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+                    >
+                      <Text
+                        className="text-gray-800 text-sm flex-1 text-right"
+                        numberOfLines={1}
                       >
-                        <Text
-                          className="text-gray-800 text-sm flex-1 text-right"
-                          numberOfLines={1}
-                        >
-                          {addr}
-                        </Text>
-                        <Text className="text-blue-600 font-medium">{cnt}</Text>
-                      </View>
-                    ))
-                ) : (
-                  <Text className="text-gray-500 text-sm text-right">
-                    אין נתונים להצגה.
-                  </Text>
-                )}
-                {Object.entries(addressBreakdown).length > 10 && (
-                  <Text className="text-gray-400 text-xs text-right mt-2">
-                    ועוד {Object.entries(addressBreakdown).length - 10} כתובות...
-                  </Text>
-                )}
-              </View>
+                        {a}
+                      </Text>
+                      <Text className="text-blue-600 font-medium">{c}</Text>
+                    </View>
+                  ))
+              ) : (
+                <Text className="text-gray-500 text-sm text-right">
+                  אין נתונים להצגה.
+                </Text>
+              )}
+              {Object.entries(addressBreakdown).length > 10 && (
+                <Text className="text-gray-400 text-xs text-right mt-2">
+                  ועוד {Object.entries(addressBreakdown).length - 10} כתובות...
+                </Text>
+              )}
             </>
           )}
         </View>
 
-        {/* Dropdowned Breakdown Sections */}
+        {/* Dropdowns */}
         {renderDropdown(
           "אירועים לפי יום בשבוע",
           showWeekday,
           () => setShowWeekday(!showWeekday),
-          Object.entries(countsByWeekday).map(([day, cnt]) => (
+          Object.entries(countsByWeekday).map(([d, c]) => (
             <View
-              key={day}
+              key={d}
               className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
             >
-              <Text className="text-gray-800 text-sm text-right">{day}</Text>
-              <Text className="text-blue-600 font-medium">{cnt}</Text>
+              <Text className="text-gray-800 text-sm text-right">{d}</Text>
+              <Text className="text-blue-600 font-medium">{c}</Text>
             </View>
           ))
         )}
-
         {renderDropdown(
           "אירועים לפי שעה",
           showHour,
           () => setShowHour(!showHour),
-          Object.entries(countsByHour).map(([hour, cnt]) => (
+          Object.entries(countsByHour).map(([h, c]) => (
             <View
-              key={hour}
+              key={h}
               className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
             >
-              <Text className="text-gray-800 text-sm text-right">{hour}:00</Text>
-              <Text className="text-blue-600 font-medium">{cnt}</Text>
+              <Text className="text-gray-800 text-sm text-right">{h}:00</Text>
+              <Text className="text-blue-600 font-medium">{c}</Text>
             </View>
           ))
         )}
-
         {renderDropdown(
           "אירועים לפי חודש",
           showMonth,
           () => setShowMonth(!showMonth),
           Object.entries(countsByMonth)
             .sort()
-            .map(([month, cnt]) => (
+            .map(([m, c]) => (
               <View
-                key={month}
+                key={m}
                 className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
               >
-                <Text className="text-gray-800 text-sm text-right">{month}</Text>
-                <Text className="text-blue-600 font-medium">{cnt}</Text>
+                <Text className="text-gray-800 text-sm text-right">{m}</Text>
+                <Text className="text-blue-600 font-medium">{c}</Text>
               </View>
             ))
         )}
-
         {renderDropdown(
           "אירועים לפי שנה",
           showYear,
           () => setShowYear(!showYear),
-          Object.entries(countsByYear).map(([year, cnt]) => (
+          Object.entries(countsByYear).map(([y, c]) => (
             <View
-              key={year}
+              key={y}
               className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
             >
-              <Text className="text-gray-800 text-sm text-right">{year}</Text>
-              <Text className="text-blue-600 font-medium">{cnt}</Text>
+              <Text className="text-gray-800 text-sm text-right">{y}</Text>
+              <Text className="text-blue-600 font-medium">{c}</Text>
             </View>
           ))
         )}
 
-        {/* Volunteer Selection Section */}
+        {/* Volunteer Picker & Stats */}
         <VolunteerPicker
           selectedVolunteerName={selectedVolunteerName}
           onSelectVolunteer={setSelectedVolunteerName}
         />
-
-        {/* Volunteer-Specific Section */}
         {selectedVolunteerName == null ? (
           <View className="bg-white rounded-lg p-6 shadow-sm items-center justify-center mt-4">
             <Ionicons name="people" size={60} color="#93c5fd" />
             <Text className="text-lg font-bold text-blue-800 mt-4 mb-2 text-center">
               בחר מתנדב כדי לצפות בסטטיסטיקות
-            </Text>
-            <Text className="text-gray-500 text-center">
-              בחר מתנדב מהרשימה למעלה כדי לראות את הסטטיסטיקות שלו
             </Text>
           </View>
         ) : volLoading ? (
@@ -390,20 +385,8 @@ export default function MainVolunteerStats() {
             <Text className="text-red-700 text-lg font-bold mb-2 text-right">שגיאה</Text>
             <Text className="text-red-600 text-right">{volError}</Text>
           </View>
-        ) : volunteerData && volunteerData.volunteerStats.length > 0 ? (
-          <View>
-            <Text className="text-xl font-bold text-blue-800 mb-4 text-right">
-              {`סטטיסטיקות: ${selectedVolunteerName}`}
-            </Text>
-
-            {volunteerData.volunteerStats.map((vol: VolunteerStats) => (
-              <VolunteerCard key={vol.id} volunteer={vol} />
-            ))}
-          </View>
         ) : (
-          <View className="bg-white rounded-lg p-4 shadow-sm items-center">
-            <Text className="text-gray-500 text-right">לא נמצאו נתונים בטווח הזמן הנבחר</Text>
-          </View>
+          volStats.map(v => <VolunteerCard key={v.id} volunteer={v} />)
         )}
       </ScrollView>
     </SafeAreaView>
