@@ -143,10 +143,10 @@ export default function ActiveEvents() {
               >
                 <View className="flex flex-row justify-between ">
                   <View className=" flex flex-col gap-1">
-                    <Text className="text-sm text-red-500">
+                    <Text className="text-sm text-red-500 font-bold">
                       חובשים בדרך: {joinedToEvent}
                     </Text>
-                    <Text className="text-sm text-red-500">
+                    <Text className="text-sm text-red-500 font-bold">
                       חובשים באירוע: {arrivedToEvent}
                     </Text>
                   </View>
