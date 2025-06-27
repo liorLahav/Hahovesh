@@ -40,12 +40,13 @@ export default function EventSummaryScreen() {
 
   const onSubmit = async (values: Record<string, string>) => {
   try {
-    await saveEventSummary({ ...values, eventId: event.id,volunteer_times : event.volunteers,
+    saveEventSummary({ ...values, eventId: event.id,volunteer_times : event.volunteers,
       volenteer_id: user.id, endTime: Date.now(),
     });
-    await deleteEventById(event.id);
-    await updateStatus(user.id, 'available');
-    await updateFinishedEventsCount(user.id,true);
+    console.log("event id", event.id);
+    deleteEventById(event.id);
+    updateStatus(user.id, 'available');
+    updateFinishedEventsCount(user.id,true);
     setIsAvailable(true);
 
     changeActiveStatus(false);

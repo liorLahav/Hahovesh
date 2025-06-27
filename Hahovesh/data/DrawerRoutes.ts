@@ -16,7 +16,7 @@ export const drawerItems: DrawerItem[] = [
   { label: "דף הבית", icon: "home", route: "home", minRole: 0, section: "account" },
   { label: "שליחת הודעה", icon: "chatbubbles", route: "messages/MessagesForm", minRole: 2, section: "menu" },
   { label: "אירועים פעילים", icon: "calendar", route: "summaryReports", minRole: 0, section: "menu" },
-  { label: "צפייה בכל הסטטיסטיקות", icon: "analytics", route: "allStats", minRole: 2, section: "menu" },
+  { label: "צפייה בכל הסטטיסטיקות", icon: "analytics", route: "statistics", minRole: 2, section: "menu" },
   { label: "צפייה בדוחות סיכום", icon: "document-text", route: "summaryReports", minRole: 2, section: "menu" },
   { label: "ניהול משתמשים", icon: "people", route: "UserManagement", minRole: 2, section: "menu" },
 ];

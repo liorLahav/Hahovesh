@@ -3,7 +3,7 @@
 import { db } from "../FirebaseConfig";
 import { collection, getDocs, query, where, Timestamp } from "firebase/firestore";
 import { calculateDateRange, calculateResponseTime } from "../app/(app)/statistics/calculations";
-import { getEventSummaries } from "./event_summary";
+import { fetchEventSummaries } from "./event_summary";
 export interface Volunteer {
   id: string;
   full_name: string;
@@ -109,7 +109,7 @@ export async function fetchStatistics(
     });
   }
 
-  const responseTimeAvg = calculateResponseTime(userId, await getEventSummaries());
+  const responseTimeAvg = calculateResponseTime(userId, await fetchEventSummaries());
 
   return {
     totalEvents:    filtered.length,

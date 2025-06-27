@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { useEffect, useState, useRef } from "react";
 import { router } from "expo-router";
 import {
@@ -25,6 +25,10 @@ export default function ActiveEvents() {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
+    if (event.summaryReportFiller){
+      Alert.alert("אירוע זה בשלבי סיום אין צורך בעוד חובשים");
+      return;
+    }
     try {
       cleanError(); 
       console.log("Changing user status to Arriving for event ID:", event.id);
@@ -42,8 +46,10 @@ export default function ActiveEvents() {
       console.error("Error adding volunteer to event:", error);
       setErrorMessage("שגיאה בצירופך לאירוע, פנה למנהל");
     }
-
     changeEvent(event);
+    router.push({
+      pathname: "/ArrivingToEvent",
+    });
   };
 
   // Subscribe only once when component mounts
@@ -147,9 +153,6 @@ const orderedEvents = events.sort((a, b) => new Date(b.createdAt).getTime() - ne
                   }`}
                   disabled={!event.isActive}
                   onPress={() => {
-                    router.push({
-                      pathname: "/ArrivingToEvent",
-                    });
                     receiveEvent(event);
                   }}
                 >
