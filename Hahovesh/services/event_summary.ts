@@ -20,7 +20,6 @@ export interface EventSummary {
   [key: string]: any;
 }
 
-/* ────────────────── CRUD ────────────────── */
 
 /** יצירת דוח חדש */
 export const saveEventSummary = async (

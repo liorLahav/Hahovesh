@@ -8,6 +8,7 @@ import {
   serverTimestamp,
   set,
   remove,
+  update,
 } from "firebase/database";
 
 
@@ -32,6 +33,7 @@ export type Event = {
   isActive?: boolean;
   canceledAt?: number;
   volunteers?: Record<string, { volunteerId: string; joinedAt: number , arrivedAt?: number }>;
+  summaryReportFiller?: string;
 };
 
 export const deleteEvent = async (eventId: string) => {
@@ -99,9 +101,6 @@ export const subscribeToEvents = (
 
   return unsubscribe;
 };
-
-
-
 
 export async function deleteEventById(eventId: string) {
   const eventRef = ref(realtimeDb, `events/${eventId}`);
@@ -187,6 +186,20 @@ export const removeVolunteerFromEvent = async (
     );
   }
 }
+export const addUserArrivalTime = async (
+  eventId: string,
+  volunteerId: string,
+): Promise<void> => {
+  try {
+    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}/arrivedAt`);
+    await set(eventRef, serverTimestamp());
+  } catch (error: any) {
+    throw new Error(
+      'Error adding user arrival time: ' + (error?.message || JSON.stringify(error))
+    );
+  }
+}
+
 export const fetchEvent = async (eventId: string): Promise<Event | null> => {
   try {
     const eventRef = ref(realtimeDb, `events/${eventId}`);
@@ -202,16 +215,20 @@ export const fetchEvent = async (eventId: string): Promise<Event | null> => {
     );
   }
 }
-export const addUserArrivalTime = async (
-  eventId: string,
-  volunteerId: string,
-): Promise<void> => {
-  try {
-    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}/arrivedAt`);
-    await set(eventRef, serverTimestamp());
-  } catch (error: any) {
-    throw new Error(
-      'Error adding user arrival time: ' + (error?.message || JSON.stringify(error))
-    );
-  }
-}
+
+export const updateStartEndEvent = async (
+    volunteerId: string,
+    eventId: string
+  ): Promise<void> => {
+    try {
+      const eventRef = ref(realtimeDb, `events/${eventId}`);
+      await update(eventRef, {
+        summaryReportFiller: volunteerId,
+      });
+    } catch (error: any) {
+      throw new Error(
+        'Error updating start/end event: ' + (error?.message || JSON.stringify(error))
+      );
+    }
+  } 
+

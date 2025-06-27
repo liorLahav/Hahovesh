@@ -9,14 +9,18 @@ import { deleteEventById } from '@/services/events';
 import EventSummaryHeader from './EventSummaryHeader';
 import { useUserContext } from '@/hooks/UserContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { updateStatus } from '@/services/users';
+import VolunteerCard from '../statistics/volCard';
+import { updateFinishedEventsCount } from '@/services/globalStatsService';
 
 export default function EventSummaryScreen() {
   const [formKey, setFormKey] = useState(0);
   const [initialValues, setInitialValues] = useState<Record<string, string> | null>(null);
   const { event, changeActiveStatus } = useEventContext();
-  const { user } = useUserContext();
+  const { user,setIsAvailable } = useUserContext();
 
   useEffect(() => {
+    console.log(event.volunteers);
     const mappedValues: Record<string, string> = {
       name: event.patient_name ?? '',
       gender: event.patient_sex ?? '',
@@ -36,15 +40,18 @@ export default function EventSummaryScreen() {
 
   const onSubmit = async (values: Record<string, string>) => {
   try {
-    await saveEventSummary({ ...values, eventId: event.id,volunteer_times : event.volunteers,
+    saveEventSummary({ ...values, eventId: event.id,volunteer_times : event.volunteers,
       volenteer_id: user.id, endTime: Date.now(),
     });
-    await deleteEventById(event.id);
+    console.log("event id", event.id);
+    deleteEventById(event.id);
+    updateStatus(user.id, 'available');
+    updateFinishedEventsCount(user.id,true);
+    setIsAvailable(true);
 
     changeActiveStatus(false);
 
     Alert.alert('הצלחה', 'דוח הסיכום נשלח ונשמר בהצלחה');
-
     router.replace('/home');
     setFormKey(k => k + 1);
   } catch (err: any) {

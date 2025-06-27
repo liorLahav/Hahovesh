@@ -13,9 +13,10 @@ import { useEventContext } from "@/hooks/EventContext";
 import { sendMessageToDB } from "@/services/messages";
 import { router } from "expo-router";
 import { useUserContext } from "@/hooks/UserContext";
-import { fetchEvent } from "@/services/events";
+import { fetchEvent, updateStartEndEvent } from "@/services/events";
 import { update } from "firebase/database";
 import { updateUserStatus } from "@/services/users";
+import { updateFinishedEventsCount } from "@/services/globalStatsService";
 
 export default function OperationEvent() {
   const [selectedOption, setSelectedOption] = useState<string>("");
@@ -61,11 +62,13 @@ export default function OperationEvent() {
     : [];
     changeActiveStatus(false);
     if (volunteersArr[0]?.volunteerId === user.id) {
+      updateStartEndEvent(user.id, eventId);
       router.replace("/endEvent");
     } else {
       Alert.alert("האירוע נגמר", "תודה על העזרה! , חזרה למסך בית");
       changeActiveStatus(false);
       updateUserStatus(user.id, "available");
+      updateFinishedEventsCount(user.id,false);
       setIsAvailable(true);
       router.replace("/home");
     }
