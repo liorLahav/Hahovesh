@@ -25,18 +25,18 @@ export default function ActiveEvents() {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
-    if (event.summaryReportFiller){
+    if (event.summaryReportFiller) {
       Alert.alert("אירוע זה בשלבי סיום אין צורך בעוד חובשים");
       return;
     }
     try {
-      cleanError(); 
+      cleanError();
       console.log("Changing user status to Arriving for event ID:", event.id);
       await updateUserStatus(user.id, "Arriving : " + event.id);
       console.log("User status updated successfully");
     } catch (error) {
       console.error("Error updating user status:", error);
-      setErrorMessage("שגיאה בעדכון הסטטוס שלך באירוע"); 
+      setErrorMessage("שגיאה בעדכון הסטטוס שלך באירוע");
     }
     try {
       cleanError();
@@ -92,7 +92,9 @@ export default function ActiveEvents() {
     return <Loading />;
   }
 
-const orderedEvents = events.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const orderedEvents = events.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 
   return (
     <View className="flex-1 bg-white">
@@ -103,8 +105,6 @@ const orderedEvents = events.sort((a, b) => new Date(b.createdAt).getTime() - ne
         >
           אירועים פעילים
         </Text>
-
-        <View className="w-16 h-1 bg-white mt-2 rounded-full" />
 
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <Pressable
