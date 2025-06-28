@@ -117,7 +117,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
                   <Select
                     value={values[field.key]}
                     onChange={v => setVal(field.key, v)}
-                    options={[{ label: 'בחר', value: '' }, ...field.options]}
+                    options={field.options}
                   />
                 )}
 
