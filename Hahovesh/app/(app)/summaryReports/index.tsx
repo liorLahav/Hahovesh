@@ -102,7 +102,7 @@ export default function SummaryReportsScreen() {
             />
 
             <TextInput
-              placeholder="🔍 חפש קוד רפואי, שם, כתובת אירוע או מספר מתנדב"
+              placeholder="🔍 חפש קוד רפואי, שם מטופל, כתובת אירוע או מספר מתנדב"
               placeholderTextColor="#9ca3af"
               value={searchQuery}
               onChangeText={setSearchQuery}
