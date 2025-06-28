@@ -10,7 +10,6 @@ import CancelEventButton from "./CancelEventButton";
 import { useUserContext } from "@/hooks/UserContext";
 import Loading from "@/components/Loading";
 import { useError } from "@/hooks/UseError";
-import { set } from "firebase/database";
 
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
@@ -76,7 +75,29 @@ export default function EventDetails() {
   };
 
   const getDetails = () => [
-    { label: "סוג האירוע", key: "anamnesis", value: event?.anamnesis },
+    { label: "כתובת", key: "street", value: event?.street },
+    { label: "מספר בית", key: "house_number", value: event?.house_number },
+    {
+      label: "פרטי דירה",
+      key: "apartment_details",
+      value: event?.apartment_details,
+    },
+    { label: "מיקום", key: "location_type", value: event?.location_type },
+    { label: "דחיפות", key: "urgency", value: event?.urgency },
+    { label: "מוקד מקבל", key: "recipient", value: event?.recipient },
+    { label: "קוד רפואי", key: "medical_code", value: event?.medical_code },
+    { label: "קוד הזנקה", key: "haznk_code", value: event?.haznk_code },
+    { label: "אנמנזה", key: "anamnesis", value: event?.anamnesis },
+    { label: "שם המטופל", key: "patient_name", value: event?.patient_name },
+    { label: "מין המטופל", key: "patient_sex", value: event?.patient_sex },
+    { label: "גיל המטופל", key: "patient_age", value: event?.patient_age },
+    { label: "מספר טלפון", key: "phone_number1", value: event?.phone_number1 },
+    { label: "טלפון נוסף", key: "phone_number2", value: event?.phone_number2 },
+    {
+      label: "מיקום מודיע",
+      key: "informat_location",
+      value: event?.informat_location,
+    },
     {
       label: "תאריך",
       key: "createdAt",
@@ -87,28 +108,6 @@ export default function EventDetails() {
         hour: "2-digit",
         minute: "2-digit",
       }),
-    },
-    { label: "רחוב", key: "street", value: event?.street },
-    { label: "מספר בית", key: "house_number", value: event?.house_number },
-    {
-      label: "פרטי דירה",
-      key: "apartment_details",
-      value: event?.apartment_details,
-    },
-    { label: "מיקום", key: "location_type", value: event?.location_type },
-    { label: "קוד רפואי", key: "medical_code", value: event?.medical_code },
-    { label: "קוד הזנקה", key: "haznk_code", value: event?.haznk_code },
-    { label: "מוקד מקבל", key: "recipient", value: event?.recipient },
-    { label: "דחיפות", key: "urgency", value: event?.urgency },
-    { label: "טלפון פונה", key: "phone_number1", value: event?.phone_number1 },
-    { label: "טלפון נוסף", key: "phone_number2", value: event?.phone_number2 },
-    { label: "גיל פונה", key: "patient_age", value: event?.patient_age },
-    { label: "שם פונה", key: "patient_name", value: event?.patient_name },
-    { label: "מין פונה", key: "patient_sex", value: event?.patient_sex },
-    {
-      label: "מודיע",
-      key: "informat_location",
-      value: event?.informat_location,
     },
   ];
 
@@ -146,6 +145,7 @@ export default function EventDetails() {
       </ScrollView>
       <EditModal
         visible={editModalVisible}
+        fieldKey={fieldToEdit}
         fieldLabel={fieldLabel}
         editedValue={editedValue}
         onChange={setEditedValue}
