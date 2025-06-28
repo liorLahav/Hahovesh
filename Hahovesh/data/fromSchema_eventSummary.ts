@@ -26,7 +26,7 @@ const formSchema_eventSummary: SchemaField[] = [
       { label: 'נקבה', value: 'female' }
     ]
   },
-  { key: 'phone', label: 'פאלפון', type: 'text', keyboardType: 'phone-pad', maxLength: 10 },
+  { key: 'phone', label: 'טלפון', type: 'text', keyboardType: 'phone-pad', maxLength: 10 },
   { key: 'address', label: 'כתובת מגורים', type: 'text' },
 
   { key: 'title_event', label: 'פרטי אירוע', type: 'title' },
