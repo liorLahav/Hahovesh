@@ -1,6 +1,11 @@
-// index.tsx
 import React, { useEffect, useState } from "react";
-import { FlatList, ActivityIndicator, Text } from "react-native";
+import {
+  FlatList,
+  ActivityIndicator,
+  Text,
+  View,
+} from "react-native";
+import { TextInput } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -16,8 +21,10 @@ export default function SummaryReportsScreen() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>("all");
   const [customDate, setCustomDate] = useState<Date | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");          // חיפוש
   const [isScreenFocused, setIsScreenFocused] = useState(true);
 
+  /* --- טעינת דוחות --- */
   const loadReports = async () =>
     fetchEventSummaries()
       .then(setReports)
@@ -35,9 +42,24 @@ export default function SummaryReportsScreen() {
     }, [])
   );
 
-  const filtered = filterReports(reports, filter, customDate);
+  const byDate = filterReports(reports, filter, customDate);
+  
+  const bySearch =
+    searchQuery.trim() === ""
+      ? byDate
+      : byDate.filter((r) => {
+          const q = searchQuery.toLowerCase();
+          const has = (v: any) => String(v ?? "").toLowerCase().includes(q);
 
-  const sorted = [...filtered].sort((a, b) => {
+          return (
+            has((r as any).summary) ||
+            has((r as any).name) ||
+            has((r as any).address) ||
+            has((r as any).volenteer_id) 
+          );
+        });
+
+  const sorted = [...bySearch].sort((a, b) => {
     const da = toDate((a as any).event_date);
     const db = toDate((b as any).event_date);
     if (!da && !db) return 0;
@@ -57,6 +79,7 @@ export default function SummaryReportsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-blue-200">
       <Header />
+
       <FlatList
         data={sorted}
         keyExtractor={(it) => it.id}
@@ -70,12 +93,23 @@ export default function SummaryReportsScreen() {
           paddingBottom: 24,
         }}
         ListHeaderComponent={
-          <FilterBar
-            filter={filter}
-            setFilter={setFilter}
-            customDate={customDate}
-            setCustomDate={setCustomDate}
-          />
+          <View>
+            <FilterBar
+              filter={filter}
+              setFilter={setFilter}
+              customDate={customDate}
+              setCustomDate={setCustomDate}
+            />
+
+            <TextInput
+              placeholder="🔍 חפש אנמנזה, שם, כתובת או מספר מתנדב"
+              placeholderTextColor="#9ca3af"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              clearButtonMode="while-editing"
+              className="border border-gray-300 rounded-md px-4 py-2 mb-2 text-right bg-white mt-3"
+            />
+          </View>
         }
       />
     </SafeAreaView>
