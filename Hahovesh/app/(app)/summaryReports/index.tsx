@@ -54,7 +54,7 @@ export default function SummaryReportsScreen() {
           return (
             has((r as any).medical_code) ||
             has((r as any).name) ||
-            has((r as any).address) ||
+            has((r as any).event_address) ||
             has((r as any).volenteer_id) 
           );
         });
@@ -102,7 +102,7 @@ export default function SummaryReportsScreen() {
             />
 
             <TextInput
-              placeholder="🔍 חפש קוד רפואי, שם, כתובת או מספר מתנדב"
+              placeholder="🔍 חפש קוד רפואי, שם, כתובת אירוע או מספר מתנדב"
               placeholderTextColor="#9ca3af"
               value={searchQuery}
               onChangeText={setSearchQuery}
