@@ -119,6 +119,7 @@ const UsersArea = (props: UsersAreaProps) => {
                 user={user}
                 key={user.id || index}
                 refresh={props.refresh}
+                isActive={props.type}
               />
             ))
           ) : (

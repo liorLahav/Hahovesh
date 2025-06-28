@@ -14,7 +14,6 @@ const UserManagementScreen = () => {
   const [pendingUsers, setpendingUsers] = useState<DocumentData[] | null>(null);
   const [dataChanged, setDataChanged] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [querySeach, setQuerySearch] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
