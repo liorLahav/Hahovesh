@@ -21,6 +21,16 @@ export function formatValue(key: string, v: unknown): string {
   if ('female' === v) return 'נקבה';
   if ('male' === v) return 'זכר';
 
+  if (['public', 'home', 'synagogue', 'street', 'school'].includes(v as string)) {
+    return {
+      public: 'מקום ציבורי',
+      home: 'בית',
+      synagogue: 'בית כנסת',
+      street: 'רחוב',
+      school: 'בית ספר',
+    }[v as string] ?? '';
+  }
+
   if (v instanceof Timestamp) return v.toDate().toLocaleString('he-IL');
 
   const s = String(v).trim();

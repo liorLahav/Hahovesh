@@ -44,7 +44,7 @@ export default function ReportCard({ item, isScreenFocused }: Props) {
           {formatValue("event_date", (item as any).event_date)}
         </Text>
         <Text className="text-lg font-bold text-gray-800">
-          {(item as any).summary ?? "ללא כותרת"}
+          {(item as any).medical_code ?? "ללא כותרת"}
         </Text>
       </View>
 

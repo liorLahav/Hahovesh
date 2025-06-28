@@ -23,7 +23,7 @@ export default function OperationEvent() {
   const [otherText, setOtherText] = useState<string>("");
   const { user, setIsAvailable } = useUserContext();
   const { event, changeActiveStatus, refreshEvent } = useEventContext();
-  const { id: eventId, anamnesis: eventTitle } = event;
+  const { id: eventId, medical_code: eventTitle } = event;
   const [isFirstVolunteer, setIsFirstVolunteer] = useState(false);
 
   const options = [
@@ -87,7 +87,7 @@ export default function OperationEvent() {
       <View className="bg-blue-50 border-b border-blue-300 py-4 px-4 rounded-b-2xl shadow-sm">
         <View className="flex-row items-center justify-center mb-2">
           <Text className="text-2xl font-bold text-blue-700">
-            {event?.anamnesis}
+            {event?.medical_code}
           </Text>
         </View>
       </View>

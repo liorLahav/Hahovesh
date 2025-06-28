@@ -151,7 +151,7 @@ export default function ActiveEvents() {
                     </Text>
                   </View>
                   <Text className="text-xl font-bold text-blue-800 mb-2 text-right">
-                    {event.anamnesis}
+                    {event.medical_code}
                   </Text>
                 </View>
                 <Text className="text-base text-gray-700 mb-4 text-right">

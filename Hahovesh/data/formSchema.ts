@@ -290,7 +290,7 @@ export type SchemaField = {
       placeholder:'גיל המטופל',
       keyboardType: 'numeric',
       numericOnly: true,
-       maxLength: 3,
+      maxLength: 3,
     },
     
 
@@ -301,7 +301,6 @@ export type SchemaField = {
       label:'מספר טלפון',
       placeholder:'מספר טלפון ראשי',
       keyboardType: 'phone-pad',
-      numericOnly: true,
       maxLength: 10,
     },
     {
@@ -310,7 +309,6 @@ export type SchemaField = {
       label:'טלפון נוסף',
       placeholder:'מספר טלפון נוסף (לא חובה)',
       keyboardType: 'phone-pad',
-      numericOnly: true,
       maxLength: 10,
     },
     {

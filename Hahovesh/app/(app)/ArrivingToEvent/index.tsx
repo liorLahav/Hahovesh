@@ -38,7 +38,7 @@ const ArrivingToEventScreen = () => {
             <View className="bg-blue-50 border-b border-blue-300 py-4 px-4 rounded-b-2xl shadow-sm">
               <View className="flex-row items-center justify-center mb-2">
                 <Text className="text-2xl font-bold text-blue-700">
-                  {event?.anamnesis}
+                  {event?.medical_code}
                 </Text>
               </View>
             </View>
