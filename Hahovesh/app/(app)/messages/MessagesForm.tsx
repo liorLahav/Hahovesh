@@ -115,6 +115,7 @@ export default function MessagesForm() {
                   setItems={setItems}
                   placeholder="בחר תפקיד"
                   style={{ height: 50 }}
+                  textStyle={{ textAlign: "right" }}
                   dropDownContainerStyle={{ zIndex: 1000 }}
                   zIndex={1000}
                   onChangeValue={(val) => {
