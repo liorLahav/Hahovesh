@@ -1,8 +1,6 @@
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { useEffect } from "react";
 import {
-  deleteAllMessages,
-  deleteMessage,
   markMessagesAsRead,
 } from "@/services/messages";
 import { useMessages } from "@/hooks/MessagesContext";
@@ -21,10 +19,10 @@ export default function MessagesScreen() {
   const roles = user.permissions || [];
 
   useEffect(() => {
-    if (isFocused && messages.length && userId) {
-      markMessagesAsRead(userId, messages);
+    if (isFocused && messages && user) {
+      markMessagesAsRead(user.id, messages,user.permissions);
     }
-  }, [isFocused, userId, messages]);
+  }, [isFocused, user, messages]);
 
   if (userLoading || loadingMessages) {
     return (
@@ -39,7 +37,8 @@ export default function MessagesScreen() {
       return messages.filter(
         (msg) =>
           msg.distribution_by_role === "All" ||
-          msg.distribution_by_role === "Dispatcher"
+          msg.distribution_by_role === "Dispatcher" ||
+          msg.distribution_by_role === "Volunteers"
       );
     } else if (roles.includes("Volunteers")) {
       return messages.filter(

@@ -31,6 +31,7 @@ export const onNewMessage = onValueCreated(  {
     sound: "default",
     title,
     body,
+    
   }));
 
   try {
