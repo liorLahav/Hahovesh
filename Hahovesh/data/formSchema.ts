@@ -1,87 +1,86 @@
 export type SchemaField = {
-    type: 'text' | 'picker' |  'textarea';
-    key: string;
-    label: string;
-    placeholder?: string;
-    options?: { label: string; value: string }[];
+  type: "text" | "picker" | "textarea";
+  key: string;
+  label: string;
+  placeholder?: string;
+  options?: { label: string; value: string }[];
 
-    keyboardType?: 'default' | 'numeric' | 'phone-pad';
-    numericOnly?: boolean;
-    lettersOnly?: boolean;
+  keyboardType?: "default" | "numeric" | "phone-pad";
+  numericOnly?: boolean;
+  lettersOnly?: boolean;
 
-    maxLength?: number; 
-    rows?: number;
+  maxLength?: number;
+  rows?: number;
 
-    required?: boolean;
-  };
-  
-  const formSchema: SchemaField[] = [
-    /* ───── Event details ──── */
-    {
-      type: 'text',
-      key:  'street',
-      label:'כתובת',
-      placeholder:'רחוב',
-      required: true,
-    },
-    {
-      type: 'text',
-      key:  'house_number',
-      label:'מספר בית',
-      placeholder:'מספר בית',
-      keyboardType: 'numeric',
-      numericOnly: true,
-    },
-    {
-      type: 'text',
-      key:  'apartment_details',
-      label:'פרטי דירה',
-      placeholder:'קוד בניין / קומה / כניסה / דירה…',
-    },
-    {
-      type: 'picker',
-      key:  'location_type',
-      label:'מיקום',
-      options: [
-        { label:'מקום ציבורי', value:'מקום ציבורי'},
-        { label:'בית',          value:'בית'        },
-        { label:'בית כנסת',     value:'בית כנסת'  },
-        { label:'בית ספר',      value:'בית ספר'   },
-        { label:'רחוב',         value:'רחוב'      },
-      ],
-    },
-    {
-      type: 'picker',
-      key:  'urgency',
-      label:'דחיפות',
-      options: [
-        { label:'חובש בלבד',              value:'חובש בלבד'              },
-        { label:'אמבולנס',                value:'אמבולנס'               },
-        { label:'אמבולנס דחוף',           value:'אמבולנס דחוף'     },
-        { label:'אמבולנס טיפול נמרץ',     value:'אמבולנס טיפול נמרץ'},
-      ],
-    },
-    {
-      type: 'picker',
-      key:  'recipient',
-      label:'מוקד מקבל',
-      options: [
-        { label:'מגן דוד אדום', value:'מגן דוד אדום'            },
-        { label:'איחוד הצלה',   value:'איחוד הצלה' },
-        { label:'החובש',        value:'החובש'        },
-      ],
-    },
-  
-    /* ───── Disease details ───── */
-    {
-      type: 'text',
-      key:  'medical_code',
-      label:'קוד רפואי',
-      placeholder:'קוד רפואי',
-    },
+  required?: boolean;
+};
 
+const formSchema: SchemaField[] = [
+  /* ───── Event details ──── */
+  {
+    type: "text",
+    key: "street",
+    label: "כתובת",
+    placeholder: "רחוב",
+    required: true,
+  },
+  {
+    type: "text",
+    key: "house_number",
+    label: "מספר בית",
+    placeholder: "מספר בית",
+    keyboardType: "numeric",
+    numericOnly: true,
+  },
+  {
+    type: "text",
+    key: "apartment_details",
+    label: "פרטי דירה",
+    placeholder: "קוד בניין / קומה / כניסה / דירה…",
+  },
+  {
+    type: "picker",
+    key: "location_type",
+    label: "מיקום",
+    options: [
+      { label: "מקום ציבורי", value: "מקום ציבורי" },
+      { label: "בית", value: "בית" },
+      { label: "בית כנסת", value: "בית כנסת" },
+      { label: "בית ספר", value: "בית ספר" },
+      { label: "רחוב", value: "רחוב" },
+    ],
+  },
+  {
+    type: "picker",
+    key: "urgency",
+    label: "דחיפות",
+    options: [
+      { label: "חובש בלבד", value: "חובש בלבד" },
+      { label: "אמבולנס", value: "אמבולנס" },
+      { label: "אמבולנס  דחוף", value: "אמבולנס דחוף" },
+      { label: "אמבולנס  טיפול  נמרץ", value: "אמבולנס טיפול נמרץ" },
+    ],
+  },
+  {
+    type: "picker",
+    key: "recipient",
+    label: "מוקד מקבל",
+    options: [
+      { label: "מגן דוד אדום", value: "מגן דוד אדום" },
+      { label: "איחוד הצלה", value: "איחוד הצלה" },
+      { label: "החובש", value: "החובש" },
+    ],
+  },
 
-    /*
+  /* ───── Disease details ───── */
+  {
+    type: "text",
+    key: "medical_code",
+    label: "קוד רפואי",
+    placeholder: "קוד רפואי",
+  },
+
+  /*
     {
       type: 'picker',
       key: 'medicalCode',
@@ -249,80 +248,78 @@ export type SchemaField = {
         { label: 'חום גבוה', value: '9099' },
       ],
     }, */
-    {
-      type: 'picker',
-      key:  'haznk_code',
-      label:'קוד הזנקה',
-      options: [
-        { label:'מחלה מבוגר', value:'מחלה מבוגר' },
-        { label:'מחלה ילד', value:'מחלה ילד' },
-      ],
-    },
-    {
-      type: 'textarea',
-      key:  'anamnesis',
-      label:'אנמנזה',
-      placeholder:'תיאור קצר של המקרה',
-      rows:6,
-    },
+  {
+    type: "picker",
+    key: "haznk_code",
+    label: "קוד הזנקה",
+    options: [
+      { label: "מחלה מבוגר", value: "מחלה מבוגר" },
+      { label: "מחלה ילד", value: "מחלה ילד" },
+    ],
+  },
+  {
+    type: "textarea",
+    key: "anamnesis",
+    label: "אנמנזה",
+    placeholder: "תיאור קצר של המקרה",
+    rows: 6,
+  },
 
-    /* ────── Patient details ────── */
-    {
-      type: 'text',
-      key:  'patient_name',
-      label:'שם המטופל',
-      placeholder:'שם המטופל',
-      lettersOnly: true,
-    },
-    {
-      type: 'picker',
-      key:  'patient_sex',
-      label:'מין המטופל',
-      options: [
-        { label:'זכר', value:'גבר' },
-        { label:'נקבה', value:'נקבה' },
-      ],
-    },
-    {
-      type: 'text',
-      key:  'patient_age',
-      label:'גיל המטופל',
-      placeholder:'גיל המטופל',
-      keyboardType: 'numeric',
-      numericOnly: true,
-       maxLength: 3,
-    },
-    
+  /* ────── Patient details ────── */
+  {
+    type: "text",
+    key: "patient_name",
+    label: "שם המטופל",
+    placeholder: "שם המטופל",
+    lettersOnly: true,
+  },
+  {
+    type: "picker",
+    key: "patient_sex",
+    label: "מין המטופל",
+    options: [
+      { label: "זכר", value: "גבר" },
+      { label: "נקבה", value: "נקבה" },
+    ],
+  },
+  {
+    type: "text",
+    key: "patient_age",
+    label: "גיל המטופל",
+    placeholder: "גיל המטופל",
+    keyboardType: "numeric",
+    numericOnly: true,
+    maxLength: 3,
+  },
 
-    /* ────── Informant details ────── */
-    {
-      type: 'text',
-      key:  'phone_number1',
-      label:'מספר טלפון',
-      placeholder:'מספר טלפון ראשי',
-      keyboardType: 'phone-pad',
-      numericOnly: true,
-      maxLength: 10,
-    },
-    {
-      type: 'text',
-      key:  'phone_number2',
-      label:'טלפון נוסף',
-      placeholder:'מספר טלפון נוסף (לא חובה)',
-      keyboardType: 'phone-pad',
-      numericOnly: true,
-      maxLength: 10,
-    },
-    {
-      type: 'picker',
-      key:  'informat_location',
-      label:'מיקום מודיע',
-      options: [
-        { label:'במקום', value:'במקום' },
-        { label:'מודיע צד ג', value:'מודיע צד ג' },
-      ],
-    },
-  ];
-  
-  export default formSchema;
-  
+  /* ────── Informant details ────── */
+  {
+    type: "text",
+    key: "phone_number1",
+    label: "מספר טלפון",
+    placeholder: "מספר טלפון ראשי",
+    keyboardType: "phone-pad",
+    numericOnly: true,
+    maxLength: 10,
+  },
+  {
+    type: "text",
+    key: "phone_number2",
+    label: "טלפון נוסף",
+    placeholder: "מספר טלפון נוסף (לא חובה)",
+    keyboardType: "phone-pad",
+    numericOnly: true,
+    maxLength: 10,
+  },
+  {
+    type: "picker",
+    key: "informat_location",
+    label: "מיקום מודיע",
+    options: [
+      { label: "במקום", value: "במקום" },
+      { label: "מודיע צד ג", value: "מודיע צד ג" },
+    ],
+  },
+];
+
+export default formSchema;
