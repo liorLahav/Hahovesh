@@ -34,9 +34,11 @@ export default function EditModal({
   const [items, setItems] = useState<{ label: string; value: string }[]>([]);
 
   useEffect(() => {
-    console.log("aaaaaaaaaaa", fieldKey)
+    console.log("aaaaaaaaaaa", fieldKey);
     if (fieldKey && PICKER_FIELDS[fieldKey]) {
-      setItems(PICKER_FIELDS[fieldKey].map((opt) => ({ label: opt, value: opt })));
+      setItems(
+        PICKER_FIELDS[fieldKey].map((opt) => ({ label: opt, value: opt }))
+      );
     }
   }, [fieldKey]);
 
@@ -56,6 +58,7 @@ export default function EditModal({
               setOpen={setOpen}
               setValue={(cb) => onChange(cb(editedValue))}
               setItems={setItems}
+              textStyle={{ textAlign: "right" }}
               placeholder={`בחר ${fieldLabel}`}
               zIndex={1000}
               style={{ marginBottom: open ? 200 : 10 }}
