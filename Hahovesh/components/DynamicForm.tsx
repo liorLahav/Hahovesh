@@ -92,7 +92,24 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
                   <TextInput
                     placeholder={field.placeholder}
                     value={values[field.key]}
-                    onChangeText={t => setVal(field.key, t)}
+                    onChangeText={t => {
+                      if (field.lettersOnly) {
+                          if (/^[א-תa-zA-Z ]*$/.test(t)) {
+                              setVal(field.key, t);
+                          }
+                      } else if (field.numericOnly) { 
+                          if (/^\d*$/.test(t)) {
+                              setVal(field.key, t);
+                          }
+                      } else {
+                              setVal(field.key, t);
+                          }
+                    }}  
+                  keyboardType={
+                    field.numericOnly ? 'numeric' :
+                    field.keyboardType || 'default'
+                  }
+                    maxLength={field.maxLength}
                     className="border border-gray-300 rounded-lg p-3 w-full text-right"
                     style={{ writingDirection: 'rtl' }}
                     editable={!isRefusalForm || requireRefusalForm}
@@ -117,7 +134,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
                   <Select
                     value={values[field.key]}
                     onChange={v => setVal(field.key, v)}
-                    options={[{ label: 'בחר', value: '' }, ...field.options]}
+                    options={field.options}
                   />
                 )}
 

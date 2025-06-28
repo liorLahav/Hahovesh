@@ -6,12 +6,17 @@ export type SchemaField = {
   options?: { label: string; value: string }[];
   defaultValue?: string;
   required?: boolean;
+
+  keyboardType?: 'default' | 'numeric' | 'phone-pad';
+  numericOnly?: boolean;
+  lettersOnly?: boolean;
+  maxLength?: number;
 };
 
 const formSchema_eventSummary: SchemaField[] = [
   { key: 'title_patient', label: 'פרטי מטופל', type: 'title' },
-  { key: 'name', label: 'שם המטופל', type: 'text' },
-  { key: 'patient_id', label: 'ת"ז המטופל', type: 'text' },
+  { key: 'name', label: 'שם המטופל', type: 'text', lettersOnly: true },
+  { key: 'patient_id', label: 'ת"ז המטופל', type: 'text', keyboardType: 'numeric', numericOnly: true, maxLength: 9 },
   {
     key: 'gender',
     label: 'מין המטופל',
@@ -21,7 +26,7 @@ const formSchema_eventSummary: SchemaField[] = [
       { label: 'נקבה', value: 'female' }
     ]
   },
-  { key: 'phone', label: 'פאלפון', type: 'text' },
+  { key: 'phone', label: 'טלפון', type: 'text', keyboardType: 'phone-pad', maxLength: 10 },
   { key: 'address', label: 'כתובת מגורים', type: 'text' },
 
   { key: 'title_event', label: 'פרטי אירוע', type: 'title' },
@@ -57,11 +62,11 @@ const formSchema_eventSummary: SchemaField[] = [
   { key: 'summary', label: 'רשומה רפואית (אנמנזה)', type: 'textarea' },
 
   
-  { key: 'title_measurements', label: 'מדדים', type: 'title' },
-  { key: 'blood_pressure', label: 'לחץ דם', type: 'text' },
-  { key: 'sugar', label: 'סוכר', type: 'text' },
-  { key: 'pulse', label: 'דופק', type: 'text' },
-  { key: 'breath_rate', label: 'מספר נשימות', type: 'text' },
+  { key: 'title_measurements', label: 'מדדים', type: 'title', },
+  { key: 'blood_pressure', label: 'לחץ דם', type: 'text', keyboardType: 'numeric', numericOnly: true, maxLength: 7 },
+  { key: 'sugar', label: 'סוכר', type: 'text', keyboardType: 'numeric', numericOnly: true, maxLength: 5 },
+  { key: 'pulse', label: 'דופק', type: 'text', keyboardType: 'numeric', numericOnly: true, maxLength: 3 },
+  { key: 'breath_rate', label: 'מספר נשימות', type: 'text', keyboardType: 'numeric', numericOnly: true, maxLength: 3 },
   {
     key: 'pulse_state',
     label: 'מצב דופק',

@@ -23,15 +23,13 @@ export default function EventSummaryScreen() {
     const mappedValues: Record<string, string> = {
       name: event.patient_name ?? '',
       gender: event.patient_sex ?? '',
-      address: event.apartment_details ?? '',
-      event_address: event.street ?? '',
+      event_address: [event.street, event.house_number].filter(Boolean).join(' ') || '',
       medical_code: event.medical_code ?? '',
       receiver: event.recipient ?? '',
       event_location: event.location_type ?? '',
-      event_date: event.createdAt
-        ? new Date(event.createdAt).getTime().toString()
-        : '',
-        volenteer_id: user.id,
+      event_date: event.createdAt ? new Date(event.createdAt).getTime().toString() : '',
+      summary: event.anamnesis ?? '',
+      volenteer_id: user.id,
     };
 
     setInitialValues(mappedValues);

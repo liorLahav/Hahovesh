@@ -99,7 +99,7 @@ export const onNewEvent = onValueCreated({
   }
 
   const title = "התקבל אירוע חדש";
-  const body = eventData?.anamnesis || "";
+  const body = eventData?.medical_code || "";
 
   const tokens: string[] = [];
 

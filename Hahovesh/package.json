@@ -53,7 +53,6 @@
     "react-native": "0.79.4",
     "react-native-autocomplete-input": "^5.5.6",
     "react-native-dropdown-picker": "^5.4.6",
-    "react-native-gesture-handler": "~2.25.0",
     "react-native-modal-datetime-picker": "^18.0.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",

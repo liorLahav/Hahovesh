@@ -21,22 +21,28 @@ export default function ActiveEvents() {
   const roles = user.permissions || [];
   const { setErrorMessage, cleanError } = useError();
 
+  const eventEnds = (event: Event) => {
+    return !!event.summaryReportFiller;
+  };
+
   const receiveEvent = async (event: Event) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
-    if (event.summaryReportFiller){
+
+    if (event.summaryReportFiller) {
       Alert.alert("אירוע זה בשלבי סיום אין צורך בעוד חובשים");
       return;
     }
+
     try {
-      cleanError(); 
+      cleanError();
       console.log("Changing user status to Arriving for event ID:", event.id);
       await updateUserStatus(user.id, "Arriving : " + event.id);
       console.log("User status updated successfully");
     } catch (error) {
       console.error("Error updating user status:", error);
-      setErrorMessage("שגיאה בעדכון הסטטוס שלך באירוע"); 
+      setErrorMessage("שגיאה בעדכון הסטטוס שלך באירוע");
     }
     try {
       cleanError();
@@ -52,7 +58,6 @@ export default function ActiveEvents() {
     });
   };
 
-  // Subscribe only once when component mounts
   useEffect(() => {
     cleanError(); // Clear any previous errors
     setLoadingEvents(true);
@@ -92,7 +97,9 @@ export default function ActiveEvents() {
     return <Loading />;
   }
 
-const orderedEvents = events.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const orderedEvents = events.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 
   return (
     <View className="flex-1 bg-white">
@@ -103,8 +110,6 @@ const orderedEvents = events.sort((a, b) => new Date(b.createdAt).getTime() - ne
         >
           אירועים פעילים
         </Text>
-
-        <View className="w-16 h-1 bg-white mt-2 rounded-full" />
 
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <Pressable
@@ -122,47 +127,77 @@ const orderedEvents = events.sort((a, b) => new Date(b.createdAt).getTime() - ne
             לא נמצאו אירועים פעילים
           </Text>
         ) : (
-          orderedEvents.map((event) => (
-            <View
-              key={event.id}
-              className="bg-blue-50 border border-blue-300 rounded-xl shadow-sm mb-4 p-4"
-            >
-              <Text className="text-xl font-bold text-blue-800 mb-2 text-right">
-                {event.anamnesis}
-              </Text>
-              <Text className="text-base text-gray-700 mb-4 text-right">
-                {event.street + " " + event.house_number}
-              </Text>
+          orderedEvents.map((event) => {
+            const volunteers = Object.values(event.volunteers ?? {});
+            const joinedToEvent = volunteers.filter(
+              (vol) => vol.joinedAt && !vol.arrivedAt
+            ).length;
+            const arrivedToEvent = volunteers.filter(
+              (vol) => vol.arrivedAt
+            ).length;
 
-              <View className="flex-row justify-between">
-                <Pressable
-                  className="bg-blue-600 px-4 py-2 rounded-lg"
-                  onPress={() =>
-                    router.push({
-                      pathname: "/detailedEvent/[id]",
-                      params: { id: event.id },
-                    })
-                  }
-                >
-                  <Text className="text-white font-semibold">פרטים נוספים</Text>
-                </Pressable>
-
-                <Pressable
-                  className={`px-4 py-2 rounded-lg ${
-                    event.isActive ? "bg-red-600" : "bg-gray-400 opacity-50"
-                  }`}
-                  disabled={!event.isActive}
-                  onPress={() => {
-                    receiveEvent(event);
-                  }}
-                >
-                  <Text className="text-white font-semibold">
-                    {event.isActive ? "קבל אירוע" : "אירוע בוטל"}{" "}
+            return (
+              <View
+                key={event.id}
+                className="bg-blue-50 border border-blue-300 rounded-xl shadow-sm mb-4 p-4"
+              >
+                <View className="flex flex-row justify-between ">
+                  <View className=" flex flex-col gap-1">
+                    <Text className="text-sm text-red-500 font-bold">
+                      חובשים בדרך: {joinedToEvent}
+                    </Text>
+                    <Text className="text-sm text-red-500 font-bold">
+                      חובשים באירוע: {arrivedToEvent}
+                    </Text>
+                  </View>
+                  <Text className="text-xl font-bold text-blue-800 mb-2 text-right">
+                    {event.medical_code}
                   </Text>
-                </Pressable>
+                </View>
+                <Text className="text-base text-gray-700 mb-4 text-right">
+                  {event.street + " " + event.house_number}
+                </Text>
+
+                <View className="flex-row justify-between">
+                  <Pressable
+                    className="bg-blue-600 px-4 py-2 rounded-lg"
+                    onPress={() =>
+                      router.push({
+                        pathname: "/detailedEvent/[id]",
+                        params: { id: event.id },
+                      })
+                    }
+                  >
+                    <Text className="text-white font-semibold">
+                      פרטים נוספים
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    className={`px-4 py-2 rounded-lg ${
+                      event.summaryReportFiller
+                        ? "bg-gray-400 opacity-50"
+                        : event.isActive
+                        ? "bg-red-600"
+                        : "bg-gray-400 opacity-50"
+                    }`}
+                    disabled={!event.isActive || eventEnds(event)}
+                    onPress={() => {
+                      receiveEvent(event);
+                    }}
+                  >
+                    <Text className="text-white font-semibold">
+                      {eventEnds(event)
+                        ? "אירוע בסיום"
+                        : event.isActive
+                        ? "קבל אירוע"
+                        : "אירוע בוטל"}{" "}
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
-            </View>
-          ))
+            );
+          })
         )}
       </ScrollView>
     </View>

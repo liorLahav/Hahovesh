@@ -21,12 +21,17 @@ import { updateFinishedEventsCount } from "@/services/globalStatsService";
 export default function OperationEvent() {
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [otherText, setOtherText] = useState<string>("");
-  const { user,setIsAvailable } = useUserContext();
-  const { event, changeActiveStatus,refreshEvent } = useEventContext();
-  const { id: eventId, anamnesis: eventTitle } = event;
+  const { user, setIsAvailable } = useUserContext();
+  const { event, changeActiveStatus, refreshEvent } = useEventContext();
+  const { id: eventId, medical_code: eventTitle } = event;
   const [isFirstVolunteer, setIsFirstVolunteer] = useState(false);
 
-  const options = ["קריאה לחובש נוסף", "קריאה לאמבולנס","קריאה לאמבולנס חירום", "אחר"];
+  const options = [
+    "קריאה לחובש נוסף",
+    "קריאה לאמבולנס",
+    "קריאה לאמבולנס חירום",
+    "אחר",
+  ];
 
   const handleSend = async () => {
     if (!selectedOption) {
@@ -37,7 +42,7 @@ export default function OperationEvent() {
       const description = `לאירוע -  ${eventTitle} צריך : ${
         selectedOption === "אחר" ? otherText : selectedOption.slice(7)
       }`;
-      await sendMessageToDB(description, "All", user.id,true);
+      await sendMessageToDB(description, "All", user.id, true);
       Alert.alert("הבקשה נשלחה");
       setSelectedOption("");
       setOtherText("");
@@ -47,19 +52,18 @@ export default function OperationEvent() {
     }
   };
 
-
   const handleEnd = async () => {
     refreshEvent();
     const fetchedEvent = await fetchEvent(eventId);
-    if (!fetchedEvent || !fetchedEvent.volunteers ) {
+    if (!fetchedEvent || !fetchedEvent.volunteers) {
       Alert.alert("אין מתנדבים לאירוע");
       return;
     }
     const volunteersArr = fetchedEvent?.volunteers
-    ? Object.values(fetchedEvent.volunteers).sort(
-        (a, b) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0)
-      )
-    : [];
+      ? Object.values(fetchedEvent.volunteers).sort(
+          (a, b) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0)
+        )
+      : [];
     changeActiveStatus(false);
     if (volunteersArr[0]?.volunteerId === user.id) {
       updateStartEndEvent(user.id, eventId);
@@ -68,7 +72,7 @@ export default function OperationEvent() {
       Alert.alert("האירוע נגמר", "תודה על העזרה! , חזרה למסך בית");
       changeActiveStatus(false);
       updateUserStatus(user.id, "available");
-      updateFinishedEventsCount(user.id,false);
+      updateFinishedEventsCount(user.id, false);
       setIsAvailable(true);
       router.replace("/home");
     }
@@ -76,11 +80,16 @@ export default function OperationEvent() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center">
-        <Text className="text-3xl font-bold text-white tracking-wide">
-          {eventTitle}
-        </Text>
-        <View className="w-16 h-1 bg-white mt-2 rounded-full" />
+      {/* Top red line */}
+      <View className="w-full h-1 bg-red-500 rounded-t-xl" />
+
+      {/* Header */}
+      <View className="bg-blue-50 border-b border-blue-300 py-4 px-4 rounded-b-2xl shadow-sm">
+        <View className="flex-row items-center justify-center mb-2">
+          <Text className="text-2xl font-bold text-blue-700">
+            {event?.medical_code}
+          </Text>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>

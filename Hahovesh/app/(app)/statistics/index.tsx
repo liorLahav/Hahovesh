@@ -4,7 +4,7 @@ import MainVolunteerStats from './volStatsScreen';
 
 export default function StatisticsScreen() {
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1 ">
       <MainVolunteerStats />
     </SafeAreaView>
   );
