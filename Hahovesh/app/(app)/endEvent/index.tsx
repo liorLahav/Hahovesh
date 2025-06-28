@@ -29,10 +29,9 @@ export default function EventSummaryScreen() {
       medical_code: event.medical_code ?? '',
       receiver: event.recipient ?? '',
       event_location: event.location_type ?? '',
-      event_date: event.createdAt
-        ? new Date(event.createdAt).getTime().toString()
-        : '',
-        volenteer_id: user.id,
+      event_date: event.createdAt ? new Date(event.createdAt).getTime().toString() : '',
+      summary: event.anamnesis ?? '',
+      volenteer_id: user.id,
     };
 
     setInitialValues(mappedValues);
