@@ -116,6 +116,7 @@ export default function MessagesForm() {
                   placeholder="בחר תפקיד"
                   style={{ height: 50 }}
                   dropDownContainerStyle={{ zIndex: 1000 }}
+                  textStyle={{ textAlign: "right" }}
                   zIndex={1000}
                   onChangeValue={(val) => {
                     setForm({ ...form, distribution_by_role: val ?? "" });
