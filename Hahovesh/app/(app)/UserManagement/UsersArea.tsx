@@ -68,8 +68,8 @@ const UsersArea = (props: UsersAreaProps) => {
       : props.users.filter((user) => {
           const userQuery = searchQuery.toLowerCase();
           return (
-            user.first_name?.includes(userQuery) ||
-            user.last_name?.includes(userQuery) ||
+            user.first_name?.toLowerCase().includes(userQuery) ||
+            user.last_name?.toLowerCase().includes(userQuery) ||
             user.id?.includes(userQuery) ||
             user.phone?.includes(userQuery)
           );
