@@ -22,7 +22,7 @@ const UsersArea = (props: UsersAreaProps) => {
   const [expanded, setExpanded] = useState(true); // Start expanded by default
   const [contentHeight, setContentHeight] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const maxHeightAnim = useRef(new Animated.Value(2000)).current; // Start with a large value
+  const maxHeightAnim = useRef(new Animated.Value(2000)).current; // Start with a large value.
   const opacityAnim = useRef(new Animated.Value(1)).current; // For content fade effect
 
   // Get content height on layout
