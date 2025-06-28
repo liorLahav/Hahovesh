@@ -1,58 +1,82 @@
 // app/(app)/statistics/volStatsScreen.tsx
 
 import React, { useState, useCallback, useEffect } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 
 import DateRangePicker from "./dateRangeSelector";
-import VolunteerPicker  from "./volSelector";
-import VolunteerCard    from "./volCard";
+import VolunteerPicker from "./volSelector";
+import VolunteerCard from "./volCard";
 import { triggerStatisticsUpdate } from "./volStatsUpdater";
-import { StatsPeriod, VolunteerStats } from "../../../services/volunteerAnalyticsService";
-import { getTotalEvents, getTransportCounts, getReceiverCounts, getAddressCounts, getNoReportCount, getCountsByWeekday, getCountsByHour, getCountsByMonth, getCountsByYear, getActiveVolunteersCount } from "../../../services/globalStatsService";
+import {
+  StatsPeriod,
+  VolunteerStats,
+} from "../../../services/volunteerAnalyticsService";
+import {
+  getTotalEvents,
+  getTransportCounts,
+  getReceiverCounts,
+  getAddressCounts,
+  getNoReportCount,
+  getCountsByWeekday,
+  getCountsByHour,
+  getCountsByMonth,
+  getCountsByYear,
+  getActiveVolunteersCount,
+} from "../../../services/globalStatsService";
 import { fetchVolunteerStatsByName } from "../../../services/volunteerAnalyticsService";
+import StatsHeader from "./StatsHeader";
+import { StatusBar } from "expo-status-bar";
 
 export default function MainVolunteerStats() {
   // — filter & picker state
   const [period, setPeriod] = useState<StatsPeriod>("all");
   const [startDate, setStartDate] = useState<Date>();
-  const [endDate,   setEndDate]   = useState<Date>();
-  const [selectedVolunteerName, setSelectedVolunteerName] =
-    useState<string | null>(null);
+  const [endDate, setEndDate] = useState<Date>();
+  const [selectedVolunteerName, setSelectedVolunteerName] = useState<
+    string | null
+  >(null);
 
   // — global overview state
   const [globalLoading, setGlobalLoading] = useState(false);
-  const [globalError,   setGlobalError]   = useState<string | null>(null);
-  const [totalEvents,   setTotalEvents]   = useState(0);
-  const [activeVolunteersCount, setActiveVolunteersCount] =
-    useState(0);
-  const [transportBreakdown, setTransportBreakdown] =
-    useState<Record<string, number>>({});
-  const [receiverBreakdown, setReceiverBreakdown] =
-    useState<Record<string, number>>({});
-  const [addressBreakdown, setAddressBreakdown] =
-    useState<Record<string, number>>({});
-  const [noReportCount, setNoReportCount] =
-    useState(0);
-  const [countsByWeekday, setCountsByWeekday] =
-    useState<Record<string, number>>({});
-  const [countsByHour, setCountsByHour] =
-    useState<Record<number, number>>({});
-  const [countsByMonth, setCountsByMonth] =
-    useState<Record<string, number>>({});
-  const [countsByYear, setCountsByYear] =
-    useState<Record<number, number>>({});
+  const [globalError, setGlobalError] = useState<string | null>(null);
+  const [totalEvents, setTotalEvents] = useState(0);
+  const [activeVolunteersCount, setActiveVolunteersCount] = useState(0);
+  const [transportBreakdown, setTransportBreakdown] = useState<
+    Record<string, number>
+  >({});
+  const [receiverBreakdown, setReceiverBreakdown] = useState<
+    Record<string, number>
+  >({});
+  const [addressBreakdown, setAddressBreakdown] = useState<
+    Record<string, number>
+  >({});
+  const [noReportCount, setNoReportCount] = useState(0);
+  const [countsByWeekday, setCountsByWeekday] = useState<
+    Record<string, number>
+  >({});
+  const [countsByHour, setCountsByHour] = useState<Record<number, number>>({});
+  const [countsByMonth, setCountsByMonth] = useState<Record<string, number>>(
+    {}
+  );
+  const [countsByYear, setCountsByYear] = useState<Record<number, number>>({});
   const [showWeekday, setShowWeekday] = useState(false);
-  const [showHour,    setShowHour]    = useState(false);
-  const [showMonth,   setShowMonth]   = useState(false);
-  const [showYear,    setShowYear]    = useState(false);
+  const [showHour, setShowHour] = useState(false);
+  const [showMonth, setShowMonth] = useState(false);
+  const [showYear, setShowYear] = useState(false);
 
   // — per‐volunteer state
   const [volLoading, setVolLoading] = useState(false);
-  const [volError,   setVolError]   = useState<string | null>(null);
-  const [volStats,   setVolStats]   = useState<VolunteerStats[]>([]);
+  const [volError, setVolError] = useState<string | null>(null);
+  const [volStats, setVolStats] = useState<VolunteerStats[]>([]);
 
   // blocks initial render until update+fetch complete
   const [initializing, setInitializing] = useState(true);
@@ -63,9 +87,14 @@ export default function MainVolunteerStats() {
     setGlobalError(null);
     try {
       const [
-        totalRes, transRes, recvRes,
+        totalRes,
+        transRes,
+        recvRes,
         noRepRes,
-        byWeekday, byHour, byMonth, byYear
+        byWeekday,
+        byHour,
+        byMonth,
+        byYear,
       ] = await Promise.all([
         getTotalEvents(period, startDate, endDate),
         getTransportCounts(period, startDate, endDate),
@@ -91,7 +120,7 @@ export default function MainVolunteerStats() {
       setCountsByMonth(byMonth);
       setCountsByYear(byYear);
     } catch (e) {
-      setGlobalError(e instanceof Error ? e.message : 'שגיאה כללית');
+      setGlobalError(e instanceof Error ? e.message : "שגיאה כללית");
       setTotalEvents(0);
       setTransportBreakdown({});
       setReceiverBreakdown({});
@@ -119,7 +148,7 @@ export default function MainVolunteerStats() {
       const stats = await fetchVolunteerStatsByName(selectedVolunteerName);
       setVolStats(stats);
     } catch (e) {
-      setVolError(e instanceof Error ? e.message : 'שגיאה בטעינת מתנדב');
+      setVolError(e instanceof Error ? e.message : "שגיאה בטעינת מתנדב");
       setVolStats([]);
     } finally {
       setVolLoading(false);
@@ -131,7 +160,7 @@ export default function MainVolunteerStats() {
     useCallback(() => {
       (async () => {
         setInitializing(true);
-        await triggerStatisticsUpdate(); 
+        await triggerStatisticsUpdate();
         await fetchGlobalStats();
         await fetchVolStats();
         setInitializing(false);
@@ -167,215 +196,281 @@ export default function MainVolunteerStats() {
     content: React.ReactNode
   ) => (
     <View className="bg-white rounded-lg p-4 mb-4 shadow-md">
-      <Pressable onPress={toggle} className="flex-row-reverse items-center justify-between">
-        <Text className="text-lg font-bold text-blue-800 text-right">{title}</Text>
-        <Ionicons name={open ? "chevron-up" : "chevron-down"} size={24} color="#1d4ed8" />
+      <Pressable
+        onPress={toggle}
+        className="flex-row-reverse items-center justify-between"
+      >
+        <Text className="text-lg font-bold text-blue-800 text-right">
+          {title}
+        </Text>
+        <Ionicons
+          name={open ? "chevron-up" : "chevron-down"}
+          size={24}
+          color="#1d4ed8"
+        />
       </Pressable>
       {open && <View className="mt-2">{content}</View>}
     </View>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-100">
-      {/* Header */}
-      <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
-        <Text className="text-3xl text-white font-bold tracking-wide">סטטיסטיקות</Text>
-        <View className="w-16 h-1 bg-white mt-2 rounded-full" />
-      </View>
+    <>
+      <StatusBar backgroundColor="black" style="dark" />
 
-      {/* Date Range Picker */}
-      <DateRangePicker
-        period={period}
-        setPeriod={setPeriod}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-      />
+      <View className="flex-1 bg-blue-100">
+        <StatsHeader />
 
-      <ScrollView className="flex-1 p-4">
-        {/* Core Overview */}
-        <View className="bg-white rounded-lg p-5 mb-6 shadow-md">
-          <Text className="text-lg font-bold text-blue-800 mb-4 text-right">סקירה כללית</Text>
-          {globalLoading ? (
-            <View className="items-center justify-center py-6">
-              <ActivityIndicator size="small" color="#1d4ed8" />
-              <Text className="mt-3 text-gray-600 text-right">טוען…</Text>
-            </View>
-          ) : globalError ? (
-            <View className="bg-red-50 p-3 rounded-md border border-red-200">
-              <Text className="text-red-600 text-right">{globalError}</Text>
-            </View>
-          ) : (
-            <>
-              {/* total events */}
-              <View className="flex-row-reverse items-center justify-between mb-4">
-                <Text className="text-gray-700 text-base">סה״כ אירועים:</Text>
-                <Text className="text-2xl font-semibold text-gray-800">{totalEvents}</Text>
+        {/* Date Range Picker */}
+        <DateRangePicker
+          period={period}
+          setPeriod={setPeriod}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
+
+        <ScrollView className="flex-1 p-4">
+          {/* Core Overview */}
+          <View className="bg-white rounded-lg p-5 mb-6 shadow-md">
+            <Text className="text-lg font-bold text-blue-800 mb-4 text-right">
+              סקירה כללית
+            </Text>
+            {globalLoading ? (
+              <View className="items-center justify-center py-6">
+                <ActivityIndicator size="small" color="#1d4ed8" />
+                <Text className="mt-3 text-gray-600 text-right">טוען…</Text>
               </View>
+            ) : globalError ? (
+              <View className="bg-red-50 p-3 rounded-md border border-red-200">
+                <Text className="text-red-600 text-right">{globalError}</Text>
+              </View>
+            ) : (
+              <>
+                {/* total events */}
+                <View className="flex-row-reverse items-center justify-between mb-4">
+                  <Text className="text-gray-700 text-base">סה״כ אירועים:</Text>
+                  <Text className="text-2xl font-semibold text-gray-800">
+                    {totalEvents}
+                  </Text>
+                </View>
 
-              {/* active volunteers */}
-              <View className="flex-row-reverse items-center justify-between mb-5">
-                <Text className="text-gray-700 text-base">מתנדבים פעילים:</Text>
-                <Text className="text-2xl font-semibold text-gray-800">
-                  {activeVolunteersCount}
+                {/* active volunteers */}
+                <View className="flex-row-reverse items-center justify-between mb-5">
+                  <Text className="text-gray-700 text-base">
+                    מתנדבים פעילים:
+                  </Text>
+                  <Text className="text-2xl font-semibold text-gray-800">
+                    {activeVolunteersCount}
+                  </Text>
+                </View>
+
+                <View className="border-t border-gray-200 my-4" />
+
+                {/* transport breakdown */}
+                <Text className="text-gray-700 mb-2 text-right font-medium">
+                  אמצעי פינוי:
                 </Text>
-              </View>
+                {Object.entries(transportBreakdown).length > 0 ? (
+                  Object.entries(transportBreakdown)
+                    .sort(([, a], [, b]) => b - a)
+                    .map(([t, c]) => (
+                      <View
+                        key={t}
+                        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+                      >
+                        <Text className="text-gray-800 text-sm flex-1 text-right">
+                          {t}
+                        </Text>
+                        <Text className="text-blue-600 font-medium">{c}</Text>
+                      </View>
+                    ))
+                ) : (
+                  <Text className="text-gray-500 text-sm text-right">
+                    אין נתונים.
+                  </Text>
+                )}
 
-              <View className="border-t border-gray-200 my-4" />
+                <View className="border-t border-gray-200 my-4" />
 
-              {/* transport breakdown */}
-              <Text className="text-gray-700 mb-2 text-right font-medium">אמצעי פינוי:</Text>
-              {Object.entries(transportBreakdown).length > 0 ? (
-                Object.entries(transportBreakdown)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([t, c]) => (
-                    <View key={t} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
-                      <Text className="text-gray-800 text-sm flex-1 text-right">{t}</Text>
-                      <Text className="text-blue-600 font-medium">{c}</Text>
-                    </View>
-                  ))
-              ) : (
-                <Text className="text-gray-500 text-sm text-right">אין נתונים.</Text>
-              )}
-
-              <View className="border-t border-gray-200 my-4" />
-
-              {/* receiver breakdown */}
-              <Text className="text-gray-700 mb-2 text-right font-medium">מקור הפנייה:</Text>
-              {Object.entries(receiverBreakdown).length > 0 ? (
-                Object.entries(receiverBreakdown)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([r, c]) => (
-                    <View key={r} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
-                      <Text className="text-gray-800 text-sm flex-1 text-right">{r}</Text>
-                      <Text className="text-blue-600 font-medium">{c}</Text>
-                    </View>
-                  ))
-              ) : (
-                <Text className="text-gray-500 text-sm text-right">אין נתונים.</Text>
-              )}
-
-              <View className="border-t border-gray-200 my-4" />
-
-              {/* no-report count */}
-              <View className="flex-row-reverse items-center justify-between mb-5">
-                <Text className="text-gray-700 text-base">דוחות ללא סיכום אירוע:</Text>
-                <Text className="text-red-600 font-medium">{noReportCount}</Text>
-              </View>
-
-              <View className="border-t border-gray-200 my-4" />
-
-              {/* address breakdown */}
-              <Text className="text-gray-700 mb-2 text-right font-medium">חלוקת כתובות:</Text>
-              {Object.entries(addressBreakdown).length > 0 ? (
-                Object.entries(addressBreakdown)
-                  .sort(([, a], [, b]) => b - a)
-                  .slice(0, 10)
-                  .map(([a, c]) => (
-                    <View key={a} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
-                      <Text className="text-gray-800 text-sm flex-1 text-right" numberOfLines={1}>
-                        {a}
-                      </Text>
-                      <Text className="text-blue-600 font-medium">{c}</Text>
-                    </View>
-                  ))
-              ) : (
-                <Text className="text-gray-500 text-sm text-right">אין נתונים.</Text>
-              )}
-              {Object.entries(addressBreakdown).length > 10 && (
-                <Text className="text-gray-400 text-xs text-right mt-2">
-                  ועוד {Object.entries(addressBreakdown).length - 10} כתובות…
+                {/* receiver breakdown */}
+                <Text className="text-gray-700 mb-2 text-right font-medium">
+                  מקור הפנייה:
                 </Text>
-              )}
-            </>
+                {Object.entries(receiverBreakdown).length > 0 ? (
+                  Object.entries(receiverBreakdown)
+                    .sort(([, a], [, b]) => b - a)
+                    .map(([r, c]) => (
+                      <View
+                        key={r}
+                        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+                      >
+                        <Text className="text-gray-800 text-sm flex-1 text-right">
+                          {r}
+                        </Text>
+                        <Text className="text-blue-600 font-medium">{c}</Text>
+                      </View>
+                    ))
+                ) : (
+                  <Text className="text-gray-500 text-sm text-right">
+                    אין נתונים.
+                  </Text>
+                )}
+
+                <View className="border-t border-gray-200 my-4" />
+
+                {/* no-report count */}
+                <View className="flex-row-reverse items-center justify-between mb-5">
+                  <Text className="text-gray-700 text-base">
+                    דוחות ללא סיכום אירוע:
+                  </Text>
+                  <Text className="text-red-600 font-medium">
+                    {noReportCount}
+                  </Text>
+                </View>
+
+                <View className="border-t border-gray-200 my-4" />
+
+                {/* address breakdown */}
+                <Text className="text-gray-700 mb-2 text-right font-medium">
+                  חלוקת כתובות:
+                </Text>
+                {Object.entries(addressBreakdown).length > 0 ? (
+                  Object.entries(addressBreakdown)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 10)
+                    .map(([a, c]) => (
+                      <View
+                        key={a}
+                        className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+                      >
+                        <Text
+                          className="text-gray-800 text-sm flex-1 text-right"
+                          numberOfLines={1}
+                        >
+                          {a}
+                        </Text>
+                        <Text className="text-blue-600 font-medium">{c}</Text>
+                      </View>
+                    ))
+                ) : (
+                  <Text className="text-gray-500 text-sm text-right">
+                    אין נתונים.
+                  </Text>
+                )}
+                {Object.entries(addressBreakdown).length > 10 && (
+                  <Text className="text-gray-400 text-xs text-right mt-2">
+                    ועוד {Object.entries(addressBreakdown).length - 10} כתובות…
+                  </Text>
+                )}
+              </>
+            )}
+          </View>
+
+          {/* breakdown dropdowns */}
+          {renderDropdown(
+            "אירועים לפי יום בשבוע",
+            showWeekday,
+            () => setShowWeekday(!showWeekday),
+            Object.entries(countsByWeekday)
+              .sort(([, a], [, b]) => b - a)
+              .map(([day, cnt]) => (
+                <View
+                  key={day}
+                  className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+                >
+                  <Text className="text-gray-800 text-sm text-right">
+                    {day}
+                  </Text>
+                  <Text className="text-blue-600 font-medium">{cnt}</Text>
+                </View>
+              ))
           )}
-        </View>
 
-        {/* breakdown dropdowns */}
-        {renderDropdown(
-          "אירועים לפי יום בשבוע",
-          showWeekday,
-          () => setShowWeekday(!showWeekday),
-          Object.entries(countsByWeekday)
-            .sort(([, a], [, b]) => b - a)
-            .map(([day, cnt]) => (
-              <View key={day} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
-                <Text className="text-gray-800 text-sm text-right">{day}</Text>
-                <Text className="text-blue-600 font-medium">{cnt}</Text>
-              </View>
-            ))
-        )}
+          {renderDropdown(
+            "אירועים לפי שעה",
+            showHour,
+            () => setShowHour(!showHour),
+            Object.entries(countsByHour)
+              .filter(([, cnt]) => cnt >= 1)
+              .sort(([, a], [, b]) => b - a)
+              .map(([hour, cnt]) => (
+                <View
+                  key={hour}
+                  className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+                >
+                  <Text className="text-gray-800 text-sm text-right">
+                    {hour}:00
+                  </Text>
+                  <Text className="text-blue-600 font-medium">{cnt}</Text>
+                </View>
+              ))
+          )}
 
-        {renderDropdown(
-          "אירועים לפי שעה",
-          showHour,
-          () => setShowHour(!showHour),
-          Object.entries(countsByHour)
-            .filter(([, cnt]) => cnt >= 1)
-            .sort(([, a], [, b]) => b - a)
-            .map(([hour, cnt]) => (
-              <View key={hour} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
-                <Text className="text-gray-800 text-sm text-right">{hour}:00</Text>
-                <Text className="text-blue-600 font-medium">{cnt}</Text>
-              </View>
-            ))
-        )}
+          {renderDropdown(
+            "אירועים לפי חודש",
+            showMonth,
+            () => setShowMonth(!showMonth),
+            Object.entries(countsByMonth)
+              .sort()
+              .map(([m, c]) => (
+                <View
+                  key={m}
+                  className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+                >
+                  <Text className="text-gray-800 text-sm text-right">{m}</Text>
+                  <Text className="text-blue-600 font-medium">{c}</Text>
+                </View>
+              ))
+          )}
 
-        {renderDropdown(
-          "אירועים לפי חודש",
-          showMonth,
-          () => setShowMonth(!showMonth),
-          Object.entries(countsByMonth)
-            .sort()
-            .map(([m, c]) => (
-              <View key={m} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
-                <Text className="text-gray-800 text-sm text-right">{m}</Text>
-                <Text className="text-blue-600 font-medium">{c}</Text>
-              </View>
-            ))
-        )}
-
-        {renderDropdown(
-          "אירועים לפי שנה",
-          showYear,
-          () => setShowYear(!showYear),
-          Object.entries(countsByYear)
-            .map(([y, c]) => (
-              <View key={y} className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded">
+          {renderDropdown(
+            "אירועים לפי שנה",
+            showYear,
+            () => setShowYear(!showYear),
+            Object.entries(countsByYear).map(([y, c]) => (
+              <View
+                key={y}
+                className="flex-row-reverse items-center justify-between mb-2 bg-gray-50 p-2 rounded"
+              >
                 <Text className="text-gray-800 text-sm text-right">{y}</Text>
                 <Text className="text-blue-600 font-medium">{c}</Text>
               </View>
             ))
-        )}
+          )}
 
-        {/* volunteer picker & cards */}
-        <VolunteerPicker
-          selectedVolunteerName={selectedVolunteerName}
-          onSelectVolunteer={setSelectedVolunteerName}
-        />
+          {/* volunteer picker & cards */}
+          <VolunteerPicker
+            selectedVolunteerName={selectedVolunteerName}
+            onSelectVolunteer={setSelectedVolunteerName}
+          />
 
-        {selectedVolunteerName == null ? (
-          <View className="bg-white rounded-lg p-6 shadow-sm items-center justify-center mt-4">
-            <Ionicons name="people" size={60} color="#93c5fd" />
-            <Text className="text-lg font-bold text-blue-800 mt-4 mb-2 text-center">
-             בחר מתנדב להצגת סטטיסטיקה אישית
-            </Text>
-          </View>
-        ) : volLoading ? (
-          <View className="items-center justify-center py-8">
-            <ActivityIndicator size="large" color="#1d4ed8" />
-            <Text className="mt-4 text-blue-800 text-lg text-right">טוען…</Text>
-          </View>
-        ) : volError ? (
-          <View className="bg-red-50 p-4 rounded-lg border border-red-200 items-center my-4">
-            <Text className="text-red-700 text-lg font-bold mb-2 text-right">שגיאה</Text>
-            <Text className="text-red-600 text-right">{volError}</Text>
-          </View>
-        ) : (
-          volStats.map(v => <VolunteerCard key={v.id} volunteer={v} />)
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          {selectedVolunteerName == null ? (
+            <View className="bg-white rounded-lg p-6 shadow-sm items-center justify-center mt-4">
+              <Ionicons name="people" size={60} color="#93c5fd" />
+              <Text className="text-lg font-bold text-blue-800 mt-4 mb-2 text-center">
+                בחר מתנדב להצגת סטטיסטיקה אישית
+              </Text>
+            </View>
+          ) : volLoading ? (
+            <View className="items-center justify-center py-8">
+              <ActivityIndicator size="large" color="#1d4ed8" />
+              <Text className="mt-4 text-blue-800 text-lg text-right">
+                טוען…
+              </Text>
+            </View>
+          ) : volError ? (
+            <View className="bg-red-50 p-4 rounded-lg border border-red-200 items-center my-4">
+              <Text className="text-red-700 text-lg font-bold mb-2 text-right">
+                שגיאה
+              </Text>
+              <Text className="text-red-600 text-right">{volError}</Text>
+            </View>
+          ) : (
+            volStats.map((v) => <VolunteerCard key={v.id} volunteer={v} />)
+          )}
+        </ScrollView>
+      </View>
+    </>
   );
 }

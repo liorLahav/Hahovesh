@@ -71,9 +71,10 @@ export default function MessagesForm() {
       return (
         <TextInput
           placeholder={field.placeholder}
+          placeholderTextColor="#9ca3af"
           value={form[field.key] || ""}
           onChangeText={(val) => setForm({ ...form, [field.key]: val })}
-          multiline
+          multiline={true}
           numberOfLines={6}
           textAlign="right"
           className="border p-3 rounded h-36"

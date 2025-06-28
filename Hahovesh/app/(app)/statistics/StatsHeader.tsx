@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import type { DrawerNavigationProp } from "@react-navigation/drawer";
 import type { ParamListBase } from "@react-navigation/native";
 
-export default function Header() {
+export default function StatsHeader() {
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
 
   return (
@@ -27,7 +27,7 @@ export default function Header() {
 
         {/* התוכן המרכזי */}
         <View className="items-center justify-center">
-          <Text className="text-2xl font-bold text-gray-800">דוחות סיכום</Text>
+          <Text className="text-2xl font-bold text-gray-800">סטטיסטיקות</Text>
           <Text className="text-base text-gray-700">החובש הר נוף</Text>
         </View>
       </View>

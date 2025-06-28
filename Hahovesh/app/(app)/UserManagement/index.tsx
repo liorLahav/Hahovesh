@@ -8,7 +8,8 @@ import UsersArea from "./UsersArea";
 import { DocumentData, doc as firestoreDoc } from "firebase/firestore";
 import { getAllUsers } from "../../../services/users";
 import { Button } from "@/components/Button";
-
+import ManagementHeader from "./ManagementHeader";
+import { StatusBar } from "expo-status-bar";
 const UserManagementScreen = () => {
   const [activeUsers, setactiveUsers] = useState<DocumentData[] | null>(null);
   const [pendingUsers, setpendingUsers] = useState<DocumentData[] | null>(null);
@@ -50,6 +51,8 @@ const UserManagementScreen = () => {
 
   return (
     <>
+      <StatusBar style="dark" />
+
       <ScrollView
         className="flex-1 bg-gray-100 w-full pb-[120px] grow"
         showsVerticalScrollIndicator={true}
@@ -58,24 +61,26 @@ const UserManagementScreen = () => {
         overScrollMode="always"
       >
         <SafeAreaView className="flex-1 p-4">
-          <View className="relative flex-row items-center justify-end">
-            <Text className="absolute inset-x-0 text-2xl font-bold text-center my-5 text-gray-800">
-              ניהול משתמשים
-            </Text>
-            <Pressable
-              onPress={() => navigation.openDrawer()}
-              className="p-2 items-end"
-            >
-              <Ionicons name="menu" size={30} color="black" />
-            </Pressable>
-          </View>
-
-          <Button
+          <ManagementHeader />
+          <Pressable
             onPress={updateDataChange}
-            className="bg-blue-500 text-white p-2 rounded mb-4"
-            label={isLoading ? "טוען..." : "רענן נתונים"}
             disabled={isLoading}
-          />
+            className="bg-blue-500 rounded-lg px-4 py-2 items-center justify-center mb-4 flex-row-reverse"
+          >
+            {isLoading ? (
+              <Text className="text-white font-bold">טוען...</Text>
+            ) : (
+              <View className="flex flex-row items-center">
+                <Ionicons
+                  name="refresh"
+                  size={20}
+                  color="white"
+                  className="mr-2"
+                />
+                <Text className="text-white font-bold">רענן נתונים</Text>
+              </View>
+            )}
+          </Pressable>
 
           {pendingUsers && (
             <UsersArea
