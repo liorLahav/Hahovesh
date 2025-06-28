@@ -1,4 +1,12 @@
-import { View, Text, SafeAreaView, ScrollView, Pressable, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  ScrollView,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useState, useEffect } from "react";
@@ -14,7 +22,6 @@ const UserManagementScreen = () => {
   const [pendingUsers, setpendingUsers] = useState<DocumentData[] | null>(null);
   const [dataChanged, setDataChanged] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [querySeach, setQuerySearch] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -56,6 +63,29 @@ const UserManagementScreen = () => {
         style={{ flex: 1 }}
       >
         <StatusBar style="dark" />
+        <SafeAreaView>
+          <ManagementHeader />
+
+          <Pressable
+            onPress={updateDataChange}
+            disabled={isLoading}
+            className="bg-blue-500 rounded-lg px-4 py-2 items-center justify-center mb-4 flex-row-reverse"
+          >
+            {isLoading ? (
+              <Text className="text-white font-bold">טוען...</Text>
+            ) : (
+              <View className="flex flex-row items-center">
+                <Ionicons
+                  name="refresh"
+                  size={20}
+                  color="white"
+                  className="mr-2"
+                />
+                <Text className="text-white font-bold">רענן נתונים</Text>
+              </View>
+            )}
+          </Pressable>
+        </SafeAreaView>
 
         <ScrollView
           className="flex-1 bg-gray-100 w-full pb-[120px] grow"
@@ -65,27 +95,6 @@ const UserManagementScreen = () => {
           overScrollMode="always"
         >
           <SafeAreaView className="flex-1 p-4">
-            <ManagementHeader />
-            <Pressable
-              onPress={updateDataChange}
-              disabled={isLoading}
-              className="bg-blue-500 rounded-lg px-4 py-2 items-center justify-center mb-4 flex-row-reverse"
-            >
-              {isLoading ? (
-                <Text className="text-white font-bold">טוען...</Text>
-              ) : (
-                <View className="flex flex-row items-center">
-                  <Ionicons
-                    name="refresh"
-                    size={20}
-                    color="white"
-                    className="mr-2"
-                  />
-                  <Text className="text-white font-bold">רענן נתונים</Text>
-                </View>
-              )}
-            </Pressable>
-
             {pendingUsers && (
               <UsersArea
                 type="ממתינים לאישור"
