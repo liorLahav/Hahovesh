@@ -24,8 +24,7 @@ export default function EventSummaryScreen() {
     const mappedValues: Record<string, string> = {
       name: event.patient_name ?? '',
       gender: event.patient_sex ?? '',
-      address: event.apartment_details ?? '',
-      event_address: event.street ?? '',
+      event_address: [event.street, event.house_number].filter(Boolean).join(' ') || '',
       medical_code: event.medical_code ?? '',
       receiver: event.recipient ?? '',
       event_location: event.location_type ?? '',
