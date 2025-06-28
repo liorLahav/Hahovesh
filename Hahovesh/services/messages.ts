@@ -2,6 +2,10 @@ import { ref, push, set, onValue, remove, update } from "firebase/database";
 import { realtimeDb } from "@/FirebaseConfig";
 import { useUserContext } from "@/hooks/UserContext";
 
+const hasRole = (roles: string[], role: string): boolean => {
+  return roles.includes(role);
+}
+
 export type Message = {
   message_id: string;
   message_description: string;
@@ -19,10 +23,6 @@ export const sendMessageToDB = async (
   urgency?: boolean
 ) => {
 
-  if (distribution_by_role !== "All" ) {
-    throw new Error(
-      "הפצת הודעות אפשרית רק לכל המשתמשים, לא ניתן לשלוח הודעה למשתמשים ספציפיים" )
-  }
   const now = new Date();
   const date = now.toLocaleDateString("he-IL");
   const time = now.toLocaleTimeString("he-IL", {
@@ -70,7 +70,7 @@ export const subscribeToMessages = (
             const sorted = [...messages].sort((a, b) => {
               const aDate = new Date(`${a.date} ${a.time}`);
               const bDate = new Date(`${b.date} ${b.time}`);
-              return aDate.getTime() - bDate.getTime(); // ישנות קודם
+              return - aDate.getTime() + bDate.getTime(); // ישנות קודם
             });
 
             const messagesToDelete = sorted.slice(0, messages.length - 30);
@@ -131,15 +131,15 @@ export const deleteAllMessages = async () => {
 export const markMessagesAsRead = async (
   userId: string,
   messages: Message[],
+  roles: string[] = []
 ) => {
-  const {userHasRoles} = useUserContext();
+  console.log("markMessagesAsRead called with userId:",roles);
   const updates: Record<string, any> = {};
+
 
   messages.forEach((msg) => {
     const shouldSee =
-      msg.distribution_by_role === "All" ||
-      userHasRoles(msg.distribution_by_role);
-
+      msg.distribution_by_role === "All" || hasRole(roles, msg.distribution_by_role);;
     if (shouldSee && !msg.read_by?.[userId]) {
       updates[`messages/${msg.message_id}/read_by/${userId}`] = true;
     }
