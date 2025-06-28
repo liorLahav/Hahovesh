@@ -43,7 +43,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-notifications",
       {
-        sounds: ["./assets/notifications/events.wav"]
+        sounds: ["./assets/notifications/events.wav","./assets/notifications/urgent.wav"]
       }
     ],
   ],

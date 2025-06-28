@@ -66,19 +66,25 @@ export const usePushNotifications = (): PushNotificationState => {
             importance:   Notifications.AndroidImportance.MAX,
             vibrationPattern: [0,250,250,250,250,250,250,250,250],
             sound: 'events', // matches raw/events.wav
-        });    
+        });
+        await Notifications.setNotificationChannelAsync('urgent', {
+            name: 'urgent',
+            importance:   Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0,250,250,250,250,250,250,250,250],
+            sound: 'urgent',
+        });      
       
       await Notifications.scheduleNotificationAsync({
         content: {
           title: '🔔 Test Sound',
           body:  'Should play events.wav',
-          sound: 'events',   // your custom sound
+          sound: 'urgent',   // your custom sound
           // channelId: 'default'  <-- remove from here
         },
         trigger: {
           seconds: 5,
-          repeats: false,
-          channelId: 'messages',  // ← put it here instead
+          repeats: true,
+          channelId: 'urgent',  // ← put it here instead
         },
     }).finally(() => {
       console.log('Test notification scheduled');   

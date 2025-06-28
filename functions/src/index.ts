@@ -1,6 +1,7 @@
 import * as admin from "firebase-admin";
 import { onValueCreated } from "firebase-functions/v2/database";
 import { Expo, ExpoPushMessage } from "expo-server-sdk";
+import { onCall } from "firebase-functions/https";
 
 admin.initializeApp();
 const expo = new Expo();
@@ -30,8 +31,7 @@ export const onNewMessage = onValueCreated({
 
     // Check if volunteer can receive this message
     const canReceive =
-      messageData.distribution_by_role === "All" ||
-      doc.get("permissions").includes(messageData.distribution_by_role);
+      (messageData.distribution_by_role === "All" || doc.get("permissions").includes(messageData.distribution_by_role)) && doc.get("status") === "available";
 
     if (canReceive) {
       if (Expo.isExpoPushToken(token)) {
@@ -45,9 +45,9 @@ export const onNewMessage = onValueCreated({
   // 1) Send notifications to Expo tokens
   const expoMessages: ExpoPushMessage[] = expoTokens.map(to => ({
     to,
-    sound: "default",
     title,
     body,
+    channelId: messageData.urgency === true ? 'urgent' : 'default'
   }));
 
   try {
@@ -66,12 +66,13 @@ export const onNewMessage = onValueCreated({
     notification: { title, body },
     android: {
       notification: {
-        sound: "default",
+        channelId: messageData.urgency === true ? 'urgent' : 'default',
+        sound: messageData.urgency === true ? 'urgent' : 'default',
       },
     },
     apns: {
       payload: {
-        aps: { sound: "default" },
+        aps: { sound: messageData.urgency === true ? 'urgent' : 'default' },
       },
     },
   }));
