@@ -105,7 +105,7 @@ export default function ActiveEvents() {
     <View className="flex-1 bg-white">
       <View className="bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center">
         <Text
-          className="text-3xl text-white tracking-wide"
+          className="text-2xl text-white tracking-wide"
           style={{ fontFamily: "Assistant-Bold" }}
         >
           אירועים פעילים

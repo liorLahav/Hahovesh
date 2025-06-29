@@ -110,7 +110,7 @@ const deviceTokens: string[] = [];
 volunteersSnap.forEach(doc => {
   const token = doc.get("expoPushToken");
   if (typeof token !== 'string') return;
-  if (doc.get("status") !== "available"){
+  if (doc.get("status") === "available"){
     if (Expo.isExpoPushToken(token)) {
       expoTokens.push(token);
     } else {
