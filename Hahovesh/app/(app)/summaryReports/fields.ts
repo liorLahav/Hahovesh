@@ -31,7 +31,6 @@ export const FIELD_LABELS: Record<string, string> = {
   requireRefusalForm: 'דרוש טופס סירוב',
   extra_medics: 'חובשים נוספים',
   additional_notes: 'הערות נוספות',
-  eventId: 'מספר אירוע',
 };
 
 
@@ -40,7 +39,6 @@ export const READ_ONLY_KEYS = [
   'departure_time',
   'arrival_time',
   'end_time',
-  'eventId',
 ] as const;
 
 export const ORDERED_KEYS = Object.keys(FIELD_LABELS);

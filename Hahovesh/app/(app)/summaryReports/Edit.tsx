@@ -86,6 +86,12 @@ export default function EditSummaryForm() {
     [id]
   );
 
+   const editableSchema = formSchema_eventSummary.filter(
+    (f) => !READ_ONLY_KEYS.includes(f.key as (typeof READ_ONLY_KEYS)[number]),
+  );
+
+
+
   if (loading || !initialValues) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center bg-white">
@@ -99,7 +105,7 @@ export default function EditSummaryForm() {
       <EditHeader />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
         <DynamicForm
-          schema={formSchema_eventSummary}
+          schema={editableSchema}
           initialValues={initialValues}
           onSubmit={onSubmit}
           submitLabel="שמור שינויים"
