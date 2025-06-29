@@ -28,7 +28,7 @@ export default function EventSummaryScreen() {
       medical_code: event.medical_code ?? '',
       receiver: event.recipient ?? '',
       event_location: event.location_type ?? '',
-      event_date: event.createdAt ? new Date(event.createdAt).getTime().toString() : '',
+      event_date: event.createdAt ? new Date(event.createdAt).toLocaleDateString('he-IL') : '',
       summary: event.anamnesis ?? '',
       volenteer_id: user.id,
     };
