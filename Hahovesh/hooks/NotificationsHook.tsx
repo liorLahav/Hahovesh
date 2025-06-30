@@ -73,22 +73,6 @@ export const usePushNotifications = (): PushNotificationState => {
             vibrationPattern: [0,250,250,250,250,250,250,250,250],
             sound: 'urgent',
         });      
-      
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: '🔔 Test Sound',
-          body:  'Should play events.wav',
-          sound: 'urgent',   // your custom sound
-          // channelId: 'default'  <-- remove from here
-        },
-        trigger: {
-          seconds: 5,
-          repeats: true,
-          channelId: 'urgent',  // ← put it here instead
-        },
-    }).finally(() => {
-      console.log('Test notification scheduled');   
-    });
     })();
 
     notificationsListener.current = Notifications.addNotificationReceivedListener(n => {

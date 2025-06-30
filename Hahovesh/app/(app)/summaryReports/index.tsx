@@ -107,7 +107,7 @@ export default function SummaryReportsScreen() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               clearButtonMode="while-editing"
-              className="border border-gray-300 rounded-md px-4 py-2 mb-2 text-right bg-white mt-3"
+              className="border border-gray-300 rounded-md px-4 py-3 mb-2 text-right bg-white mt-3"
             />
           </View>
         }

@@ -2,11 +2,13 @@ import { View, Text } from "react-native";
 import EventDetail from "@/components/EventDetail";
 import { Event } from "@/services/events";
 
+
 type Props = {
   event: Event;
 };
 
 const JoinedAndArrivedCard = (props: Props) => {
+  
   const volunteers = Object.values(props.event.volunteers ?? {});
   const joinedToEvent = volunteers.filter(
     (vol) => vol.joinedAt && !vol.arrivedAt
@@ -23,7 +25,7 @@ const JoinedAndArrivedCard = (props: Props) => {
                   חובשים בדרך
                 </Text>
                 <Text className="text-3xl text-blue-500 font-bold">
-                  {joinedToEvent}
+                  {joinedToEvent == 0 ? "1" : joinedToEvent}
                 </Text>
               </View>
             </View>

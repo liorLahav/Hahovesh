@@ -52,7 +52,7 @@ const PermissionsPanel = (props: permissionsPanelProps) => {
         disabled={isUpdating}
       >
         <Text
-          className={`text-xs ${
+          className={`text-[9px] ${
             isSelected ? "text-blue-500 font-bold" : "text-gray-600 font-normal"
           }`}
         >
