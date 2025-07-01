@@ -7,7 +7,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "Hahovesh",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/images/icon.png",
+  icon: "./assets/images/logo.png",
   scheme: "myapp",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
@@ -19,7 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: "org.hahovesh.volunteerApp",
     googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
     adaptiveIcon: {
-      foregroundImage: "./assets/images/adaptive-icon.png",
+      foregroundImage: "./assets/images/logo.png",
       backgroundColor: "#ffffff"
     }
   },
@@ -33,7 +33,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-splash-screen",
       {
-        image: "./assets/images/splash-icon.png",
+        image: "./assets/images/logo.png",
         imageWidth: 200,
         resizeMode: "contain",
         backgroundColor: "#ffffff"

@@ -12,13 +12,21 @@
       "distribution": "internal"
     },
     "production": {
-    "autoIncrement": true,
-    "env": {
-      "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON"
-    },
-    "android": {
-      "buildType": "apk",
-      "gradleCommand": ":app:assembleRelease"
+      "autoIncrement": true,
+      "env": {
+        "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON",
+        "FIREBASE_API_KEY": "AIzaSyAwFn5-CkW1rK3hukWdEWJ0EMom08e4Kpw",
+        "FIREBASE_AUTH_DOMAIN": "hahovesh-project.firebaseapp.com",
+        "FIREBASE_PROJECT_ID": "hahovesh-project",
+        "FIREBASE_STORAGE_BUCKET": "hahovesh-project.appspot.com",
+        "FIREBASE_MESSAGING_SENDER_ID": "259653569192",
+        "FIREBASE_APP_ID": "1:259653569192:web:d8640079b0c50a828d109d",
+        "FIREBASE_MEASUREMENT_ID": "G-ZMB4E0BNNJ",
+        "FIREBASE_DATABASE_URL": "https://hahovesh-project-default-rtdb.europe-west1.firebasedatabase.app"
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
       }
     }
   },
