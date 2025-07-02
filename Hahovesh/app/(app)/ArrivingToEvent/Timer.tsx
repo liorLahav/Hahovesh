@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, Alert } from "react-native";
+import { View, Text } from "react-native";
+import tw from "twrnc";
 
 type TimerProps = {
   time: string | number;
@@ -14,71 +15,55 @@ const Timer = (props: TimerProps) => {
     if (typeof timeInput === "number" && !isNaN(timeInput)) {
       return timeInput;
     } else if (typeof timeInput === "string") {
-      // Try to parse as ISO date string
       const dateObj = new Date(timeInput);
       if (!isNaN(dateObj.getTime())) {
         return dateObj.getTime();
       }
     }
-    // Return current time as fallback
-    return new Date().getTime();
+    // Fallback to now
+    return Date.now();
   };
 
-  // Initialize the event timestamp when the component mounts or time prop changes
+  // Initialize timestamp on mount or when time prop changes
   useEffect(() => {
     try {
       eventTimestampRef.current = getTimestamp(props.time);
-
-      // Calculate initial elapsed time
       updateElapsedTime();
     } catch (error) {
       console.error("Error setting event timestamp:", error);
-      eventTimestampRef.current = new Date().getTime();
+      eventTimestampRef.current = Date.now();
     }
   }, [props.time]);
 
-  // Update elapsed time function
+  // Update elapsed time
   const updateElapsedTime = () => {
-    const currentTime = new Date().getTime();
-    const elapsedSeconds = Math.floor(
-      (currentTime - eventTimestampRef.current) / 1000
-    );
-    setElapsedTime(elapsedSeconds > 0 ? elapsedSeconds : 0);
+    const now = Date.now();
+    const seconds = Math.floor((now - eventTimestampRef.current) / 1000);
+    setElapsedTime(seconds > 0 ? seconds : 0);
   };
 
-  // Set up interval to update elapsed time
+  // Start interval to update every second
   useEffect(() => {
-    // Update immediately first
     updateElapsedTime();
-
-    // Then set interval for regular updates
-    const intervalId = setInterval(updateElapsedTime, 1000);
-
-    // Clean up on unmount
-    return () => clearInterval(intervalId);
+    const id = setInterval(updateElapsedTime, 1000);
+    return () => clearInterval(id);
   }, []);
 
-  // Format seconds to HH:MM:SS
+  // Format HH:MM:SS
   const formatTime = (seconds: number) => {
-    if (isNaN(seconds)) seconds = 0;
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    return `${hours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return [hrs, mins, secs]
+      .map((val) => val.toString().padStart(2, "0"))
+      .join(":");
   };
 
   return (
-    <View className="bg-white mx-4 mt-4 rounded-xl shadow-md overflow-hidden border border-gray-200 h-28 flex items-center justify-center">
-      <View className="flex items-center justify-center">
-        <Text className="text-gray-500 font-medium mb-2">
-          {" "}
-          זמן שחלף מאז יצירת האירוע{" "}
-        </Text>
-        <Text className="text-3xl font-bold text-blue-600">
-          {formatTime(elapsedTime)}
-        </Text>
+    <View style={tw`bg-white mx-4 mt-4 rounded-xl shadow-md overflow-hidden border border-gray-200 h-28 flex items-center justify-center`}>
+      <View style={tw`flex items-center justify-center`}>
+        <Text style={tw`text-gray-500 font-medium mb-2`}>זמן שחלף מאז יצירת האירוע</Text>
+        <Text style={tw`text-3xl font-bold text-blue-600`}>{formatTime(elapsedTime)}</Text>
       </View>
     </View>
   );
