@@ -7,6 +7,8 @@ import { FIELD_LABELS, ORDERED_KEYS } from "./fields";
 import { formatValue } from "./format";
 import { getFirstVolunteerTimes } from "./volunteer";
 
+import tw from "twrnc";
+
 type Props = {
   item: EventSummary;
   isScreenFocused: boolean;
@@ -37,25 +39,25 @@ export default function ReportCard({ item, isScreenFocused }: Props) {
         LayoutAnimation.easeInEaseOut();
         setOpen(!open);
       }}
-      className="mb-4 bg-blue-50 p-4 rounded-xl shadow-sm border border-blue-200"
+      style={tw`mb-4 bg-blue-50 p-4 rounded-xl shadow-sm border border-blue-200`}
     >
-      <View className="flex-row-reverse justify-between items-center">
-        <Text className="text-md text-gray-500">
+      <View style={tw`flex-row-reverse justify-between items-center`}>
+        <Text style={tw`text-md text-gray-500`}>
           {formatValue("event_date", (item as any).event_date)}
         </Text>
-        <Text className="text-lg font-bold text-gray-800">
+        <Text style={tw`text-lg font-bold text-gray-800`}>
           {(item as any).medical_code ?? "ללא כותרת"}
         </Text>
       </View>
 
       {open && (
-        <View className="mt-3 space-y-1">
+        <View style={tw`mt-3 space-y-1`}>
           {details.map(({ key, label, value }) => (
             <Text
               key={key}
-              className="text-right text-gray-800 text-lg leading-relaxed"
+              style={tw`text-right text-gray-800 text-lg leading-relaxed`}
             >
-              <Text className="font-semibold">{label}: </Text>
+              <Text style={tw`font-semibold`}>{label}: </Text>
               {value}
             </Text>
           ))}
@@ -67,9 +69,9 @@ export default function ReportCard({ item, isScreenFocused }: Props) {
                 params: { id: item.id },
               })
             }
-            className="self-start mt-4 bg-blue-600 px-4 py-1.5 rounded-full"
+            style={tw`self-start mt-4 bg-blue-600 px-4 py-1.5 rounded-full`}
           >
-            <Text className="text-white text-sm font-bold">ערוך</Text>
+            <Text style={tw`text-white text-sm font-bold`}>ערוך</Text>
           </Pressable>
         </View>
       )}
