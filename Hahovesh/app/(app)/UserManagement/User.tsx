@@ -1,5 +1,6 @@
 import { View, Text } from "react-native";
 import { useState } from "react";
+import tw from "twrnc";
 import PermissionsPanel from "./PermissionsPanel";
 import ApprovePanel from "./ApprovePanel";
 import DeleteUserButton from "./DeleteUserButton";
@@ -25,10 +26,10 @@ const User = (props: UserProps) => {
   };
 
   return (
-    <View className="bg-white rounded-lg overflow-hidden my-1 mx-1.5 h-[75px] py-2 px-3 border border-gray-200">
-      <View className="flex-row items-stretch">
+    <View style={tw`bg-white rounded-lg overflow-hidden my-1 mx-1.5 h-[85px] py-2 px-3 border border-gray-200`}>
+      <View style={tw`flex-row items-stretch`}>
         {/* Left side - Permissions Panel */}
-        <View className="flex-[1.2] bg-gray-50">
+        <View style={tw`flex-[1.2] bg-gray-50`}>
           {!props.user.permissions.includes("Pending") ? (
             <PermissionsPanel user={props.user} refresh={handleRefresh} />
           ) : (
@@ -37,27 +38,27 @@ const User = (props: UserProps) => {
         </View>
 
         {/* Vertical divider */}
-        <View className="w-[1px] bg-gray-200" />
+        <View style={tw`w-[1px] bg-gray-200`} />
 
         {/* Right side - User Info */}
-        <View className="flex-[0.8] py-1.5 px-2.5 justify-center relative">
-          <Text className="text-xs mb-0.5 font-bold text-gray-800 text-right">
+        <View style={tw`flex-[0.8] py-1.5 px-3 justify-center relative`}>
+          <Text style={tw`text-xs mb-0.5 font-bold text-gray-800 text-right`}>
             שם:{" "}
-            <Text className="font-normal text-gray-600">
+            <Text style={tw`font-normal text-gray-600`}>
               {props.user.first_name + " " + props.user.last_name}
             </Text>
           </Text>
-          <Text className="text-xs mb-0.5 font-bold text-gray-800 text-right">
+          <Text style={tw`text-xs mb-0.5 font-bold text-gray-800 text-right`}>
             טלפון:{" "}
-            <Text className="font-normal text-gray-600">
+            <Text style={tw`font-normal text-gray-600`}>
               {props.user.phone}
             </Text>
           </Text>
-          <Text className="text-xs mb-0.5 font-bold text-gray-800 text-right">
+          <Text style={tw`text-xs mb-0.5 font-bold text-gray-800 text-right`}>
             ת"ז:{" "}
-            <Text className="font-normal text-gray-600">{props.user.id}</Text>
+            <Text style={tw`font-normal text-gray-600`}>{props.user.id}</Text>
           </Text>
-          <View className="absolute top-10 left-1">
+          <View style={tw`absolute top-10 left-1`}>
             {props.isActive === "משתמשים פעילים" && (
               <DeleteUserButton
                 refresh={props.refresh}
