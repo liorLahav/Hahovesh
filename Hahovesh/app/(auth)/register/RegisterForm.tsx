@@ -4,11 +4,13 @@ import registerSchema from "../../../data/registerSchema";
 import FormInput from "./FormInput";
 import SubmitButton from "./SubmitButton";
 import { createUser } from "@/services/users";
+import tw from "twrnc";
 
 type RegisterFormProps = {
   onSuccess: () => void;
   onConflict: (message: string, details: string) => void;
 };
+
 const formatPhoneNumber = (phone: string): string => {
   const cleaned = phone.replace(/\D/g, "");
 
@@ -19,7 +21,7 @@ const formatPhoneNumber = (phone: string): string => {
   }
 
   return cleaned;
-}
+};
 
 const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
   const [formValues, setFormValues] = useState({
@@ -38,24 +40,20 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle input change based on schema validation
   const handleInputChange = (key: string, value: string) => {
     const fieldSchema = registerSchema.find((field) => field.key === key);
     if (!fieldSchema) return;
 
-    // Apply filter if defined
     let filteredValue = value;
     if (fieldSchema.validation?.filter) {
       filteredValue = fieldSchema.validation.filter(value);
     }
 
-    // Update form value
     setFormValues((prev) => ({
       ...prev,
       [key]: filteredValue,
     }));
 
-    // Validate input
     let errorMessage = "";
     if (
       fieldSchema.validation?.regex &&
@@ -64,7 +62,6 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
       errorMessage = fieldSchema.validation.errorMessage;
     }
 
-    // Update form error
     setFormErrors((prev) => ({
       ...prev,
       [key]: errorMessage,
@@ -72,7 +69,6 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
   };
 
   const handleRegister = async () => {
-    // Validate all fields based on schema
     let hasErrors = false;
     const newErrors = { ...formErrors };
 
@@ -91,23 +87,25 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
     setFormErrors(newErrors);
 
     if (hasErrors) {
-      Alert.alert("שגיאת אימות", "אנא תקן את כל שגיאות הטופס לפני השליחה.");
+      Alert.alert(
+        "שגיאת אימות",
+        "אנא תקן את כל שגיאות הטופס לפני השליחה."
+      );
       return;
     }
 
-    // Check for empty fields
     const { firstName, lastName, identifier, phone } = formValues;
     if (!firstName || !lastName || !identifier || !phone) {
       Alert.alert("שדות חסרים", "אנא מלא את כל הפרטים.");
       return;
     }
+
     const values = { ...formValues };
     values.phone = formatPhoneNumber(phone);
     setIsLoading(true);
 
     try {
       const result = await createUser(values);
-
       if (!result.success) {
         if (result.conflict === "id") {
           onConflict(
@@ -121,29 +119,29 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
         } else if (result.conflict === "phone") {
           onConflict(
             "מספר טלפון רשום כבר",
-            `מספר הטלפון ${phone} כבר רשום למתנדב ${result.details.first_name} ${result.details.last_name}. אם זה אתה, אנא נסה להתחבר במקום זאת.`
+            `מספר הטלפון ${values.phone} כבר רשום למתנדב ${result.details.first_name} ${result.details.last_name}. אם זה אתה, אנא נסה להתחבר במקום זאת.`
           );
-          setFormErrors((prev) => ({ ...prev, phone: "מספר טלפון כבר בשימוש" }));
+          setFormErrors((prev) => ({
+            ...prev,
+            phone: "מספר טלפון כבר בשימוש",
+          }));
         }
         setIsLoading(false);
         return;
       }
 
-      // Reset form on success
       setFormValues({
         firstName: "",
         lastName: "",
         identifier: "",
         phone: "",
       });
-
       setFormErrors({
         firstName: "",
         lastName: "",
         identifier: "",
         phone: "",
       });
-
       setIsLoading(false);
       onSuccess();
     } catch (err) {
@@ -153,30 +151,24 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
     }
   };
 
-  // Check if form is valid
   const isFormValid = () => {
     const { firstName, lastName, identifier, phone } = formValues;
-    const {
-      firstName: firstNameError,
-      lastName: lastNameError,
-      identifier: idError,
-      phone: phoneError,
-    } = formErrors;
-
+    const { firstName: fErr, lastName: lErr, identifier: iErr, phone: pErr } =
+      formErrors;
     return (
       firstName &&
       lastName &&
       identifier &&
       formatPhoneNumber(phone) &&
-      !firstNameError &&
-      !lastNameError &&
-      !idError &&
-      !phoneError
+      !fErr &&
+      !lErr &&
+      !iErr &&
+      !pErr
     );
   };
 
   return (
-    <View className="w-full max-w-xl items-center self-center">
+    <View style={tw`w-full max-w-xl items-center self-center`}>
       {registerSchema.map((field) => (
         <FormInput
           key={field.key}
