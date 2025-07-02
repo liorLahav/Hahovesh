@@ -6,6 +6,7 @@ import {drawerItems} from "../../../data/DrawerRoutes";
 import type { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { useUserContext } from "@/hooks/UserContext";
 import { removeExpoToken, updateExpoToken } from "@/services/users";
+import tw from "twrnc";
 
 export default function DrawerContent(
   props: DrawerContentComponentProps & { userRole: string[] }
@@ -52,18 +53,18 @@ export default function DrawerContent(
 
   const renderSection = (title: string, items: typeof filteredItems) => (
     <>
-      <Text className="w-full text-right mb-2 text-xl border-b border-gray-500 px-2 py-4">
+      <Text style={tw`w-full text-right mb-2 text-xl border-b border-gray-500 px-2 py-4`}>
         {title}
       </Text>
       {items.map((item) => (
         <Pressable
           key={item.label}
           onPress={() => router.push(("/" + item.route) as any)}
-          className="p-3 rounded-lg hover:bg-gray-200 mt-2 w-full border-b border-gray-200"
+          style={tw`p-3 rounded-lg hover:bg-gray-200 mt-2 w-full border-b border-gray-200`}
         >
-          <View className="flex-row-reverse items-center gap-4 p-2 mr-4">
+          <View style={tw`flex-row-reverse items-center gap-4 p-2 mr-4`}>
             <Ionicons name={item.icon as any} size={24} color="gray" />
-            <Text className="text-lg text-gray-800 text-right">
+            <Text style={tw`text-lg text-gray-800 text-right`}>
               {item.label}
             </Text>
           </View>
@@ -73,13 +74,14 @@ export default function DrawerContent(
   );
 
   return (
-    <DrawerContentScrollView className="flex-1 bg-white p-4 items-end">
+    <DrawerContentScrollView style={tw`flex-1 bg-white p-4`}
+      contentContainerStyle={tw`items-end`}>
       {renderSection("חשבון", sections.account)}
       {renderSection("פעולות", sections.menu)}
-      <Pressable onPress={() => signOutFunc()}  className="p-3 rounded-lg hover:bg-gray-200 mt-2 w-full border-b border-gray-200">
-        <View className="flex-row-reverse items-center gap-4 p-2 mr-4">
+      <Pressable onPress={() => signOutFunc()}  style={tw`p-3 rounded-lg hover:bg-gray-200 mt-2 w-full border-b border-gray-200`}>
+        <View style={tw`flex-row-reverse items-center gap-4 p-2 mr-4`}>
           <Ionicons name="log-out" size={24} color="gray" />
-          <Text className="text-lg text-red-600 text-right">התנתק</Text>
+          <Text style={tw`text-lg text-red-600 text-right`}>התנתק</Text>
         </View>
       </Pressable>
     </DrawerContentScrollView>

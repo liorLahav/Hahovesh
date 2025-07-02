@@ -6,6 +6,7 @@ import { createEvent } from "@/services/events";
 import NewEventHeader from "./newEventHeader";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import tw from 'twrnc';
 
 export default function NewEventScreen() {
   const [formKey, setFormKey] = useState(0);
@@ -27,14 +28,15 @@ export default function NewEventScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1">
-      <View className="flex-1 bg-white">
+    <SafeAreaView style={tw.style("flex-1")}>
+      <View style={tw.style("flex-1 bg-white")}>
         <StatusBar barStyle="dark-content" />
 
         <NewEventHeader />
 
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-          <Text className="text-2xl font-bold mb-6 text-right text-blue-700">
+        <ScrollView style={tw``}
+          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+          <Text style={tw`text-2xl font-bold mb-6 text-right text-blue-700`}>
             פרטי האירוע
           </Text>
 

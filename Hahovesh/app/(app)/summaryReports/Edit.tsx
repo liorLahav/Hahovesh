@@ -19,19 +19,20 @@ import { getEventSummary, updateEventSummary } from "@/services/event_summary";
 import { FIELD_LABELS, READ_ONLY_KEYS } from "./fields";
 import logo from "../../../assets/images/logo.png";
 import { Image } from "react-native";
+import tw from "twrnc";
 
 const EditHeader = () => {
   const router = useRouter();
   return (
     <>
-      <View className="w-full h-1 bg-red-500 rounded-t-xl" />
-      <View className="bg-blue-50 border-b border-blue-300 py-4 px-4 rounded-b-2xl shadow-sm">
-        <View className="flex-row items-center justify-between">
+      <View style={tw`w-full h-1 bg-red-500 rounded-t-xl`} />
+      <View style={tw`bg-blue-50 border-b border-blue-300 py-4 px-4 rounded-b-2xl shadow-sm`}>
+        <View style={tw`flex-row items-center justify-between`}>
           <Pressable onPress={() => router.replace("/summaryReports")}>
             <Ionicons name="arrow-back" size={28} color="#1e3a8a" />
           </Pressable>
 
-          <Text className="text-xl font-bold text-blue-800">
+          <Text style={tw`text-xl font-bold text-blue-800`}>
             עריכת דוח סיכום
           </Text>
 
@@ -94,14 +95,14 @@ export default function EditSummaryForm() {
 
   if (loading || !initialValues) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-white">
+      <SafeAreaView style={tw`flex-1 justify-center items-center bg-white`}>
         <ActivityIndicator size="large" />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={tw`flex-1 bg-white`}>
       <EditHeader />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
         <DynamicForm

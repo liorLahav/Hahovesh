@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { updateStatus } from '@/services/users';
 import VolunteerCard from '../statistics/volCard';
 import { updateFinishedEventsCount } from '@/services/globalStatsService';
+import tw from 'twrnc';
 
 export default function EventSummaryScreen() {
   const [formKey, setFormKey] = useState(0);
@@ -61,18 +62,18 @@ export default function EventSummaryScreen() {
 
   if (!initialValues) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View style={tw`flex-1 justify-center items-center`}>
         <ActivityIndicator size="large" color="#2563eb" />
       </View>
     );
   }
 
   return (
-  <SafeAreaView className="flex-1 bg-white">
+  <SafeAreaView style={tw`flex-1 bg-white`}>
     <EventSummaryHeader />
 
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-      <Text className="text-2xl font-bold mb-6 text-right text-blue-700">
+      <Text style={tw`text-2xl font-bold mb-6 text-right text-blue-700`}>
         פרטי הסיכום
       </Text>
 
