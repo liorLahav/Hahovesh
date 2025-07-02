@@ -1,14 +1,15 @@
-import { View, Text, Pressable } from "react-native";
-import { useEffect, useState } from "react";
+import { View, Text, Pressable, Animated, Easing } from "react-native";
+import { useState, useRef, useEffect } from "react";
 import { removeExpoToken, updateExpoToken, updateUserStatus } from "@/services/users";
 import { useUserContext } from "@/hooks/UserContext";
 import { useError } from "@/hooks/UseError";
+import tw from 'twrnc';
 
 export default function UserStatus() {
   const [isLoading, setIsLoading] = useState(false);
-  const { user ,isAvaliable,setIsAvailable } = useUserContext();
-  const { error, cleanError, setErrorMessage } = useError();
-
+  const { user, isAvaliable, setIsAvailable } = useUserContext();
+  const { cleanError, setErrorMessage } = useError();
+  const translateAnim = useRef(new Animated.Value(isAvaliable ? 42 : 2)).current;
 
   const handlePress = async () => {
     if (isLoading) return;
@@ -16,17 +17,15 @@ export default function UserStatus() {
     setIsLoading(true);
 
     try {
-      const newStatus =
-        isAvaliable ? "unavailable" : "available";
-      if (newStatus === "available"){
+      const newStatus = isAvaliable ? "unavailable" : "available";
+      if (newStatus === "available") {
         updateExpoToken(user.id, user.expoPushToken);
-      }
-      else {
+      } else {
         removeExpoToken(user.id);
       }
       await updateUserStatus(user.id, newStatus);
       setIsAvailable(!isAvaliable);
-    } catch (error) { 
+    } catch (error) {
       console.error("Error updating user status:", error);
       setErrorMessage("שגיאה בעדכון הסטטוס, נסה שוב מאוחר יותר");
     } finally {
@@ -34,35 +33,39 @@ export default function UserStatus() {
     }
   };
 
+  useEffect(() => {
+    Animated.timing(translateAnim, {
+      toValue: isAvaliable ? 42 : 2,
+      duration: 250,
+      easing: Easing.inOut(Easing.ease),
+      useNativeDriver: false,
+    }).start();
+  }, [isAvaliable]);
+
   return (
-    <View className="bg-blue-50 rounded-t-2xl shadow-sm border border-blue-50 px-5 py-4 mt-6 w-full">
-      <View className="flex-row-reverse items-center justify-between">
-        <View className="flex-row-reverse items-center gap-2">
-          <Text className="text-xl font-semibold text-gray-800">סטטוס</Text>
+    <View style={tw`bg-blue-50 rounded-t-2xl shadow-sm border border-blue-50 px-4 py-3 mt-5 w-full`}>
+      <View style={tw`flex-row-reverse items-center justify-between`}>
+        <View style={tw`flex-row-reverse items-center mr-2`}>
+          <Text style={tw`text-[18px] font-semibold text-gray-800 ml-1`}>סטטוס</Text>
           <View
-            className={`px-3 py-1 rounded-full text-sm font-bold ${
-              isAvaliable 
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
+            style={tw`${isAvaliable ? "bg-green-100" : "bg-red-100"} px-3 py-1 rounded-full`}
           >
-            <Text>{isAvaliable ? "זמין" : "לא זמין"}</Text>
+            <Text style={tw`${isAvaliable ? "text-green-700" : "text-red-700"} text-[13px] font-bold`}>
+              {isAvaliable ? "זמין" : "לא זמין"}
+            </Text>
           </View>
         </View>
 
         <Pressable
           onPress={handlePress}
           disabled={isLoading}
-          className={`w-24 h-12 rounded-full p-1 border ${
-            isAvaliable
-              ? "bg-green-400 border-green-500"
-              : "bg-red-400 border-red-500"
-          } ${isLoading ? "opacity-50" : ""} relative`}
+          style={tw`${isAvaliable ? "bg-green-400 border-green-500" : "bg-red-400 border-red-500"} w-[80px] h-[40px] rounded-full p-[2px] border ${isLoading ? "opacity-50" : ""} relative`}
         >
-          <View
-            className={`w-8 h-8 bg-white rounded-full shadow-md absolute top-[6px] transition-transform duration-600 ease-in-out ${
-              isAvaliable ? "translate-x-14 " : "translate-x-1"
-            }`}
+          <Animated.View
+            style={[
+              tw`w-[30px] h-[30px] bg-white rounded-full shadow-md absolute top-[4px]`,
+              { left: translateAnim }
+            ]}
           />
         </Pressable>
       </View>

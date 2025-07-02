@@ -5,6 +5,7 @@ import MenuButton from "@/components/navigation/menuButton";
 import { Message } from "@/services/messages";
 import { router } from "expo-router";
 import { useUserContext } from "@/hooks/UserContext";
+import tw from 'twrnc';
 
 type Props = {
   messages: Message[];
@@ -23,32 +24,31 @@ export default function HomePageHeader({ messages }: Props) {
 
   return (
     <>
-      <View className="w-full h-1 bg-red-500 rounded-t-xl" />
-      <View className="w-full bg-blue-100 shadow-sm p-2 rounded-b-md">
-        <View className="flex-row-reverse items-center justify-between mb-2">
-          <View className="flex-row-reverse items-center space-x-reverse space-x-2">
+      <View style={tw`w-full h-1 bg-red-500 rounded-t-xl`} />
+      <View style={tw`w-full bg-blue-100 shadow-sm p-[9px] rounded-b-md`}>
+        <View style={tw`flex-row-reverse items-center justify-between mb-[5px]`}>
+          <View style={tw`flex-row-reverse items-center`}>
             <Image
               source={logo}
               style={{ width: 45, height: 45 }}
               resizeMode="contain"
             />
-            <View>
-              <Text className="text-2xl font-bold text-blue-700">
+            <View style={tw`mr-[5px] items-end`}>
+              <Text style={tw`text-[22px] font-bold text-blue-700`}>
                 החובש הר נוף
               </Text>
-              <Text className="text-base text-blue-700">
+              <Text style={tw`text-[13px] text-blue-700`}>
                 ארגון ההצלה השכונתי
               </Text>
             </View>
           </View>
         </View>
 
-        <View className="flex-row justify-end gap-4 items-center">
+        <View style={tw`flex-row justify-end items-center mr-[3px]`}>
           <Pressable
             onPress={() => router.push("/messages" as any)}
-            className="p-3"
+            style={tw`p-[9px]`}
           >
-            {/*unreadCount prop should be dynamic (fix later) */}
             <NotificationButton unreadCount={countUnreadMessages} />
           </Pressable>
           <MenuButton />

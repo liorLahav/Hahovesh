@@ -19,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MessagesFormHeader from "./MessagesFormHeader";
 import { useUserContext } from "@/hooks/UserContext";
 import { useError } from "@/hooks/UseError";
+import tw from 'twrnc';
 
 export default function MessagesForm() {
   const [form, setForm] = useState<{ [key: string]: string }>({
@@ -26,19 +27,17 @@ export default function MessagesForm() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // dropdown state
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("All");
   const [items, setItems] = useState(
-    messageFormSchema.find((f) => f.key === "distribution_by_role")?.options ||
-      []
+    messageFormSchema.find((f) => f.key === "distribution_by_role")?.options || []
   );
 
   const { user } = useUserContext();
   const { cleanError, setErrorMessage } = useError();
 
   const onSubmit = async () => {
-    cleanError(); // Clear any previous error messages
+    cleanError();
     if (isSubmitting) return;
     if (!form.message_description?.trim()) {
       Alert.alert("שגיאה", "יש למלא את תוכן ההודעה");
@@ -51,12 +50,10 @@ export default function MessagesForm() {
         form.message_description,
         form.distribution_by_role,
         user.id
-      ); // replace "currentUserId" with actual user ID
-      console.log("ההודעה נשלחה בהצלחה");
+      );
       setForm({ message_description: "", distribution_by_role: "All" });
       setValue("All");
     } catch (error) {
-      console.error("שגיאה בשליחת ההודעה:", error);
       setErrorMessage("אירעה שגיאה בשליחת ההודעה");
     } finally {
       setIsSubmitting(false);
@@ -77,7 +74,7 @@ export default function MessagesForm() {
           multiline={true}
           numberOfLines={6}
           textAlign="right"
-          className="border p-3 rounded h-36"
+          style={tw`border p-3 rounded h-36 text-right`}
         />
       );
     }
@@ -86,26 +83,26 @@ export default function MessagesForm() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1"
+      style={tw`flex-1`}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView style={tw`flex-1 bg-white`}>
           <StatusBar barStyle="dark-content" />
 
-          <View className="flex-1 bg-white">
+          <View style={tw`flex-1 bg-white`}>
             <MessagesFormHeader />
 
-            <View className="px-5 pt-5">
+            <View style={tw`px-5 pt-5`}>
               {messageFormSchema.map((field) => (
-                <View key={field.key} className="mb-4">
-                  <Text className="text-lg font-bold mb-2 text-right">
+                <View key={field.key} style={tw`mb-4`}>
+                  <Text style={tw`text-lg font-bold mb-2 text-right`}>
                     {field.label}
                   </Text>
                   {renderField(field)}
                 </View>
               ))}
 
-              <View className="mb-4 z-50">
+              <View style={tw`mb-4 z-50`}>
                 <DropDownPicker
                   open={open}
                   value={value}
@@ -127,11 +124,9 @@ export default function MessagesForm() {
               <Pressable
                 onPress={onSubmit}
                 disabled={isSubmitting}
-                className={`mx-5 my-6 py-3 rounded-full items-center ${
-                  isSubmitting ? "bg-gray-400" : "bg-green-600"
-                }`}
+                style={tw`${isSubmitting ? "bg-gray-400" : "bg-green-600"} mx-5 my-6 py-3 rounded-full items-center`}
               >
-                <Text className="text-white font-bold text-lg">
+                <Text style={tw`text-white font-bold text-lg`}>
                   {isSubmitting ? "שולח..." : "שלח הודעה"}
                 </Text>
               </Pressable>
