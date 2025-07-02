@@ -1,6 +1,7 @@
 import { Modal, View, Text, TextInput, Pressable } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useState, useEffect } from "react";
+import tw from 'twrnc';
 
 const PICKER_FIELDS: Record<string, string[]> = {
   location_type: ["מקום ציבורי", "בית", "בית כנסת", "בית ספר", "רחוב"],
@@ -34,19 +35,16 @@ export default function EditModal({
   const [items, setItems] = useState<{ label: string; value: string }[]>([]);
 
   useEffect(() => {
-    console.log("aaaaaaaaaaa", fieldKey);
     if (fieldKey && PICKER_FIELDS[fieldKey]) {
-      setItems(
-        PICKER_FIELDS[fieldKey].map((opt) => ({ label: opt, value: opt }))
-      );
+      setItems(PICKER_FIELDS[fieldKey].map((opt) => ({ label: opt, value: opt })));
     }
   }, [fieldKey]);
 
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <View className="flex-1 bg-black/40 justify-center items-center">
-        <View className="bg-white w-[90%] p-5 rounded-2xl shadow-lg">
-          <Text className="text-center text-lg font-bold mb-4 text-blue-900">
+      <View style={tw`flex-1 bg-black/40 justify-center items-center`}>
+        <View style={tw`bg-white w-[90%] p-5 rounded-2xl shadow-lg`}>
+          <Text style={tw`text-center text-lg font-bold mb-4 text-blue-900`}>
             ערוך {fieldLabel}
           </Text>
 
@@ -67,23 +65,23 @@ export default function EditModal({
             <TextInput
               value={editedValue}
               onChangeText={onChange}
-              className="border border-blue-200 p-3 rounded-md text-right"
+              style={tw`border border-blue-200 p-3 rounded-md text-right`}
             />
           )}
 
-          <View className="flex-row justify-center gap-4 mt-6">
+          <View style={tw`flex-row justify-center gap-4 mt-6`}>
             <Pressable
               onPress={onCancel}
-              className="bg-red-600 px-6 py-2 rounded-full shadow"
+              style={tw`bg-red-600 px-6 py-2 rounded-full shadow`}
             >
-              <Text className="text-white font-bold text-base">ביטול</Text>
+              <Text style={tw`text-white font-bold text-base`}>ביטול</Text>
             </Pressable>
 
             <Pressable
               onPress={onSave}
-              className="bg-green-600 px-6 py-2 rounded-full shadow"
+              style={tw`bg-green-600 px-6 py-2 rounded-full shadow`}
             >
-              <Text className="text-white font-bold text-base">שמור</Text>
+              <Text style={tw`text-white font-bold text-base`}>שמור</Text>
             </Pressable>
           </View>
         </View>
