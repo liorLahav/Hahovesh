@@ -5,14 +5,14 @@ import ActiveEvents from "./ActiveEvents";
 import { useEffect, useState } from "react";
 import { subscribeToMessages, Message } from "@/services/messages";
 import { useMessages } from "@/hooks/MessagesContext";
+import tw from 'twrnc';
 
 export default function HomePage() {
-  const {messages} = useMessages();
+  const { messages } = useMessages();
 
   return (
-
-    <SafeAreaView className="flex-1 bg-blue-200">
-      <HomePageHeader messages={messages}/>
+    <SafeAreaView style={tw`flex-1 bg-blue-200`}>
+      <HomePageHeader messages={messages} />
       <UserStatus />
       <ActiveEvents />
     </SafeAreaView>

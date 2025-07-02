@@ -1,8 +1,6 @@
 import { View, Text, ScrollView } from "react-native";
 import { useEffect } from "react";
-import {
-  markMessagesAsRead,
-} from "@/services/messages";
+import { markMessagesAsRead } from "@/services/messages";
 import { useMessages } from "@/hooks/MessagesContext";
 import { StatusBar } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
@@ -10,9 +8,10 @@ import DeleteMessageButton from "./DeleteMessageButton";
 import DeleteAllMessagesButton from "./DeleteAllMessagesButton";
 import { useUserContext } from "@/hooks/UserContext";
 import Loading from "@/components/Loading";
-export default function MessagesScreen() {
-  const {user, userLoading} = useUserContext();
+import tw from 'twrnc';
 
+export default function MessagesScreen() {
+  const { user, userLoading } = useUserContext();
   const { messages, loadingMessages } = useMessages();
   const isFocused = useIsFocused();
   const userId = user.id;
@@ -20,14 +19,12 @@ export default function MessagesScreen() {
 
   useEffect(() => {
     if (isFocused && messages && user) {
-      markMessagesAsRead(user.id, messages,user.permissions);
+      markMessagesAsRead(user.id, messages, user.permissions);
     }
   }, [isFocused, user, messages]);
 
   if (userLoading || loadingMessages) {
-    return (
-      <Loading/>
-    );
+    return <Loading />;
   }
 
   const getVisibleMessages = () => {
@@ -54,36 +51,30 @@ export default function MessagesScreen() {
   return (
     <>
       <StatusBar backgroundColor="black" />
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1, padding: 16, paddingBottom: 80 }}
-      >
+      <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 16, paddingBottom: 80 }}>
         {visibleMessages.length === 0 ? (
-          <View className="flex-1 justify-center items-center">
-            <Text className=" text-black text-2xl text-blur ">
-              אין הודעות להצגה
-            </Text>
+          <View style={tw`flex-1 justify-center items-center`}>
+            <Text style={tw`text-black text-[20px]`}>אין הודעות להצגה</Text>
           </View>
         ) : (
           visibleMessages.reverse().map((msg) => (
             <View
               key={msg.message_id}
-              className="mb-6 bg-blue-50 p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col "
+              style={tw`mb-6 bg-blue-50 p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col`}
             >
               <View
-                className={`flex justify-between mb-1 ${
-                  roles.includes("Admin") ? "flex-row items-center" : null
-                }`}
+                style={tw`${roles.includes("Admin") ? "flex-row items-center justify-between mb-2" : "flex justify-between mb-1"}`}
               >
                 {roles.includes("Admin") && (
                   <DeleteMessageButton msgId={msg.message_id} />
                 )}
 
-                <Text className="text-right text-sm text-gray-500 mb-1">
+                <Text style={tw`text-right text-[13px] text-gray-500 mb-1`}>
                   {msg.date} {msg.time}
                 </Text>
               </View>
 
-              <Text className="text-right text-sm font-bold text-gray-800 mb-2">
+              <Text style={tw`text-right text-[13px] font-bold text-gray-800 mb-4`}>
                 {msg.distribution_by_role === "All"
                   ? "[כולם]"
                   : msg.distribution_by_role === "Dispatcher"
@@ -95,7 +86,7 @@ export default function MessagesScreen() {
                   : null}
               </Text>
 
-              <Text className="text-right text-gray-800 leading-relaxed">
+              <Text style={tw`text-right text-gray-800 leading-relaxed`}>
                 {msg.message_description}
               </Text>
             </View>
