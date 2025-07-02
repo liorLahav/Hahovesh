@@ -1,11 +1,13 @@
 import { Pressable, View, Text, Alert } from "react-native";
 import { Platform, Linking } from "react-native";
+import tw from "twrnc";
 
 type AdressCardProps = {
   address: string;
   addressType?: string;
   apartment_details?: string;
 };
+
 const openMapsWithAddress = (event?: { street?: string }) => {
   if (!event || !event.street) return;
 
@@ -19,7 +21,6 @@ const openMapsWithAddress = (event?: { street?: string }) => {
       if (supported) {
         Linking.openURL(url);
       } else {
-        // Fallback to Google Maps in browser
         const browserURL = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
         return Linking.openURL(browserURL);
       }
@@ -34,24 +35,24 @@ const AdressCard = (props: AdressCardProps) => {
   return (
     <Pressable
       onPress={() => openMapsWithAddress({ street: props.address })}
-      className="bg-white mx-4 mt-4 rounded-xl shadow-md overflow-hidden border border-gray-200"
+      style={tw`bg-white mx-4 mt-4 rounded-xl shadow-md overflow-hidden border border-gray-200`}
     >
-      <View className="flex-row align-items-center p-3">
-        <View className="flex-1">
-          <Text className="text-base font-bold text-center">מיקום</Text>
-          <Text className="text-lg text-gray-700 text-center">
-            {props.address +
-              (props.addressType && " (" + props.addressType + ")")}
+      <View style={tw`flex-row items-center p-3`}>
+        <View style={tw`flex-1`}>  
+          <Text style={tw`text-base font-bold text-center`}>מיקום</Text>
+          <Text style={tw`text-lg text-gray-700 text-center`}>  
+            {props.address}
+            {props.addressType && ` (${props.addressType})`}
           </Text>
           {props.apartment_details && (
-            <Text className="text-sm text-gray-500 text-center">
+            <Text style={tw`text-sm text-gray-500 text-center`}>
               {props.apartment_details}
             </Text>
           )}
         </View>
       </View>
-      <View className="bg-blue-50 py-2 px-3 border-t border-gray-100">
-        <Text className="text-sm text-blue-600 font-medium text-center">
+      <View style={tw`bg-blue-50 py-2 px-3 border-t border-gray-100`}>
+        <Text style={tw`text-sm text-blue-600 font-medium text-center`}>
           לחץ לניווט
         </Text>
       </View>

@@ -31,6 +31,14 @@ export function formatValue(key: string, v: unknown): string {
     }[v as string] ?? '';
   }
 
+  if (['mada', 'ihud', 'hahovesh'].includes(v as string)) {
+    return {
+      mada: 'מד"א',
+      ihud: 'איחוד הצלה',
+      hahovesh: 'החובש',
+    }[v as string] ?? '';
+  }
+
   if (v instanceof Timestamp) return v.toDate().toLocaleString('he-IL');
 
   const s = String(v).trim();

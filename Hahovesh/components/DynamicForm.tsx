@@ -3,6 +3,8 @@ import Select from './Select';
 import { useState } from 'react';
 import type { SchemaField } from '@/data/fromSchema_eventSummary';
 import { saveEventSummary } from '@/services/event_summary';
+import tw from 'twrnc';
+
 
 type Option = { label: string; value: string };
 
@@ -56,7 +58,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
   });
 };
   return (
-    <ScrollView className="flex-1 bg-white p-4" contentContainerStyle={{ paddingBottom: 80 }}>
+    <ScrollView style={tw`flex-1 bg-white p-4`} contentContainerStyle={{ paddingBottom: 80 }}>
       {schema.map((field) => {
         const isLast = field.key === 'additional_notes';
         const isRefusalForm = field.key === 'refusal_form';
@@ -64,10 +66,10 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
         return (
           <View
             key={field.key}
-            className={['mb-4', isLast && 'pt-4 border-t border-gray-300 mt-8'].filter(Boolean).join(' ')}
+            style={tw`mb-4 ${isLast ? 'pt-4 border-t border-gray-300 mt-8' : ''}`}
           >
             {field.type === 'title' ? (
-              <Text className="text-lg font-bold mb-2 text-right border-b border-gray-300 pb-1">
+              <Text style={tw`text-lg font-bold mb-2 text-right border-b border-gray-300 pb-1`}>
                 {field.label}
               </Text>
             ) : (
@@ -75,16 +77,16 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
                 {isRefusalForm && (
                   <Pressable
                     onPress={() => setRequireRefusalForm(prev => !prev)}
-                    className="flex-row items-center justify-end mb-2"
+                    style={tw`flex-row items-center justify-end mb-2`}
                   >
                     <View
-                      className={`w-4 h-4 mr-2 rounded border-2 ${requireRefusalForm ? 'bg-blue-600 border-blue-600' : 'border-gray-400'}`}
+                      style={tw`w-4 h-4 mr-2 rounded border-2 ${requireRefusalForm ? 'bg-blue-600 border-blue-600' : 'border-gray-400'}`}
                     />
-                    <Text className="text-sm">מילוי טופס סירוב</Text>
+                    <Text style={tw`text-sm`}>מילוי טופס סירוב</Text>
                   </Pressable>
                 )}
 
-                <Text className="mb-1 text-right font-medium">
+                <Text style={tw`mb-1 text-right font-medium`}>
                   {field.label}
                 </Text>
 
@@ -110,8 +112,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
                     field.keyboardType || 'default'
                   }
                     maxLength={field.maxLength}
-                    className="border border-gray-300 rounded-lg p-3 w-full text-right"
-                    style={{ writingDirection: 'rtl' }}
+                    style={[tw`border border-gray-300 rounded-lg p-3 w-full text-right`, { writingDirection: 'rtl' }]}
                     editable={!isRefusalForm || requireRefusalForm}
                   />
                 )}
@@ -124,8 +125,7 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
                     multiline
                     numberOfLines={6}
                     textAlignVertical="top"
-                    className="border border-gray-300 rounded-lg p-3 w-full text-right min-h-[120px]"
-                    style={{ writingDirection: 'rtl' }}
+                    style={[tw`border border-gray-300 rounded-lg p-3 w-full text-right min-h-[120px]`, { writingDirection: 'rtl' }]}
                     editable={!isRefusalForm || requireRefusalForm}
                   />
                 )}
@@ -139,19 +139,19 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
                 )}
 
                 {field.type === 'multiselect' && field.options && (
-                  <View className="gap-2 items-end">
+                  <View style={tw`gap-2 items-end`}>
                     {field.options.map((opt: Option) => {
                       const selected = values[field.key]?.split(',').includes(opt.value);
                       return (
                         <Pressable
                           key={opt.value}
                           onPress={() => toggleMultiSelect(field.key, opt.value)}
-                          className="flex-row-reverse items-center gap-2"
+                          style={tw`flex-row-reverse items-center gap-2`}
                         >
                           <View
-                            className={`w-4 h-4 rounded-full border-2 ${selected ? 'bg-blue-600 border-blue-600' : 'border-gray-400'}`}
+                            style={tw`w-4 h-4 rounded-full border-2 ${selected ? 'bg-blue-600 border-blue-600' : 'border-gray-400'}`}
                           />
-                          <Text className="text-base">{opt.label}</Text>
+                          <Text style={tw`text-base`}>{opt.label}</Text>
                         </Pressable>
                       );
                     })}
@@ -163,12 +163,12 @@ export default function DynamicForm({ schema, onSubmit, initialValues , submitLa
         );
       })}
 
-      <View className="mt-8">
+      <View style={tw`mt-8`}>
         <Pressable
           onPress={handleSubmit}
-          className="w-full rounded-full h-14 bg-blue-600 shadow-md items-center justify-center"
+          style={tw`w-full rounded-full h-14 bg-blue-600 shadow-md items-center justify-center`}
         >
-          <Text className="text-white font-bold text-xl">{submitLabel}</Text>
+          <Text style={tw`text-white font-bold text-xl`}>{submitLabel}</Text>
         </Pressable>
       </View>
     </ScrollView>

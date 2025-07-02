@@ -10,6 +10,7 @@ import CancelEventButton from "./CancelEventButton";
 import { useUserContext } from "@/hooks/UserContext";
 import Loading from "@/components/Loading";
 import { useError } from "@/hooks/UseError";
+import tw from 'twrnc';
 
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
@@ -30,45 +31,37 @@ export default function EventDetails() {
         setLoading(false);
         return;
       }
-
       const found = events.find((e) => e.id === id);
       setEvent(found || null);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, [id]);
 
   if (loading || userLoading) {
     return <Loading message="טוען פרטי אירוע..." />;
   }
-  console.log("roles:", user.permissions);
 
   if (!event) {
     return (
-      <View className="flex-1 items-center justify-center">
+      <View style={tw`flex-1 items-center justify-center`}>
         <Text>אירוע לא נמצא</Text>
       </View>
     );
   }
 
   const handleSave = async () => {
-    cleanError(); // Clear any previous errors
+    cleanError();
     if (event) {
       try {
         await updateEvent(event.id, {
           ...event,
           [fieldToEdit!]: editedValue,
         });
-
-        setEvent((prev) =>
-          prev ? { ...prev, [fieldToEdit!]: editedValue } : prev
-        );
-
+        setEvent((prev) => prev ? { ...prev, [fieldToEdit!]: editedValue } : prev);
         setEditModalVisible(false);
-      } catch (error) {
+      } catch {
         setEditModalVisible(false);
-        console.error("Error updating event:", error);
         setErrorMessage("שגיאה בעדכון האירוע");
       }
     }
@@ -77,11 +70,7 @@ export default function EventDetails() {
   const getDetails = () => [
     { label: "כתובת", key: "street", value: event?.street },
     { label: "מספר בית", key: "house_number", value: event?.house_number },
-    {
-      label: "פרטי דירה",
-      key: "apartment_details",
-      value: event?.apartment_details,
-    },
+    { label: "פרטי דירה", key: "apartment_details", value: event?.apartment_details },
     { label: "מיקום", key: "location_type", value: event?.location_type },
     { label: "דחיפות", key: "urgency", value: event?.urgency },
     { label: "מוקד מקבל", key: "recipient", value: event?.recipient },
@@ -93,42 +82,25 @@ export default function EventDetails() {
     { label: "גיל המטופל", key: "patient_age", value: event?.patient_age },
     { label: "מספר טלפון", key: "phone_number1", value: event?.phone_number1 },
     { label: "טלפון נוסף", key: "phone_number2", value: event?.phone_number2 },
-    {
-      label: "מיקום מודיע",
-      key: "informat_location",
-      value: event?.informat_location,
-    },
-    {
-      label: "תאריך",
-      key: "createdAt",
-      value: new Date(event?.createdAt).toLocaleString("he-il", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    },
+    { label: "מיקום מודיע", key: "informat_location", value: event?.informat_location },
+    { label: "תאריך", key: "createdAt", value: new Date(event?.createdAt).toLocaleString("he-il", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) },
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-grey-200">
+    <SafeAreaView style={tw`flex-1 bg-gray-200`}>
       <DetailsHeader />
       <StatusBar barStyle="dark-content" />
 
       <ScrollView
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
-        className=" bg-blue-50"
+        style={tw`bg-blue-50`}
       >
         {getDetails().map((detail) => (
           <EditableDetailRow
             key={detail.label}
             label={detail.label}
             value={String(detail.value || "")}
-            canEdit={
-              (roles.includes("Dispatcher") || roles.includes("Admin")) &&
-              detail.label !== "תאריך"
-            }
+            canEdit={(roles.includes("Dispatcher") || roles.includes("Admin")) && detail.label !== "תאריך"}
             onEdit={() => {
               setFieldToEdit(detail.key);
               setEditedValue(String(detail.value || ""));
@@ -137,11 +109,11 @@ export default function EventDetails() {
             }}
           />
         ))}
-        {roles.includes("Dispatcher") || roles.includes("Admin") ? (
-          <View className="items-end mt-2">
+        {(roles.includes("Dispatcher") || roles.includes("Admin")) && (
+          <View style={tw`items-end mt-2`}>
             <CancelEventButton event={event} />
           </View>
-        ) : null}
+        )}
       </ScrollView>
       <EditModal
         visible={editModalVisible}

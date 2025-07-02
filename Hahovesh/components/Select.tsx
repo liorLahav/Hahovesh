@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { useState } from 'react';
+import tw from 'twrnc';
 
 /** Option type */
 type Option = { label: string; value: string };
@@ -17,10 +18,10 @@ export default function Select({ value, onChange, options }: Props) {
   const selectedLabel = options.find(o => o.value === value)?.label ?? 'בחר';
 
   return (
-    <View className="border border-blue-300 rounded-lg bg-blue-50 px-3 py-2">
+    <View style={tw`border border-blue-300 rounded-lg bg-blue-50 px-3 py-2`}>
       {/* Selected value (header) */}
       <Pressable onPress={() => setOpen(prev => !prev)}>
-        <Text className="text-right text-gray-800">
+        <Text style={tw`text-right text-gray-800`}>
           {selectedLabel}
         </Text>
       </Pressable>
@@ -33,9 +34,9 @@ export default function Select({ value, onChange, options }: Props) {
             onChange(o.value);
             setOpen(false);
           }}
-          className="py-2"
+          style={tw`py-2`}
         >
-          <Text className="text-right text-gray-700">
+          <Text style={tw`text-right text-gray-700`}>
             {o.label}
           </Text>
         </Pressable>

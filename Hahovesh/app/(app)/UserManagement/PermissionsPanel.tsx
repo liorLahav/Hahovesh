@@ -1,5 +1,6 @@
 import { View, TouchableOpacity, Text, Alert } from "react-native";
 import { useState } from "react";
+import tw from "twrnc";
 import { updatePermissions } from "../../../services/users";
 import { User, useUserContext } from "@/hooks/UserContext";
 
@@ -40,21 +41,20 @@ const PermissionsPanel = (props: permissionsPanelProps) => {
     const isSelected = userHasRoles(role);
     return (
       <TouchableOpacity
-        className={`py-2.5 px-2 rounded-lg border items-center flex-1 mx-[2px]
-          ${
-            isSelected
-              ? "bg-blue-50 border-blue-500"
-              : "bg-gray-50 border-gray-300"
-          }
-          ${isUpdating ? "opacity-50" : "opacity-100"}`}
+        style={[
+          tw`py-2.5 px-2 rounded-lg border items-center flex-1 mx-[2px]`,
+          isSelected ? tw`bg-blue-50 border-blue-500` : tw`bg-gray-50 border-gray-300`,
+          isUpdating ? tw`opacity-50` : tw`opacity-100`,
+        ]}
         onPress={() => handleRoleSelection(role)}
         key={props.user.id + role}
         disabled={isUpdating}
       >
         <Text
-          className={`text-[9px] ${
-            isSelected ? "text-blue-500 font-bold" : "text-gray-600 font-normal"
-          }`}
+          style={[
+            tw`text-xs`,
+            isSelected ? tw`text-blue-500 font-bold` : tw`text-gray-600 font-normal`,
+          ]}
         >
           {label}
         </Text>
@@ -63,11 +63,11 @@ const PermissionsPanel = (props: permissionsPanelProps) => {
   };
 
   return (
-    <View className="p-2 h-full justify-center bg-white">
-      <Text className="text-base font-bold mb-2 text-center text-gray-800">
+    <View style={tw`w-50 p-2 h-full justify-center bg-white`}>
+      <Text style={tw`text-base font-bold mb-2 text-center text-gray-800`}>
         הגדרת הרשאות:
       </Text>
-      <View className="flex-row justify-around items-center space-x-1.5 px-0.5">
+      <View style={tw`flex-row justify-around items-center space-x-1.5 px-0.5`}>
         {renderButton("Volunteer", "כונן")}
         {renderButton("Dispatcher", "מוקדן")}
         {renderButton("Admin", "מנהל")}

@@ -1,59 +1,28 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
-import { router } from "expo-router";
-import RegisterForm from "./RegisterForm";
-import SuccessMessage from "./SuccessMessage";
-import ConflictMessage from "./conflictMessage";
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
+import tw from "twrnc";
 
-export default function Register() {
-  const [conflictMessage, setConflictMessage] = useState("");
-  const [conflictDetails, setConflictDetails] = useState("");
-  const [successMessage, setSuccessMessage] = useState(false);
+type ConflictMessageProps = {
+  conflictMessage: string;
+  conflictDetails: string;
+};
 
-  const handleSuccess = () => {
-    setSuccessMessage(true);
-  };
-
-  const handleConflict = (message: string, details: string) => {
-    setConflictMessage(message);
-    setConflictDetails(details);
-  };
+const ConflictMessage: React.FC<ConflictMessageProps> = ({ conflictMessage, conflictDetails }) => {
+  const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-200">
-      <ScrollView 
-        contentContainerStyle={{ flexGrow: 1 }} 
-        keyboardShouldPersistTaps="handled"
+    <View style={tw`bg-red-100 border border-red-400 rounded-lg p-4 mb-6 w-full max-w-xl`}>  
+      <Text style={tw`text-red-700 text-lg font-bold mb-2 text-right`}>{conflictMessage}</Text>
+      <Text style={tw`text-red-700 text-base mb-3 text-right`}>{conflictDetails}</Text>
+      <TouchableOpacity
+        onPress={() => router.push('../Login')}
+        style={tw`bg-blue-700 px-4 py-2 rounded-lg self-end`}
       >
-        <View className="flex-1 items-center justify-center px-4 py-8">
-          <Text className="text-3xl font-bold text-blue-800 mb-8 text-center">
-            רישום מתנדבים
-          </Text>
-
-          {successMessage && <SuccessMessage />}
-          
-          {conflictMessage && (
-            <ConflictMessage
-              conflictDetails={conflictDetails}
-              conflictMessage={conflictMessage}
-            />
-          )}
-
-          {!successMessage && (
-            <RegisterForm
-              onSuccess={handleSuccess}
-              onConflict={handleConflict}
-            />
-          )}
-
-          <TouchableOpacity
-            className="mt-8 py-2"
-            onPress={() => router.replace("/login")}
-          >
-            <Text className="text-gray-500 text-base"> עבור להתחברות </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        <Text style={tw`text-white font-semibold`}>עבור להתחברות</Text>
+      </TouchableOpacity>
+    </View>
   );
-}
+};
+
+export default ConflictMessage;
