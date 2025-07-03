@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, Alert } from "react-native";
+import { View, Alert, TouchableOpacity, Text } from "react-native";
 import registerSchema from "../../../data/registerSchema";
 import FormInput from "./FormInput";
 import SubmitButton from "./SubmitButton";
+import TermsModal from "./TermsModal";
 import { createUser } from "@/services/users";
 
 type RegisterFormProps = {
@@ -37,6 +38,9 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const [termsChecked, setTermsChecked] = useState(false);
+  const [isTermsModalVisible, setTermsModalVisible] = useState(false);
 
   // Handle input change based on schema validation
   const handleInputChange = (key: string, value: string) => {
@@ -173,6 +177,17 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
       !idError &&
       !phoneError
     );
+
+    const handleRegister = async () => {
+    if (!termsChecked) {
+      Alert.alert(
+        "יש להסכים לתנאי השימוש",
+        "על מנת להמשיך, יש לאשר את תנאי השימוש."
+      );
+      return;
+    }
+  }
+    
   };
 
   return (
@@ -189,10 +204,43 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
           maxLength={field.maxLength}
         />
       ))}
+    
+      <View className="flex-row-reverse items-start w-full max-w-xl mt-4">
+        <TouchableOpacity
+          onPress={() => setTermsChecked((prev) => !prev)}
+          disabled={isLoading}
+          className="ml-2"
+        >
+          <View
+            className={`w-5 h-5 border border-gray-400 rounded-sm justify-center items-center`}
+      >
+          {termsChecked && (
+          <Text className="text-blue-700 font-bold">✓</Text>
+        )}
+          </View>
+        </TouchableOpacity>
+          <Text className="text-gray-700 text-base text-right">
+            אני מסכים/ה ל
+            <Text
+            onPress={() => setTermsModalVisible(true)}
+            className="text-blue-700 font-semibold"
+            >
+              {" "}
+              תנאי השימוש
+          </Text>
+        </Text>
+      </View>
+
+
+
       <SubmitButton
         onPress={handleRegister}
         isLoading={isLoading}
-        isDisabled={!isFormValid()}
+        isDisabled={!isFormValid() || !termsChecked}
+      />
+      <TermsModal
+        visible={isTermsModalVisible}
+        onClose={() => setTermsModalVisible(false)}
       />
     </View>
   );
