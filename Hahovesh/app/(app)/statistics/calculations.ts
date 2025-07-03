@@ -1,7 +1,7 @@
 // calculations.ts
 import { Timestamp } from 'firebase/firestore';
 import { StatsPeriod } from ".../../services/volunteerAnalyticsService";
-import { getEventSummaries } from '@/services/event_summary';
+import { getEventSummary } from '@/services/event_summary';
 
 // Calculate date range based on period type
 export function calculateDateRange(

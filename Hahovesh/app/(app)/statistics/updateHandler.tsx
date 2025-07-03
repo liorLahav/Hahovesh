@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { triggerStatisticsUpdate } from './volStatsUpdater';
 import { Ionicons } from '@expo/vector-icons';
+import tw from "twrnc";
 
 /**
  * A reusable component for updating volunteer statistics
@@ -38,9 +39,9 @@ export default function UpdateHandler() {
   };
 
   return (
-    <View className="p-2">
+    <View style={tw`p-2`}>
       <TouchableOpacity
-        className={`flex-row items-center p-2 rounded-lg ${updating ? 'bg-gray-400' : 'bg-green-600'}`}
+        style={tw`flex-row items-center p-2 rounded-lg ${updating ? 'bg-gray-400' : 'bg-green-600'}`}
         onPress={handleUpdate}
         disabled={updating}
       >
@@ -48,15 +49,15 @@ export default function UpdateHandler() {
           <ActivityIndicator size="small" color="white" />
         ) : (
           <>
-            <Text className="text-white font-medium mr-2">עדכן נתוני מתנדבים</Text>
+            <Text style={tw`text-white font-medium mr-2`}>עדכן נתוני מתנדבים</Text>
             <Ionicons name="sync" size={18} color="white" />
           </>
         )}
       </TouchableOpacity>
       
       {result && (
-        <View className={`mt-2 p-2 rounded-md ${result.success ? 'bg-green-100' : 'bg-red-100'}`}>
-          <Text className={`${result.success ? 'text-green-800' : 'text-red-800'} text-right`}>
+        <View style={tw`mt-2 p-2 rounded-md ${result.success ? 'bg-green-100' : 'bg-red-100'}`}>
+          <Text style={tw`${result.success ? 'text-green-800' : 'text-red-800'} text-right`}>
             {result.message}
           </Text>
         </View>
