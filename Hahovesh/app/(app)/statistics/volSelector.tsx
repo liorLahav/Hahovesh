@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity, Modal, FlatList, TextInput, ActivityIndic
 import { useVolunteers } from '../../../hooks/useVolData';
 import { Volunteer } from "../../../services/volunteerAnalyticsService";
 import { Ionicons } from '@expo/vector-icons';
+import tw from "twrnc";
 
 interface VolunteerPickerProps {
   selectedVolunteerName: string | null;
@@ -39,18 +40,18 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
       );
   
   return (
-    <View className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-      <Text className="text-lg font-bold text-blue-800 mb-3 text-right">
+    <View style={tw`bg-white rounded-lg p-4 mb-4 shadow-sm`}>
+      <Text style={tw`text-lg font-bold text-blue-800 mb-3 text-right`}>
        סטטיסטיקות אישיות
       </Text>
       
       <TouchableOpacity 
-        className={`border ${!selectedVolunteerName ? 'border-blue-500' : 'border-gray-300'} rounded-lg p-3 flex-row justify-between items-center ${!selectedVolunteerName ? 'bg-blue-50' : 'bg-white'}`}
+        style={tw`border ${!selectedVolunteerName ? 'border-blue-500' : 'border-gray-300'} rounded-lg p-3 flex-row justify-between items-center ${!selectedVolunteerName ? 'bg-blue-50' : 'bg-white'}`}
         onPress={() => setModalVisible(true)}
       >
         <Ionicons name="chevron-down" size={20} color={!selectedVolunteerName ? "#2563eb" : "#4B5563"} />
         
-        <Text className={`text-right ${!selectedVolunteerName ? 'text-blue-700 font-medium' : 'text-gray-700'}`}>
+        <Text style={tw`text-right ${!selectedVolunteerName ? 'text-blue-700 font-medium' : 'text-gray-700'}`}>
           {selectedVolunteerName 
             ? selectedVolunteerName
             : loading 
@@ -65,20 +66,20 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
       {/* Option to clear volunteer selection */}
       {selectedVolunteerName && (
         <TouchableOpacity 
-          className="mt-2 flex-row justify-end items-center"
+          style={tw`mt-2 flex-row justify-end items-center`}
           onPress={() => onSelectVolunteer(null)}
         >
-          <Text className="text-blue-600 font-medium">חזור לבחירת מתנדב</Text>
+          <Text style={tw`text-blue-600 font-medium`}>חזור לבחירת מתנדב</Text>
         </TouchableOpacity>
       )}
       
       {/* Refresh button for error cases */}
       {error && (
         <TouchableOpacity 
-          className="mt-2 flex-row justify-end items-center"
+          style={tw`mt-2 flex-row justify-end items-center`}
           onPress={refreshVolunteers}
         >
-          <Text className="text-red-600 font-medium">נסה שוב לטעון מתנדבים</Text>
+          <Text style={tw`text-red-600 font-medium`}>נסה שוב לטעון מתנדבים</Text>
         </TouchableOpacity>
       )}
       
@@ -88,19 +89,19 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white rounded-t-xl h-3/4 p-4">
-            <View className="flex-row justify-between items-center mb-4">
+        <View style={tw`flex-1 justify-end bg-black/50`}>
+          <View style={tw`bg-white rounded-t-xl h-3/4 p-4`}>
+            <View style={tw`flex-row justify-between items-center mb-4`}>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <Ionicons name="close" size={24} color="#4B5563" />
               </TouchableOpacity>
               
-              <Text className="text-lg font-bold text-gray-800">בחירת מתנדב</Text>
+              <Text style={tw`text-lg font-bold text-gray-800`}>בחירת מתנדב</Text>
             </View>            
             {/* Search box */}
-            <View className="mb-4 border border-gray-300 rounded-lg p-2 flex-row items-center">
+            <View style={tw`mb-4 border border-gray-300 rounded-lg p-2 flex-row items-center`}>
               <TextInput
-                className="flex-1 text-right mr-2"
+                style={tw`flex-1 text-right mr-2`}
                 placeholder="חיפוש לפי שם"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -110,36 +111,36 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
             
             {/* Volunteers list */}
             {loading ? (
-              <View className="items-center justify-center py-8">
+              <View style={tw`items-center justify-center py-8`}>
                 <ActivityIndicator size="large" color="#1d4ed8" />
-                <Text className="mt-4 text-gray-500">טוען רשימת מתנדבים...</Text>
+                <Text style={tw`mt-4 text-gray-500`}>טוען רשימת מתנדבים...</Text>
               </View>
             ) : error ? (
-              <View className="items-center py-8">
-                <Text className="text-center py-4 text-red-500">{error}</Text>
+              <View style={tw`items-center py-8`}>
+                <Text style={tw`text-center py-4 text-red-500`}>{error}</Text>
                 <TouchableOpacity 
-                  className="mt-2 bg-blue-600 py-2 px-4 rounded" 
+                  style={tw`mt-2 bg-blue-600 py-2 px-4 rounded`}
                   onPress={refreshVolunteers}
                 >
-                  <Text className="text-white font-bold">נסה שוב</Text>
+                  <Text style={tw`text-white font-bold`}>נסה שוב</Text>
                 </TouchableOpacity>
               </View>
             ) : filteredVolunteers.length === 0 ? (
-              <Text className="text-center py-4 text-gray-500">לא נמצאו מתנדבים תואמים לחיפוש</Text>
+              <Text style={tw`text-center py-4 text-gray-500`}>לא נמצאו מתנדבים תואמים לחיפוש</Text>
             ) : (
               <FlatList
                 data={filteredVolunteers}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                   <TouchableOpacity 
-                    className={`p-3 border-b border-gray-100 ${item.full_name === selectedVolunteerName ? 'bg-blue-50' : ''}`}
+                    style={tw`p-3 border-b border-gray-100 ${item.full_name === selectedVolunteerName ? 'bg-blue-50' : ''}`}
                     onPress={() => {
                       onSelectVolunteer(item.full_name);
                       setModalVisible(false);
                     }}
                   >
-                    <Text className="text-right text-gray-800 font-medium">{item.full_name}</Text>
-                    <Text className="text-right text-gray-500 text-sm">ID: {item.id}</Text>
+                    <Text style={tw`text-right text-gray-800 font-medium`}>{item.full_name}</Text>
+                    <Text style={tw`text-right text-gray-500 text-sm`}>ID: {item.id}</Text>
                   </TouchableOpacity>
                 )}
               />

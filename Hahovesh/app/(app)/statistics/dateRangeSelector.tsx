@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Platform } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { StatsPeriod } from "../../../services/volunteerAnalyticsService";
+import tw from "twrnc";
 
 interface DateRangePickerProps {
   period: StatsPeriod;
@@ -69,23 +70,23 @@ export default function DateRangePicker({
   };
 
   return (
-    <View className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-      <Text className="text-lg font-bold text-blue-800 mb-3 text-right">
+    <View style={tw`bg-white rounded-lg p-4 mb-4 shadow-sm`}>
+      <Text style={tw`text-lg font-bold text-blue-800 mb-3 text-right`}>
         בחירת טווח זמן
       </Text>
 
       {/* Period selector buttons */}
-      <View className="flex-row flex-wrap justify-end mb-3">
+      <View style={tw`flex-row flex-wrap justify-end mb-3`}>
         {periods.map((item) => (
           <TouchableOpacity
             key={item.key}
             onPress={() => handlePeriodChange(item.key)}
-            className={`mx-1 my-1 px-4 py-2 rounded-full ${
+            style={tw`mx-1 my-1 px-4 py-2 rounded-full ${
               period === item.key ? "bg-blue-700" : "bg-gray-200"
             }`}
           >
             <Text
-              className={`${
+              style={tw`${
                 period === item.key ? "text-white" : "text-gray-800"
               } font-medium`}
             >
@@ -98,26 +99,26 @@ export default function DateRangePicker({
       {period === "custom" && (
         <View>
           {/* End Date Picker button (left) */}
-          <View className="flex-row justify-between items-center mb-2">
+          <View style={tw`flex-row justify-between items-center mb-2`}>
             <TouchableOpacity
               onPress={() => setShowEndPicker(true)}
-              className="flex-1 bg-white border border-gray-300 rounded-md p-2"
+              style={tw`flex-1 bg-white border border-gray-300 rounded-md p-2`}
             >
-              <Text className="text-right text-gray-700">
+              <Text style={tw`text-right text-gray-700`}>
                 {endDate
                   ? endDate.toLocaleDateString("he-IL")
                   : "בחר תאריך סיום"}
               </Text>
             </TouchableOpacity>
 
-            <Text className="mx-2 text-gray-700 font-medium">עד</Text>
+            <Text style={tw`mx-2 text-gray-700 font-medium`}>עד</Text>
 
             {/* Start Date Picker button (right) */}
             <TouchableOpacity
               onPress={() => setShowStartPicker(true)}
-              className="flex-1 bg-white border border-gray-300 rounded-md p-2"
+              style={tw`flex-1 bg-white border border-gray-300 rounded-md p-2`}
             >
-              <Text className="text-right text-gray-700">
+              <Text style={tw`text-right text-gray-700`}>
                 {startDate
                   ? startDate.toLocaleDateString("he-IL")
                   : "בחר תאריך התחלה"}
