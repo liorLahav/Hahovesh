@@ -1,5 +1,5 @@
-import { Pressable, View, Text, Alert } from "react-native";
-import { Platform, Linking } from "react-native";
+import React from "react";
+import { Pressable, View, Text, Alert, Platform, Linking } from "react-native";
 import tw from "twrnc";
 
 type AdressCardProps = {
@@ -16,6 +16,7 @@ const openMapsWithAddress = (event?: { street?: string }) => {
 
   const encodedAddress = encodeURIComponent(address);
   let url = `geo:0,0?q=${encodedAddress}`;
+
   Linking.canOpenURL(url)
     .then((supported) => {
       if (supported) {
@@ -27,26 +28,33 @@ const openMapsWithAddress = (event?: { street?: string }) => {
     })
     .catch((err) => {
       console.error("Error opening map:", err);
-      Alert.alert("שגיאה", "לא ניתן לפתוח את המפה, נסה שוב מאוחר יותר.");
+      Alert.alert(
+        "שגיאה",
+        "לא ניתן לפתוח את המפה, נסה שוב מאוחר יותר."
+      );
     });
 };
 
-const AdressCard = (props: AdressCardProps) => {
+const AdressCard: React.FC<AdressCardProps> = ({
+  address,
+  addressType,
+  apartment_details,
+}) => {
   return (
     <Pressable
-      onPress={() => openMapsWithAddress({ street: props.address })}
-      style={tw`bg-white mx-4 mt-4 rounded-xl shadow-md overflow-hidden border border-gray-200`}
+      onPress={() => openMapsWithAddress({ street: address })}
+      style={tw`bg-white w-[90%] mx-4 mt-4 rounded-xl shadow-md overflow-hidden border border-gray-200`}
     >
       <View style={tw`flex-row items-center p-3`}>
-        <View style={tw`flex-1`}>  
+        <View style={tw`flex-1`}>
           <Text style={tw`text-base font-bold text-center`}>מיקום</Text>
-          <Text style={tw`text-lg text-gray-700 text-center`}>  
-            {props.address}
-            {props.addressType && ` (${props.addressType})`}
+          <Text style={tw`text-lg text-gray-700 text-center`}>
+            {address}
+            {addressType && ` (${addressType})`}
           </Text>
-          {props.apartment_details && (
+          {apartment_details && (
             <Text style={tw`text-sm text-gray-500 text-center`}>
-              {props.apartment_details}
+              {apartment_details}
             </Text>
           )}
         </View>

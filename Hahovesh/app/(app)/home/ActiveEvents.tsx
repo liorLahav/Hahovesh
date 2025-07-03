@@ -84,7 +84,7 @@ export default function ActiveEvents() {
       >
         <Text
           style={[
-            tw`text-white tracking-wide text-[24px]`,
+            tw`text-white tracking-wide text-[20px]`,
             { fontFamily: "Assistant-Bold" },
           ]}
         >
@@ -93,7 +93,7 @@ export default function ActiveEvents() {
 
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <Pressable
-            style={tw`absolute right-3 top-5 bg-red-600 px-4 py-2 rounded-full shadow-md h-[40px] justify-center items-center`}
+            style={tw`absolute right-2 top-4 bg-red-600 px-3 py-2 rounded-full shadow-md h-[40px] justify-center items-center`}
             onPress={() => router.push("/newEvent")}
           >
             <Text style={tw`text-white font-bold text-base`}>אירוע חדש</Text>

@@ -1,6 +1,6 @@
 const { getDefaultConfig } = require("expo/metro-config");
-const { withNativeWind } = require("nativewind/metro");
 
+// Get the default Expo Metro configuration
 const config = getDefaultConfig(__dirname);
 
 // Add support for .cjs files (required by Firebase)
@@ -9,5 +9,5 @@ config.resolver.sourceExts.push("cjs");
 // Avoid crashes with package exports in Firebase
 config.resolver.unstable_enablePackageExports = false;
 
-// Enable NativeWind and return the final config
-module.exports = withNativeWind(config, { input: "./global.css" });
+// Export the Metro configuration without NativeWind
+module.exports = config;

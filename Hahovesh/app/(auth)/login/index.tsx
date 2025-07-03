@@ -139,7 +139,7 @@ const Login = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-200">
+    <SafeAreaView style={tw`flex-1 bg-blue-200 justify-center`}>
 
 
       <StatusBar style="light" />

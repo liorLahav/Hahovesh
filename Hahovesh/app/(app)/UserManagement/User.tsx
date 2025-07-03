@@ -1,5 +1,5 @@
+import React, { useState } from "react";
 import { View, Text } from "react-native";
-import { useState } from "react";
 import tw from "twrnc";
 import PermissionsPanel from "./PermissionsPanel";
 import ApprovePanel from "./ApprovePanel";
@@ -11,61 +11,55 @@ type UserProps = {
   isActive: string;
 };
 
-const User = (props: UserProps) => {
-  // Add state to track if permissions are being updated
+const User: React.FC<UserProps> = ({ user, refresh, isActive }) => {
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Wrap the refresh function to handle loading state
   const handleRefresh = async () => {
     setIsUpdating(true);
     try {
-      await props.refresh();
+      await refresh();
     } finally {
       setIsUpdating(false);
     }
   };
 
   return (
-    <View style={tw`bg-white rounded-lg overflow-hidden my-1 mx-1.5 h-[85px] py-2 px-3 border border-gray-200`}>
-      <View style={tw`flex-row items-stretch`}>
-        {/* Left side - Permissions Panel */}
-        <View style={tw`flex-[1.2] bg-gray-50`}>
-          {!props.user.permissions.includes("Pending") ? (
-            <PermissionsPanel user={props.user} refresh={handleRefresh} />
+    <View style={tw`bg-white rounded-lg my-2 mx-0 border border-gray-200`}>
+      <View style={tw`flex-row`}>
+        {/* Left side – even wider */}
+        <View style={tw`w-32 bg-white-50 p-1`}>
+          {!user.permissions.includes("Pending") ? (
+            <PermissionsPanel user={user} refresh={handleRefresh} />
           ) : (
-            <ApprovePanel user={props.user} refresh={handleRefresh} />
+            <ApprovePanel user={user} refresh={handleRefresh} />
           )}
         </View>
 
-        {/* Vertical divider */}
-        <View style={tw`w-[1px] bg-gray-200`} />
+        {/* Divider – more horizontal gap */}
+        <View style={tw`w-px bg-gray-200 mx-6`} />
 
-        {/* Right side - User Info */}
-        <View style={tw`flex-[0.8] py-1.5 px-3 justify-center relative`}>
-          <Text style={tw`text-xs mb-0.5 font-bold text-gray-800 text-right`}>
+        {/* Right side – flex-1 */}
+        <View style={tw`flex-1 py-2 pr-3`}>
+          <Text style={tw`text-xs font-bold text-gray-800 text-right mb-1`}>
             שם:{" "}
             <Text style={tw`font-normal text-gray-600`}>
-              {props.user.first_name + " " + props.user.last_name}
+              {user.first_name} {user.last_name}
             </Text>
           </Text>
-          <Text style={tw`text-xs mb-0.5 font-bold text-gray-800 text-right`}>
+          <Text style={tw`text-xs font-bold text-gray-800 text-right mb-1`}>
             טלפון:{" "}
-            <Text style={tw`font-normal text-gray-600`}>
-              {props.user.phone}
-            </Text>
+            <Text style={tw`font-normal text-gray-600`}>{user.phone}</Text>
           </Text>
-          <Text style={tw`text-xs mb-0.5 font-bold text-gray-800 text-right`}>
+          <Text style={tw`text-xs font-bold text-gray-800 text-right`}>
             ת"ז:{" "}
-            <Text style={tw`font-normal text-gray-600`}>{props.user.id}</Text>
+            <Text style={tw`font-normal text-gray-600`}>{user.id}</Text>
           </Text>
-          <View style={tw`absolute top-10 left-1`}>
-            {props.isActive === "משתמשים פעילים" && (
-              <DeleteUserButton
-                refresh={props.refresh}
-                userId={props.user.id}
-              />
-            )}
-          </View>
+
+          {isActive === "משתמשים פעילים" && (
+            <View style={tw`absolute top-2 left-2`}>
+              <DeleteUserButton userId={user.id} refresh={refresh} />
+            </View>
+          )}
         </View>
       </View>
     </View>

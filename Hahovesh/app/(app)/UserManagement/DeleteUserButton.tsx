@@ -26,7 +26,7 @@ export default function DeleteUserButton({ userId, refresh }: Props) {
 
   return (
     <Pressable
-      style={tw`p-2`}
+      style={tw`p-2 right-10 top-10`}
       onPress={() => {
         Alert.alert(
           "האם אתה בטוח?",
