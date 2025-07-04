@@ -40,7 +40,6 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
-
   const [termsChecked, setTermsChecked] = useState(false);
   const [isTermsModalVisible, setTermsModalVisible] = useState(false);
 
@@ -74,6 +73,14 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
   };
 
   const handleRegister = async () => {
+    if (!termsChecked) {
+      Alert.alert(
+        "יש להסכים לתנאי השימוש",
+        "על מנת להמשיך, יש לאשר את תנאי השימוש."
+      );
+      return;
+    }
+
     let hasErrors = false;
     const newErrors = { ...formErrors };
 
@@ -170,17 +177,6 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
       !iErr &&
       !pErr
     );
-
-    const handleRegister = async () => {
-    if (!termsChecked) {
-      Alert.alert(
-        "יש להסכים לתנאי השימוש",
-        "על מנת להמשיך, יש לאשר את תנאי השימוש."
-      );
-      return;
-    }
-  }
-    
   };
 
   return (
@@ -198,33 +194,31 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
         />
       ))}
     
-      <View className="flex-row-reverse items-start w-full max-w-xl mt-4">
+      <View style={tw`flex-row-reverse items-start w-full max-w-xl mt-4`}>
         <TouchableOpacity
           onPress={() => setTermsChecked((prev) => !prev)}
           disabled={isLoading}
-          className="ml-2"
+          style={tw`ml-2`}
         >
           <View
-            className={`w-5 h-5 border border-gray-400 rounded-sm justify-center items-center`}
-      >
-          {termsChecked && (
-          <Text className="text-blue-700 font-bold">✓</Text>
-        )}
+            style={tw`w-5 h-5 border border-blue-400 rounded-sm justify-center items-center`}
+          >
+            {termsChecked && (
+              <Text style={tw`text-blue-700 font-bold`}>✓</Text>
+            )}
           </View>
         </TouchableOpacity>
-          <Text className="text-gray-700 text-base text-right">
-            אני מסכים/ה ל
-            <Text
+        <Text style={tw`text-blue-700 text-base text-right`}>
+          אני מסכים/ה ל
+          <Text
             onPress={() => setTermsModalVisible(true)}
-            className="text-blue-700 font-semibold"
-            >
-              {" "}
-              תנאי השימוש
+            style={tw`text-blue-700 font-semibold`}
+          >
+            {" "}
+            תנאי השימוש
           </Text>
         </Text>
       </View>
-
-
 
       <SubmitButton
         onPress={handleRegister}
