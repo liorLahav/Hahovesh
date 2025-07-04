@@ -80,7 +80,7 @@ export default function ActiveEvents() {
   return (
     <View style={tw`flex-1 bg-white`}>
       <View
-        style={tw`bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center`}
+        style={tw`bg-blue-700 py-5 rounded-b-2xl shadow-md items-center justify-center`}
       >
         <Text
           style={[

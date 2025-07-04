@@ -59,6 +59,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     firebaseAppId: process.env.FIREBASE_APP_ID,
     firebaseMeasurementId: process.env.FIREBASE_MEASUREMENT_ID,
     firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,
+    supportsRTL: false,
     eas: {
       projectId: "bebf62bb-09e7-4b45-85fa-6f08506fc8ee"
     }

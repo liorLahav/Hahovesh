@@ -22,9 +22,17 @@ const User: React.FC<UserProps> = ({ user, refresh, isActive }) => {
       setIsUpdating(false);
     }
   };
+  
+  // Format phone number to replace +972 with 0
+  const formatPhoneNumber = (phone: string) => {
+    if (phone.startsWith("+972")) {
+      return phone.replace("+972", "0");
+    }
+    return phone;
+  };
 
   return (
-    <View style={tw`bg-white rounded-lg my-2 mx-0 border border-gray-200`}>
+    <View style={tw`bg-white rounded-lg my-2 mx-0 border border-blue-200`}>
       <View style={tw`flex-row`}>
         {/* Left side – even wider */}
         <View style={tw`w-32 bg-white-50 p-1`}>
@@ -36,23 +44,25 @@ const User: React.FC<UserProps> = ({ user, refresh, isActive }) => {
         </View>
 
         {/* Divider – more horizontal gap */}
-        <View style={tw`w-px bg-gray-200 mx-6`} />
+        <View style={tw`w-px bg-blue-200 mx-6`} />
 
         {/* Right side – flex-1 */}
         <View style={tw`flex-1 py-2 pr-3`}>
-          <Text style={tw`text-xs font-bold text-gray-800 text-right mb-1`}>
+          <Text style={tw`text-xs font-bold text-blue-800 text-right mb-1`}>
             שם:{" "}
-            <Text style={tw`font-normal text-gray-600`}>
+            <Text style={tw`font-normal text-blue-600`}>
               {user.first_name} {user.last_name}
             </Text>
           </Text>
-          <Text style={tw`text-xs font-bold text-gray-800 text-right mb-1`}>
+          <Text style={tw`text-xs font-bold text-blue-800 text-right mb-1`}>
             טלפון:{" "}
-            <Text style={tw`font-normal text-gray-600`}>{user.phone}</Text>
+            <Text style={tw`font-normal text-blue-600`}>
+              {formatPhoneNumber(user.phone)}
+            </Text>
           </Text>
-          <Text style={tw`text-xs font-bold text-gray-800 text-right`}>
+          <Text style={tw`text-xs font-bold text-blue-800 text-right`}>
             ת"ז:{" "}
-            <Text style={tw`font-normal text-gray-600`}>{user.id}</Text>
+            <Text style={tw`font-normal text-blue-600`}>{user.id}</Text>
           </Text>
 
           {isActive === "משתמשים פעילים" && (
