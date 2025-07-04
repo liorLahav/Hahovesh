@@ -25,8 +25,7 @@
         "FIREBASE_DATABASE_URL": "https://hahovesh-project-default-rtdb.europe-west1.firebasedatabase.app"
       },
       "android": {
-        "buildType": "abbapp-bundle",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "app-bundle"
       }
     }
   },
