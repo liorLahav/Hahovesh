@@ -11,52 +11,40 @@ import {
   CollectionReference,
   setDoc,
 } from "firebase/firestore";
-import { db } from "../FirebaseConfig";
-import { remove } from "firebase/database";
+import { db, app } from "../FirebaseConfig";
+import { httpsCallable, getFunctions } from "firebase/functions";
 
+// Initialize functions
+const functions = getFunctions(app);
+type CreateUserResponse = {
+  success: boolean,
+  conflict: string,
+  details: string,
+}
+
+// Use Cloud Function for user registration
 export async function createUser({ firstName, lastName, identifier, phone }: {
   firstName: string;
   lastName: string;
   identifier: string;
   phone: string;
-}) {
-  // בדיקת תעודת זהות קיימת
-  const idDocRef = doc(db, "volunteers", identifier);
-  const idDocSnap = await getDoc(idDocRef);
-
-  if (idDocSnap.exists()) {
-    const existingData = idDocSnap.data();
-    return {
-      success: false,
-      conflict: "id",
-      details: existingData
-    };
+}): Promise<CreateUserResponse> {
+  try {
+    const registerUserFunction = httpsCallable(functions, 'registerUser');
+    const result = await registerUserFunction({
+      firstName,
+      lastName,
+      identifier,
+      phone
+    });
+    
+    return result.data as CreateUserResponse;
+  } catch (error: any) {
+    console.error("Error calling registerUser function:", error);
+    throw new Error(
+      "Error registering user: " + (error?.message || JSON.stringify(error))
+    );
   }
-
-  // בדיקת טלפון קיים
-  const volunteersRef = collection(db, "volunteers");
-  const phoneQuery = query(volunteersRef, where("phone", "==", phone));
-  const phoneQuerySnapshot = await getDocs(phoneQuery);
-
-  if (!phoneQuerySnapshot.empty) {
-    const existingData = phoneQuerySnapshot.docs[0].data();
-    return {
-      success: false,
-      conflict: "phone",
-      details: existingData
-    };
-  }
-
-  // יצירת משתמש חדש
-  await setDoc(doc(db, "volunteers", identifier), {
-    first_name: firstName,
-    last_name: lastName,
-    id: identifier,
-    phone: phone,
-    permissions: ["Pending"],
-  });
-
-  return { success: true };
 }
 
 export const deleteUser = async (user_id: string) => {
@@ -71,8 +59,6 @@ export const deleteUser = async (user_id: string) => {
     }
   }
 };
-
-
 
 export const updatePermissions = async (
   user_id: string,
@@ -116,11 +102,10 @@ export const getAllUsers = async (): Promise<DocumentData[]> => {
       return [];
     }
 
-    // Get both the data and the ID
     const usersData = snapshot.docs.map((doc) => {
       return {
         ...doc.data(),
-        id: doc.id, // Make sure ID is included
+        id: doc.id,
       };
     });
 
@@ -191,50 +176,6 @@ export const getUserByPhoneNumber = async (phoneNumber: string): Promise<Documen
     );
   }
 }
-export async function registerVolunteer({ firstName, lastName, identifier, phone }: {
-  firstName: string;
-  lastName: string;
-  identifier: string;
-  phone: string;
-}) {
-  // id check
-  const idDocRef = doc(db, "volunteers", identifier);
-  const idDocSnap = await getDoc(idDocRef);
-
-  if (idDocSnap.exists()) {
-    const existingData = idDocSnap.data();
-    return {
-      success: false,
-      conflict: "id",
-      details: existingData
-    };
-  }
-
-  // phone check
-  const volunteersRef = collection(db, "volunteers");
-  const phoneQuery = query(volunteersRef, where("phone", "==", phone));
-  const phoneQuerySnapshot = await getDocs(phoneQuery);
-
-  if (!phoneQuerySnapshot.empty) {
-    const existingData = phoneQuerySnapshot.docs[0].data();
-    return {
-      success: false,
-      conflict: "phone",
-      details: existingData
-    };
-  }
-
-  // יצירת משתמש חדש
-  await setDoc(doc(db, "volunteers", identifier), {
-    first_name: firstName,
-    last_name: lastName,
-    id: identifier,
-    phone: phone,
-    permissions: ["pending"],
-  });
-
-  return { success: true };
-}
 
 export async function updateExpoToken(userId: string, expoPushToken: string) {
   try {
@@ -248,6 +189,7 @@ export async function updateExpoToken(userId: string, expoPushToken: string) {
     );
   }
 }
+
 export async function removeExpoToken(userId: string) {
   try {
     const userRef = doc(db, "volunteers", userId);

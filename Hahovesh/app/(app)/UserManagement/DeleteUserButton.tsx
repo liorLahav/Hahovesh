@@ -2,6 +2,7 @@ import { Alert, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useError } from "@/hooks/UseError";
 import { deleteUser } from "@/services/users";
+import tw from "twrnc";
 
 type Props = {
   userId: string;
@@ -25,17 +26,22 @@ export default function DeleteUserButton({ userId, refresh }: Props) {
 
   return (
     <Pressable
+      style={tw`p-2 right-10 top-10`}
       onPress={() => {
-        Alert.alert("האם אתה בטוח?", "לאחר המחיקה לא תוכל לשחזר משתמש ", [
-          {
-            text: "ביטול",
-            style: "cancel",
-          },
-          {
-            text: "אישור",
-            onPress: handleDeleteMessage,
-          },
-        ]);
+        Alert.alert(
+          "האם אתה בטוח?",
+          "לאחר המחיקה לא תוכל לשחזר משתמש ",
+          [
+            {
+              text: "ביטול",
+              style: "cancel",
+            },
+            {
+              text: "אישור",
+              onPress: handleDeleteMessage,
+            },
+          ]
+        );
       }}
     >
       <Ionicons name="trash-outline" size={21} color="red" />

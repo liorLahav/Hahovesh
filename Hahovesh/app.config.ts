@@ -7,7 +7,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "Hahovesh",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/images/icon.png",
+  icon: "./assets/images/logo.png",
   scheme: "myapp",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
@@ -17,9 +17,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: "org.hahovesh.volunteerApp",
-    googleServicesFile: "./android/google-services.json",
+    googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
     adaptiveIcon: {
-      foregroundImage: "./assets/images/adaptive-icon.png",
+      foregroundImage: "./assets/images/logo.png",
       backgroundColor: "#ffffff"
     }
   },
@@ -33,13 +33,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-splash-screen",
       {
-        image: "./assets/images/splash-icon.png",
+        image: "./assets/images/logo.png",
         imageWidth: 200,
         resizeMode: "contain",
         backgroundColor: "#ffffff"
       }
     ],
-    "expo-font"
+    "expo-font",
+    [
+      "expo-notifications",
+      {
+        sounds: ["./assets/notifications/events.wav","./assets/notifications/urgent.wav"]
+      }
+    ],
   ],
   experiments: {
     typedRoutes: true
@@ -53,6 +59,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     firebaseAppId: process.env.FIREBASE_APP_ID,
     firebaseMeasurementId: process.env.FIREBASE_MEASUREMENT_ID,
     firebaseDatabaseUrl: process.env.FIREBASE_DATABASE_URL,
+    supportsRTL: false,
     eas: {
       projectId: "bebf62bb-09e7-4b45-85fa-6f08506fc8ee"
     }

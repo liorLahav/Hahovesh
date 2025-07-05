@@ -19,12 +19,16 @@ export default function ActiveEvents() {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const unsubscribeRef = useRef<() => void | null>(null);
   const { isEventActive, changeEvent } = useEventContext();
+  const [pressed, setIsPressed] = useState<boolean>(false);
   const roles = user.permissions || [];
   const { setErrorMessage, cleanError } = useError();
 
   const eventEnds = (event: Event) => !!event.summaryReportFiller;
 
   const receiveEvent = async (event: Event) => {
+    if (pressed)
+      return;
+    setIsPressed(true);
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
@@ -46,6 +50,7 @@ export default function ActiveEvents() {
     }
     changeEvent(event);
     router.push({ pathname: "/ArrivingToEvent" });
+    setIsPressed(false);
   };
 
   useEffect(() => {
@@ -80,11 +85,11 @@ export default function ActiveEvents() {
   return (
     <View style={tw`flex-1 bg-white`}>
       <View
-        style={tw`bg-blue-700 py-5 rounded-b-3xl shadow-md items-center justify-center`}
+        style={tw`bg-blue-700 py-5 rounded-b-2xl shadow-md items-center justify-center`}
       >
         <Text
           style={[
-            tw`text-white tracking-wide text-[24px]`,
+            tw`text-white tracking-wide text-[20px]`,
             { fontFamily: "Assistant-Bold" },
           ]}
         >
@@ -93,7 +98,7 @@ export default function ActiveEvents() {
 
         {roles.includes("Dispatcher") || roles.includes("Admin") ? (
           <Pressable
-            style={tw`absolute right-3 top-5 bg-red-600 px-4 py-2 rounded-full shadow-md h-[40px] justify-center items-center`}
+            style={tw`absolute right-2 top-4 bg-red-600 px-3 py-2 rounded-full shadow-md h-[40px] justify-center items-center`}
             onPress={() => router.push("/newEvent")}
           >
             <Text style={tw`text-white font-bold text-base`}>אירוע חדש</Text>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, ViewStyle } from "react-native";
 import { router } from "expo-router";
+import tw from "twrnc";
 import RegisterForm from "./RegisterForm";
 import SuccessMessage from "./SuccessMessage";
 import ConflictMessage from "./conflictMessage";
@@ -20,22 +21,22 @@ export default function Register() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-200">
-      <ScrollView 
-        contentContainerStyle={{ flexGrow: 1 }} 
+    <SafeAreaView style={tw`flex-1 bg-blue-200`}>
+      <ScrollView
+        contentContainerStyle={tw`flex-grow`}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="flex-1 items-center justify-center px-4 py-8">
-          <Text className="text-3xl font-bold text-blue-800 mb-8 text-center">
+        <View style={tw`flex-1 items-center justify-center px-4 py-8`}>
+          <Text style={tw`text-3xl font-bold text-blue-800 mb-8 text-center`}>
             רישום מתנדבים
           </Text>
 
           {successMessage && <SuccessMessage />}
-          
-          {conflictMessage && (
+
+          {conflictMessage !== "" && (
             <ConflictMessage
-              conflictDetails={conflictDetails}
               conflictMessage={conflictMessage}
+              conflictDetails={conflictDetails}
             />
           )}
 
@@ -47,10 +48,12 @@ export default function Register() {
           )}
 
           <TouchableOpacity
-            className="mt-8 py-2"
             onPress={() => router.replace("/login")}
+            style={tw`mt-8 py-2` as ViewStyle}
           >
-            <Text className="text-gray-500 text-base"> עבור להתחברות </Text>
+            <Text style={tw`text-gray-500 text-base text-center`}>
+              עבור להתחברות
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

@@ -1,15 +1,17 @@
-import { View,Text } from "react-native";
+import React from "react";
+import { View, Text } from "react-native";
+import tw from "twrnc";
 
 type LoadingProps = {
-    message?: string;
+  message?: string;
 };
 
-const Loading = ({ message = "טוען..." }: LoadingProps) => {
-    return (
-        <View className="flex-1 items-center justify-center">
-        <Text>{message ? message : "טוען..."}</Text>
-        </View>
-    );
-}
+const Loading: React.FC<LoadingProps> = ({ message = "טוען..." }) => {
+  return (
+    <View style={tw`flex-1 items-center justify-center`}>
+      <Text style={tw`text-gray-700`}>{message}</Text>
+    </View>
+  );
+};
 
 export default Loading;

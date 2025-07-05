@@ -1,61 +1,59 @@
+import React, { useState } from "react";
 import { View, TouchableOpacity, Text, Alert } from "react-native";
-import { useState } from "react";
+import tw from "twrnc";
 import { updatePermissions } from "../../../services/users";
-import { User, useUserContext } from "@/hooks/UserContext";
+import { User } from "@/hooks/UserContext";
 
 const ROLES = {
   Volunteer: ["Volunteer"],
   Dispatcher: ["Volunteer", "Dispatcher"],
   Admin: ["Volunteer", "Dispatcher", "Admin"],
 };
-type permissionsPanelProps = {
+
+type PermissionsPanelProps = {
   user: User;
   refresh: () => void;
 };
 
-const PermissionsPanel = (props: permissionsPanelProps) => {
+const PermissionsPanel: React.FC<PermissionsPanelProps> = ({ user, refresh }) => {
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const userHasRoles = (role: keyof typeof ROLES) => {
-    return props.user.permissions.includes(role);
-  };
+  const hasRole = (role: keyof typeof ROLES) =>
+    user.permissions.includes(role);
 
-  const handleRoleSelection = async (role: keyof typeof ROLES) => {
+  const selectRole = async (role: keyof typeof ROLES) => {
     if (isUpdating) return;
     setIsUpdating(true);
     try {
-      const selectedPermissions = ROLES[role];
-      props.user.permissions = selectedPermissions;
-      await updatePermissions(props.user.id, selectedPermissions);
-      props.refresh();
-    } catch (error) {
-      console.error("Error updating permissions: ", error);
-      Alert.alert("שגיאה", "לא ניתן לעדכן את ההרשאות כעת, פנה למנהל המערכת.");
+      const perms = ROLES[role];
+      user.permissions = perms;
+      await updatePermissions(user.id, perms);
+      refresh();
+    } catch (err) {
+      console.error(err);
+      Alert.alert(
+        "שגיאה",
+        "לא ניתן לעדכן את ההרשאות כעת, פנה למנהל המערכת."
+      );
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const renderButton = (role: keyof typeof ROLES, label: string) => {
-    const isSelected = userHasRoles(role);
+  const renderBtn = (role: keyof typeof ROLES, label: string) => {
+    const sel = hasRole(role);
     return (
       <TouchableOpacity
-        className={`py-2.5 px-2 rounded-lg border items-center flex-1 mx-[2px]
-          ${
-            isSelected
-              ? "bg-blue-50 border-blue-500"
-              : "bg-gray-50 border-gray-300"
-          }
-          ${isUpdating ? "opacity-50" : "opacity-100"}`}
-        onPress={() => handleRoleSelection(role)}
-        key={props.user.id + role}
+        key={role}
+        onPress={() => selectRole(role)}
         disabled={isUpdating}
+        style={[
+          tw`px-2 py-1 rounded border items-center mx-0.5`,
+          sel ? tw`bg-blue-50 border-blue-500` : tw`bg-gray-50 border-gray-300`,
+          isUpdating && tw`opacity-50`,
+        ]}
       >
-        <Text
-          className={`text-xs ${
-            isSelected ? "text-blue-500 font-bold" : "text-gray-600 font-normal"
-          }`}
-        >
+        <Text style={sel ? tw`text-blue-500 text-xs font-bold` : tw`text-gray-600 text-xs`}>
           {label}
         </Text>
       </TouchableOpacity>
@@ -63,14 +61,14 @@ const PermissionsPanel = (props: permissionsPanelProps) => {
   };
 
   return (
-    <View className="p-2 h-full justify-center bg-white">
-      <Text className="text-base font-bold mb-2 text-center text-gray-800">
+      <View style={tw`w-29 bg-white-50 p-1 ml-4`}>
+        <Text style={tw`text-xs font-bold mb-1 text-center text-gray-800`}>
         הגדרת הרשאות:
       </Text>
-      <View className="flex-row justify-around items-center space-x-1.5 px-0.5">
-        {renderButton("Volunteer", "כונן")}
-        {renderButton("Dispatcher", "מוקדן")}
-        {renderButton("Admin", "מנהל")}
+      <View style={tw`flex-row justify-center`}>
+        {renderBtn("Volunteer", "כונן")}
+        {renderBtn("Dispatcher", "מוקדן")}
+        {renderBtn("Admin", "מנהל")}
       </View>
     </View>
   );

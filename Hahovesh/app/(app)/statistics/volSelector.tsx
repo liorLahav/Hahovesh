@@ -31,6 +31,7 @@ export default function VolunteerPicker({ selectedVolunteerName, onSelectVolunte
       }
     }, 100);  };
   
+  
   // Filter volunteers by search string
   const filteredVolunteers = searchQuery.trim() === '' 
     ? volunteers 

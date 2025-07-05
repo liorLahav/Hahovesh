@@ -1,20 +1,26 @@
-import { Ionicons } from "@expo/vector-icons"
+import React from "react";
+import { Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "expo-router";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { ParamListBase } from "@react-navigation/native";
-import { useNavigation } from "expo-router";
-import { Pressable } from "react-native"
+import tw from "twrnc";
 
 type MenuButtonProps = {
-    className?: string;
-}
+  className?: string;
+};
 
-const MenuButton = (props : MenuButtonProps) => {
-    const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
-    return <>
-        <Pressable onPress={() => navigation.openDrawer()} className={"p2 " + props.className}>
-            <Ionicons name="menu" size={30} color="black" />
-        </Pressable>
-    </>
-}
+const MenuButton: React.FC<MenuButtonProps> = ({ className = "" }) => {
+  const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
+
+  return (
+    <Pressable
+      onPress={() => navigation.openDrawer()}
+      style={tw`p-2 ${className}`}
+    >
+      <Ionicons name="menu" size={30} color="black" />
+    </Pressable>
+  );
+};
 
 export default MenuButton;

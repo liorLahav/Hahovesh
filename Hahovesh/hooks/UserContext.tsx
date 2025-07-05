@@ -1,4 +1,3 @@
-import { auth } from '@/FirebaseConfig';
 import { signOutUser } from '@/services/auth';
 import { checkAuthState } from '@/services/login';
 import { getUserByPhoneNumber, updateExpoToken, updatePermissions } from '@/services/users';
@@ -32,13 +31,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User>({} as User);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userLoading, setUserLoading] = useState(false);
-    const {  expoPushToken } = usePushNotifications();
+    const {  expoPushToken,devicePushToken } = usePushNotifications();
     const [isAvaliable, setIsAvailable] = useState(false);
 
     useEffect(() => {
         console.log("expoPushToken in UserProvider:", expoPushToken);
-        if (expoPushToken && isAuthenticated && user) {
-            updateExpoToken(user.id, expoPushToken)
+        if (isAuthenticated && user && (expoPushToken || devicePushToken)) {
+            const token = expoPushToken || devicePushToken || "";
+            updateExpoToken(user.id, token)
         }
     }, [expoPushToken,isAuthenticated,user]);
 
@@ -91,22 +91,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
         setUserLoading(false);
     };
-    const refreshUser = async () => {
-        try {
-            const user = auth.currentUser;
-            console.log("user: ",user);
-            if (user) {
-                await changeUser(user.phoneNumber!);
-            } else {
-                console.error("No user is currently authenticated");
-                setIsAuthenticated(false);
-            }
-        }
-        catch (error) {
-            console.error("Error refreshing user data:", error);
-            setIsAuthenticated(false);
-        }
-    }
+
     const userHasRoles = (roleToCheck: string) => {
         return user.permissions.includes(roleToCheck)
     }

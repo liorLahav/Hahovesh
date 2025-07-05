@@ -5,11 +5,13 @@ import FormInput from "./FormInput";
 import SubmitButton from "./SubmitButton";
 import TermsModal from "./TermsModal";
 import { createUser } from "@/services/users";
+import tw from "twrnc";
 
 type RegisterFormProps = {
   onSuccess: () => void;
   onConflict: (message: string, details: string) => void;
 };
+
 const formatPhoneNumber = (phone: string): string => {
   const cleaned = phone.replace(/\D/g, "");
 
@@ -20,7 +22,7 @@ const formatPhoneNumber = (phone: string): string => {
   }
 
   return cleaned;
-}
+};
 
 const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
   const [formValues, setFormValues] = useState({
@@ -38,7 +40,6 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
-
   const [termsChecked, setTermsChecked] = useState(false);
   const [isTermsModalVisible, setTermsModalVisible] = useState(false);
 
@@ -47,19 +48,16 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
     const fieldSchema = registerSchema.find((field) => field.key === key);
     if (!fieldSchema) return;
 
-    // Apply filter if defined
     let filteredValue = value;
     if (fieldSchema.validation?.filter) {
       filteredValue = fieldSchema.validation.filter(value);
     }
 
-    // Update form value
     setFormValues((prev) => ({
       ...prev,
       [key]: filteredValue,
     }));
 
-    // Validate input
     let errorMessage = "";
     if (
       fieldSchema.validation?.regex &&
@@ -68,7 +66,6 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
       errorMessage = fieldSchema.validation.errorMessage;
     }
 
-    // Update form error
     setFormErrors((prev) => ({
       ...prev,
       [key]: errorMessage,
@@ -76,7 +73,14 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
   };
 
   const handleRegister = async () => {
-    // Validate all fields based on schema
+    if (!termsChecked) {
+      Alert.alert(
+        "יש להסכים לתנאי השימוש",
+        "על מנת להמשיך, יש לאשר את תנאי השימוש."
+      );
+      return;
+    }
+
     let hasErrors = false;
     const newErrors = { ...formErrors };
 
@@ -95,28 +99,30 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
     setFormErrors(newErrors);
 
     if (hasErrors) {
-      Alert.alert("שגיאת אימות", "אנא תקן את כל שגיאות הטופס לפני השליחה.");
+      Alert.alert(
+        "שגיאת אימות",
+        "אנא תקן את כל שגיאות הטופס לפני השליחה."
+      );
       return;
     }
 
-    // Check for empty fields
     const { firstName, lastName, identifier, phone } = formValues;
     if (!firstName || !lastName || !identifier || !phone) {
       Alert.alert("שדות חסרים", "אנא מלא את כל הפרטים.");
       return;
     }
+
     const values = { ...formValues };
     values.phone = formatPhoneNumber(phone);
     setIsLoading(true);
 
     try {
       const result = await createUser(values);
-
       if (!result.success) {
         if (result.conflict === "id") {
           onConflict(
             "תעודת זהות רשומה כבר",
-            `תעודת זהות ${identifier} כבר רשומה למתנדב ${result.details.first_name} ${result.details.last_name}. אם זה אתה, אנא נסה להתחבר במקום זאת.`
+            `תעודת זהות ${identifier} כבר רשומה למתנדב אם זה אתה, אנא נסה להתחבר במקום זאת.`
           );
           setFormErrors((prev) => ({
             ...prev,
@@ -125,29 +131,29 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
         } else if (result.conflict === "phone") {
           onConflict(
             "מספר טלפון רשום כבר",
-            `מספר הטלפון ${phone} כבר רשום למתנדב ${result.details.first_name} ${result.details.last_name}. אם זה אתה, אנא נסה להתחבר במקום זאת.`
+            `מספר הטלפון ${values.phone} כבר רשום למתנדב אם זה אתה, אנא נסה להתחבר במקום זאת.`
           );
-          setFormErrors((prev) => ({ ...prev, phone: "מספר טלפון כבר בשימוש" }));
+          setFormErrors((prev) => ({
+            ...prev,
+            phone: "מספר טלפון כבר בשימוש",
+          }));
         }
         setIsLoading(false);
         return;
       }
 
-      // Reset form on success
       setFormValues({
         firstName: "",
         lastName: "",
         identifier: "",
         phone: "",
       });
-
       setFormErrors({
         firstName: "",
         lastName: "",
         identifier: "",
         phone: "",
       });
-
       setIsLoading(false);
       onSuccess();
     } catch (err) {
@@ -157,41 +163,24 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
     }
   };
 
-  // Check if form is valid
   const isFormValid = () => {
     const { firstName, lastName, identifier, phone } = formValues;
-    const {
-      firstName: firstNameError,
-      lastName: lastNameError,
-      identifier: idError,
-      phone: phoneError,
-    } = formErrors;
-
+    const { firstName: fErr, lastName: lErr, identifier: iErr, phone: pErr } =
+      formErrors;
     return (
       firstName &&
       lastName &&
       identifier &&
       formatPhoneNumber(phone) &&
-      !firstNameError &&
-      !lastNameError &&
-      !idError &&
-      !phoneError
+      !fErr &&
+      !lErr &&
+      !iErr &&
+      !pErr
     );
-
-    const handleRegister = async () => {
-    if (!termsChecked) {
-      Alert.alert(
-        "יש להסכים לתנאי השימוש",
-        "על מנת להמשיך, יש לאשר את תנאי השימוש."
-      );
-      return;
-    }
-  }
-    
   };
 
   return (
-    <View className="w-full max-w-xl items-center self-center">
+    <View style={tw`w-full max-w-xl items-center self-center`}>
       {registerSchema.map((field) => (
         <FormInput
           key={field.key}
@@ -205,33 +194,31 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
         />
       ))}
     
-      <View className="flex-row-reverse items-start w-full max-w-xl mt-4">
+      <View style={tw`flex-row-reverse items-start w-full max-w-xl mt-4`}>
         <TouchableOpacity
           onPress={() => setTermsChecked((prev) => !prev)}
           disabled={isLoading}
-          className="ml-2"
+          style={tw`ml-2`}
         >
           <View
-            className={`w-5 h-5 border border-gray-400 rounded-sm justify-center items-center`}
-      >
-          {termsChecked && (
-          <Text className="text-blue-700 font-bold">✓</Text>
-        )}
+            style={tw`w-5 h-5 border border-blue-400 rounded-sm justify-center items-center`}
+          >
+            {termsChecked && (
+              <Text style={tw`text-blue-700 font-bold`}>✓</Text>
+            )}
           </View>
         </TouchableOpacity>
-          <Text className="text-gray-700 text-base text-right">
-            אני מסכים/ה ל
-            <Text
+        <Text style={tw`text-blue-700 text-base text-right`}>
+          אני מסכים/ה ל
+          <Text
             onPress={() => setTermsModalVisible(true)}
-            className="text-blue-700 font-semibold"
-            >
-              {" "}
-              תנאי השימוש
+            style={tw`text-blue-700 font-semibold`}
+          >
+            {" "}
+            תנאי השימוש
           </Text>
         </Text>
       </View>
-
-
 
       <SubmitButton
         onPress={handleRegister}
