@@ -93,7 +93,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const userHasRoles = (roleToCheck: string) => {
-        return user.permissions.includes(roleToCheck)
+        const permissions = user?.permissions || [];
+        return permissions.includes(roleToCheck);
     }
     const updateRoles = async (permissions: string[]) => {
         const prevPremissions = user.permissions || [];
