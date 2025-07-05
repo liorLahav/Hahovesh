@@ -1,15 +1,8 @@
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { app, db } from "@/FirebaseConfig";
+import { app } from "@/FirebaseConfig";
 import { 
-  PhoneAuthProvider, 
-  signInWithCredential, 
-  RecaptchaVerifier,
-  sendSignInLinkToEmail, 
-  signInWithPhoneNumber,
   UserCredential
 } from 'firebase/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getAllUsers } from "./users";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import auth from '@react-native-firebase/auth';
 
@@ -30,7 +23,6 @@ export type VerificationResult = {
   user?: UserCredential;
 };
 
-let recaptchaVerifier: RecaptchaVerifier | null = null;
 
 export const sendVerificationCode = async (phoneNumber: string): Promise<LoginResult> => {
   try {

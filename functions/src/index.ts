@@ -18,6 +18,7 @@ export const onNewMessage = onValueCreated({
 
   const title = messageData.urgency === true ? "🚨 הודעה דחופה" : "📢 התקבלה הודעה";
   const body = messageData.message_description || "";
+  const senderId = messageData?.sender_id; // Get the sender's ID
 
   // Separate tokens into Expo tokens vs. native device tokens
   const expoTokens: string[] = [];
@@ -29,9 +30,12 @@ export const onNewMessage = onValueCreated({
     const token = doc.get("expoPushToken");
     if (typeof token !== "string") return;
 
+    // Don't send notification to the sender
+    if (doc.id === senderId) return;
+
     // Check if volunteer can receive this message
     const canReceive =
-      (messageData.distribution_by_role === "All" || doc.get("permissions").includes(messageData.distribution_by_role)) && doc.get("status") === "available";
+      (messageData.distribution_by_role === "All" || doc.get("permissions").includes(messageData.distribution_by_role)) && (doc.get("status") === "available" || messageData.urgency == false);
 
     if (canReceive) {
       if (Expo.isExpoPushToken(token)) {
@@ -100,25 +104,28 @@ export const onNewEvent = onValueCreated({
 
   const title = "התקבל אירוע חדש";
   const body = eventData?.medical_code || "";
-
-  const tokens: string[] = [];
+  const senderId = eventData?.sender_id; // Get the sender's ID
 
   const volunteersSnap = await admin.firestore().collection("volunteers").get();
   const expoTokens: string[] = [];
-const deviceTokens: string[] = [];
+  const deviceTokens: string[] = [];
 
-volunteersSnap.forEach(doc => {
-  const token = doc.get("expoPushToken");
-  if (typeof token !== 'string') return;
-  if (doc.get("status") === "available"){
-    if (Expo.isExpoPushToken(token)) {
-      expoTokens.push(token);
-    } else {
-      // assume it’s a native FCM/APNs token
-      deviceTokens.push(token);
+  volunteersSnap.forEach(doc => {
+    const token = doc.get("expoPushToken");
+    if (typeof token !== 'string') return;
+    
+    // Don't send notification to the sender
+    if (doc.id === senderId) return;
+    
+    if (doc.get("status") === "available"){
+      if (Expo.isExpoPushToken(token)) {
+        expoTokens.push(token);
+      } else {
+        // assume it's a native FCM/APNs token
+        deviceTokens.push(token);
+      }
     }
-  }
-});
+  });
 
   // 1) Expo pushes
   const expoMessages: ExpoPushMessage[] = expoTokens.map(to => ({
@@ -127,8 +134,14 @@ volunteersSnap.forEach(doc => {
     body,
     channelId: 'events', // use the channel created in app.config.ts
   }));
-  for (const chunk of expo.chunkPushNotifications(expoMessages)) {
-    await expo.sendPushNotificationsAsync(chunk);
+  
+  try {
+    for (const chunk of expo.chunkPushNotifications(expoMessages)) {
+      await expo.sendPushNotificationsAsync(chunk);
+    }
+    console.log("📤 Sent push to", expoTokens.length, "Expo devices");
+  } catch (error) {
+    console.error("❌ Error sending Expo push:", error);
   }
 
   // 2) Native FCM/APNs pushes
@@ -138,10 +151,16 @@ volunteersSnap.forEach(doc => {
     android: { notification: { channelId: 'events', sound: 'events.wav' } },
     apns: { payload: { aps: { sound: 'events.wav' } } },
   }));
+  
   for (const msg of fcmMessages) {
-    await admin.messaging().send(msg);
+    try {
+      await admin.messaging().send(msg);
+    } catch (err) {
+      console.error("❌ Error sending device token push:", err);
+    }
   }
   
+  console.log("📤 Sent push to", deviceTokens.length, "native devices");
 });
 
 export const validateUser = onCall(async (request) => {
@@ -160,4 +179,68 @@ export const validateUser = onCall(async (request) => {
     return { valid: false, error: "הטלפון או תעודת הזהות לא נכונים" };
   }
   return { valid: true, userId: id };
- })
+ });
+
+export const registerUser = onCall(async (request) => {
+  const { firstName, lastName, identifier, phone } = request.data;
+  
+  // Validate required fields
+  if (!firstName || !lastName || !identifier || !phone) {
+    return { 
+      success: false, 
+      error: "Missing required fields" 
+    };
+  }
+
+  try {
+    // Check if ID already exists
+    const idDocRef = admin.firestore().collection("volunteers").doc(identifier);
+    const idDocSnap = await idDocRef.get();
+
+    if (idDocSnap.exists) {
+      const existingData = idDocSnap.data();
+      return {
+        success: false,
+        conflict: "id",
+        details: existingData
+      };
+    }
+
+    // Check if phone already exists
+    const phoneQuery = admin.firestore()
+      .collection("volunteers")
+      .where("phone", "==", phone);
+    const phoneQuerySnapshot = await phoneQuery.get();
+
+    if (!phoneQuerySnapshot.empty) {
+      const existingData = phoneQuerySnapshot.docs[0].data();
+      return {
+        success: false,
+        conflict: "phone",
+        details: existingData
+      };
+    }
+
+    // Create new user
+    await idDocRef.set({
+      first_name: firstName,
+      last_name: lastName,
+      id: identifier,
+      phone: phone,
+      permissions: ["Pending"],
+      status: "available",
+    });
+
+    console.log(`✅ User registered successfully: ${firstName} ${lastName} (${identifier})`);
+    
+    return { success: true };
+
+  } catch (error) {
+    console.error("❌ Error registering user:", error);
+    return { 
+      success: false, 
+      error: "Internal server error" 
+    };
+  }
+});
+

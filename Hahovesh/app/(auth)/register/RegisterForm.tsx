@@ -122,7 +122,7 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
         if (result.conflict === "id") {
           onConflict(
             "תעודת זהות רשומה כבר",
-            `תעודת זהות ${identifier} כבר רשומה למתנדב ${result.details.first_name} ${result.details.last_name}. אם זה אתה, אנא נסה להתחבר במקום זאת.`
+            `תעודת זהות ${identifier} כבר רשומה למתנדב אם זה אתה, אנא נסה להתחבר במקום זאת.`
           );
           setFormErrors((prev) => ({
             ...prev,
@@ -131,7 +131,7 @@ const RegisterForm = ({ onSuccess, onConflict }: RegisterFormProps) => {
         } else if (result.conflict === "phone") {
           onConflict(
             "מספר טלפון רשום כבר",
-            `מספר הטלפון ${values.phone} כבר רשום למתנדב ${result.details.first_name} ${result.details.last_name}. אם זה אתה, אנא נסה להתחבר במקום זאת.`
+            `מספר הטלפון ${values.phone} כבר רשום למתנדב אם זה אתה, אנא נסה להתחבר במקום זאת.`
           );
           setFormErrors((prev) => ({
             ...prev,

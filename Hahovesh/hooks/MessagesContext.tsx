@@ -3,6 +3,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useRef,
   ReactNode,
 } from "react";
 import { Message, subscribeToMessages } from "@/services/messages";
@@ -23,13 +24,20 @@ export const useMessages = () => useContext(MessagesContext);
 export function MessagesProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
-  const {isAuthenticated} = useUserContext();
+  const { isAuthenticated } = useUserContext();
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
       setMessages([]);
-    }
-    else{
+      setLoadingMessages(false);
+
+      // Clean up existing subscription
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+    } else {
       const unsubscribe = subscribeToMessages((fetchedMessages, error) => {
         if (error) {
           console.error("שגיאה בטעינת הודעות:", error);
@@ -38,9 +46,19 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         }
         setMessages(fetchedMessages || []);
         setLoadingMessages(false);
-        return () => unsubscribe();
       });
+
+      // Store the unsubscribe function in ref
+      unsubscribeRef.current = unsubscribe;
     }
+
+    // Cleanup function for useEffect
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+    };
   }, [isAuthenticated]);
 
   return (
