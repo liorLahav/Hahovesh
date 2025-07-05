@@ -19,12 +19,16 @@ export default function ActiveEvents() {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const unsubscribeRef = useRef<() => void | null>(null);
   const { isEventActive, changeEvent } = useEventContext();
+  const [pressed, setIsPressed] = useState<boolean>(false);
   const roles = user.permissions || [];
   const { setErrorMessage, cleanError } = useError();
 
   const eventEnds = (event: Event) => !!event.summaryReportFiller;
 
   const receiveEvent = async (event: Event) => {
+    if (pressed)
+      return;
+    setIsPressed(true);
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
@@ -46,6 +50,7 @@ export default function ActiveEvents() {
     }
     changeEvent(event);
     router.push({ pathname: "/ArrivingToEvent" });
+    setIsPressed(false);
   };
 
   useEffect(() => {
