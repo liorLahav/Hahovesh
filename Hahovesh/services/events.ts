@@ -1,16 +1,4 @@
-import { realtimeDb } from "@/FirebaseConfig";
-import {
-  get,
-  onChildAdded,
-  onValue,
-  push,
-  ref,
-  serverTimestamp,
-  set,
-  remove,
-  update,
-} from "firebase/database";
-
+import database from '@react-native-firebase/database';
 
 export type Event = {
   anamnesis?: string;
@@ -37,198 +25,138 @@ export type Event = {
 };
 
 export const deleteEvent = async (eventId: string) => {
-  try {
-    const eventRef = ref(realtimeDb, `events/${eventId}`);
-    await remove(eventRef);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error("Error deleting event: " + error.message);
-    } else {
-      throw new Error("Unknown error deleting event: " + JSON.stringify(error));
-    }
-  }
+  await database().ref(`events/${eventId}`).remove();
 };
 
 export const updateEvent = async (eventId: string, updatedEvent: Event) => {
-  const eventRef = ref(realtimeDb, `events/${eventId}`);
-  await set(eventRef, updatedEvent);
+  await database().ref(`events/${eventId}`).set(updatedEvent);
 };
 
 export const subscribeToEvents = (
   callback: (events: any[] | null, error?: Error) => void
 ) => {
-  const eventsRef = ref(realtimeDb, "events");
+  const eventsRef = database().ref("events");
   console.log("Subscribing to events at:", eventsRef.toString());
-  const unsubscribe = onValue(
-    eventsRef,
-    (snapshot) => {
-      try {
-        const data = snapshot.val();
-        if (data && typeof data === "object") {
-          const now = Date.now();
-          const activeEvents: any[] = [];
 
-          for (const [key, value] of Object.entries(data)) {
-            const event = value as any;
-            event.id = key;
+  const listener = eventsRef.on('value', (snapshot) => {
+    try {
+      const data = snapshot.val();
+      if (data && typeof data === "object") {
+        const now = Date.now();
+        const activeEvents: any[] = [];
 
-            if (
-              event.isActive === false &&
-              event.canceledAt &&
-              now - event.canceledAt > 2 * 60 * 60 * 1000 // change this to > 1000 for debug now its 2 hours 
-            ) {
-              const refToDelete = ref(realtimeDb, `events/${key}`);
-              remove(refToDelete);
-              continue;
-            }
+        for (const [key, value] of Object.entries(data)) {
+          const event = value as any;
+          event.id = key;
 
-            activeEvents.push(event);
+          if (
+            event.isActive === false &&
+            event.canceledAt &&
+            now - event.canceledAt > 2 * 60 * 60 * 1000
+          ) {
+            database().ref(`events/${key}`).remove();
+            continue;
           }
 
-          console.log("Active events:", activeEvents);
-          callback(activeEvents);
-        } else {
-          callback([]);
+          activeEvents.push(event);
         }
-      } catch (err) {
-        callback(null, err as Error);
-      }
-    },
-    (error) => {
-      callback(null, error);
-    }
-  );
 
-  return unsubscribe;
+        console.log("Active events:", activeEvents);
+        callback(activeEvents);
+      } else {
+        callback([]);
+      }
+    } catch (err) {
+      callback(null, err as Error);
+    }
+  }, (error) => {
+    callback(null, error);
+  });
+
+  return () => eventsRef.off('value', listener);
 };
 
 export async function deleteEventById(eventId: string) {
-  const eventRef = ref(realtimeDb, `events/${eventId}`);
-  await remove(eventRef);
+  await database().ref(`events/${eventId}`).remove();
 }
 
 export const subscribeToEventsById = (
   id: string,
   callback: (event: Event | null, error?: Error) => void
 ) => {
-  const eventsRef = ref(realtimeDb, "events/" + id);
-  const unsubscribe = onValue(
-    eventsRef,
-    (snapshot) => {
-      try {
-        const data = snapshot.val();
-        if (data && typeof data === "object") {
-          callback(data);
-        } else {
-          callback(null);
-        }
-      } catch (err) {
-        callback(null, err as Error);
+  const eventRef = database().ref(`events/${id}`);
+  const listener = eventRef.on('value', (snapshot) => {
+    try {
+      const data = snapshot.val();
+      if (data && typeof data === "object") {
+        callback(data);
+      } else {
+        callback(null);
       }
-    },
-    (error) => {
-      callback(null, error);
+    } catch (err) {
+      callback(null, err as Error);
     }
-  );
+  }, (error) => {
+    callback(null, error);
+  });
 
-  return unsubscribe;
+  return () => eventRef.off('value', listener);
 };
 
 export const createEvent = async (
   values: Record<string, string>,
   onReset: () => void
 ): Promise<void> => {
-  try {
-    const node = push(ref(realtimeDb, "events"));
-    const id = node.key;
+  const node = database().ref("events").push();
+  const id = node.key;
 
-    await set(node, {
-      id,
-      ...values,
-      isActive: true,
-      createdAt: new Date().getTime(),
-    });
+  await node.set({
+    id,
+    ...values,
+    isActive: true,
+    createdAt: new Date().getTime(),
+  });
 
-    onReset();
-    return;
-  } catch (error: any) {
-    throw new Error(
-      "Error saving event: " + (error?.message || JSON.stringify(error))
-    );
-  }
+  onReset();
 };
-
 
 export const addVolunteerToEvent = async (
   eventId: string,
   volunteerId: string
 ): Promise<void> => {
-  try {
-    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}`);
-    await set(eventRef, { volunteerId, joinedAt: serverTimestamp() });
-  } catch (error: any) {
-    throw new Error(
-      'Error adding volunteer to event: ' + (error?.message || JSON.stringify(error))
-    );
-  }
-}
+  await database()
+    .ref(`events/${eventId}/volunteers/${volunteerId}`)
+    .set({ volunteerId, joinedAt: database.ServerValue.TIMESTAMP });
+};
 
 export const removeVolunteerFromEvent = async (
   eventId: string,
   volunteerId: string
 ): Promise<void> => {
-  try {
-    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}`);
-    await set(eventRef, null);
-  } catch (error: any) {
-    throw new Error(
-      'Error removing volunteer from event: ' + (error?.message || JSON.stringify(error))
-    );
-  }
-}
+  await database()
+    .ref(`events/${eventId}/volunteers/${volunteerId}`)
+    .remove();
+};
+
 export const addUserArrivalTime = async (
   eventId: string,
   volunteerId: string,
 ): Promise<void> => {
-  try {
-    const eventRef = ref(realtimeDb, `events/${eventId}/volunteers/${volunteerId}/arrivedAt`);
-    await set(eventRef, serverTimestamp());
-  } catch (error: any) {
-    throw new Error(
-      'Error adding user arrival time: ' + (error?.message || JSON.stringify(error))
-    );
-  }
-}
+  await database()
+    .ref(`events/${eventId}/volunteers/${volunteerId}/arrivedAt`)
+    .set(database.ServerValue.TIMESTAMP);
+};
 
 export const fetchEvent = async (eventId: string): Promise<Event | null> => {
-  try {
-    const eventRef = ref(realtimeDb, `events/${eventId}`);
-    const snapshot = await get(eventRef);
-    if (snapshot.exists()) {
-      return snapshot.val() as Event;
-    } else {
-      return null;
-    }
-  } catch (error: any) {
-    throw new Error(
-      'Error fetching event: ' + (error?.message || JSON.stringify(error))
-    );
-  }
-}
+  const snapshot = await database().ref(`events/${eventId}`).once('value');
+  return snapshot.exists() ? (snapshot.val() as Event) : null;
+};
 
 export const updateStartEndEvent = async (
-    volunteerId: string,
-    eventId: string
-  ): Promise<void> => {
-    try {
-      const eventRef = ref(realtimeDb, `events/${eventId}`);
-      await update(eventRef, {
-        summaryReportFiller: volunteerId,
-      });
-    } catch (error: any) {
-      throw new Error(
-        'Error updating start/end event: ' + (error?.message || JSON.stringify(error))
-      );
-    }
-  } 
-
+  volunteerId: string,
+  eventId: string
+): Promise<void> => {
+  await database()
+    .ref(`events/${eventId}`)
+    .update({ summaryReportFiller: volunteerId });
+};
