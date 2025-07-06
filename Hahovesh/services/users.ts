@@ -13,6 +13,8 @@ import {
 } from "firebase/firestore";
 import { db, app } from "../FirebaseConfig";
 import { httpsCallable, getFunctions } from "firebase/functions";
+import firestore from '@react-native-firebase/firestore';
+
 
 // Initialize functions
 const functions = getFunctions(app);
@@ -49,9 +51,9 @@ export async function createUser({ firstName, lastName, identifier, phone }: {
 
 export const deleteUser = async (user_id: string) => {
   try {
-    const userRef = doc(db, "volunteers", user_id);
-    await deleteDoc(userRef);
-  } catch (error) {
+    const userRef = firestore().collection('volunteers').doc(user_id);
+    await userRef.delete();
+  } catch (error: any) {
     if (error instanceof Error) {
       throw new Error("Error deleting user: " + error.message);
     } else {
@@ -60,14 +62,15 @@ export const deleteUser = async (user_id: string) => {
   }
 };
 
+
 export const updatePermissions = async (
   user_id: string,
   newPermissions: string[]
 ) => {
   try {
-    const userRef = doc(db, "volunteers", user_id);
-    await updateDoc(userRef, { permissions: newPermissions });
-  } catch (error) {
+    const userRef = firestore().collection('volunteers').doc(user_id);
+    await userRef.update({ permissions: newPermissions });
+  } catch (error: any) {
     if (error instanceof Error) {
       throw new Error("Error updating permissions: " + error.message);
     } else {
@@ -78,40 +81,40 @@ export const updatePermissions = async (
   }
 };
 
-export const updateStatus = async(user_id: string, status: string) => {
+export const updateStatus = async (user_id: string, status: string) => {
   try {
-    const userRef = doc(db, "volunteers", user_id);
-    await updateDoc(userRef, { status });
-  } catch (error) {
+    const userRef = firestore().collection('volunteers').doc(user_id);
+    await userRef.update({ status });
+  } catch (error: any) {
     if (error instanceof Error) {
       throw new Error("Error updating status: " + error.message);
     } else {
       throw new Error("Unknown error updating status: " + JSON.stringify(error));
     }
   }
-}
+};
 
-export const getAllUsers = async (): Promise<DocumentData[]> => {
+export const getAllUsers = async (): Promise<any[]> => {
   try {
     console.log("Getting all users from Firestore...");
-    const usersRef = collection(db, "volunteers");
-    const snapshot = await getDocs(usersRef);
+
+    const snapshot = await firestore()
+      .collection('volunteers')
+      .get();
 
     if (snapshot.empty) {
       console.log("No users found in database");
       return [];
     }
 
-    const usersData = snapshot.docs.map((doc) => {
-      return {
-        ...doc.data(),
-        id: doc.id,
-      };
-    });
+    const usersData = snapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
 
     console.log(`Retrieved ${usersData.length} users from Firestore`);
     return usersData;
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("Error in getAllUsers:", error);
     if (error instanceof Error) {
       throw new Error("Error fetching users: " + error.message);
@@ -123,9 +126,9 @@ export const getAllUsers = async (): Promise<DocumentData[]> => {
 
 export const updateUserStatus = async (userId: string, status: string) => {
   try {
-    const userRef = doc(db, "volunteers", userId);
-    await updateDoc(userRef, { status });
-    console.log("Status:", status);
+    const userRef = firestore().collection('volunteers').doc(userId);
+    await userRef.update({ status });
+    console.log("Status updated:", status);
   } catch (error: any) {
     throw new Error(
       "Error updating status: " + (error?.message || JSON.stringify(error))
@@ -152,14 +155,15 @@ export const getRoles = async (userId: string): Promise<string[]> => {
   }
 };
 
-export const getUserByPhoneNumber = async (phoneNumber: string): Promise<DocumentData | null> => {
+export const getUserByPhoneNumber = async (phoneNumber: string): Promise<any | null> => {
   try {
     console.log("Fetching user by phone number:", phoneNumber);
-    const q = query(
-      collection(db, 'volunteers'),
-      where('phone', '==', phoneNumber)
-    );
-    const querySnapshot = await getDocs(q);
+    
+    const querySnapshot = await firestore()
+      .collection('volunteers')
+      .where('phone', '==', phoneNumber)
+      .limit(1)
+      .get();
 
     if (querySnapshot.empty) {
       console.log("User not found in database");
@@ -168,19 +172,20 @@ export const getUserByPhoneNumber = async (phoneNumber: string): Promise<Documen
 
     const doc = querySnapshot.docs[0];
     const userData = doc.data();
-    return { ...userData, id: doc.id }; 
+    return { ...userData, id: doc.id };
   } catch (error: any) {
-    console.error("Error fetching user by ID:", error);
+    console.error("Error fetching user by phone number:", error);
     throw new Error(
       "Error fetching user: " + (error?.message || JSON.stringify(error))
     );
   }
-}
+};
+
 
 export async function updateExpoToken(userId: string, expoPushToken: string) {
   try {
-    const userRef = doc(db, "volunteers", userId);
-    await updateDoc(userRef, { expoPushToken });
+    const userRef = firestore().collection('volunteers').doc(userId);
+    await userRef.update({ expoPushToken });
     console.log("Expo token updated successfully for user:", userId);
   } catch (error: any) {
     console.error("Error updating Expo token:", error);
@@ -192,11 +197,10 @@ export async function updateExpoToken(userId: string, expoPushToken: string) {
 
 export async function removeExpoToken(userId: string) {
   try {
-    const userRef = doc(db, "volunteers", userId);
-    await updateDoc(userRef, { expoPushToken: null });
+    const userRef = firestore().collection('volunteers').doc(userId);
+    await userRef.update({ expoPushToken: null });
     console.log("Expo token removed successfully for user:", userId);
-  }
-  catch (error: any) {
+  } catch (error: any) {
     console.error("Error removing Expo token:", error);
     throw new Error(
       "Error removing Expo token: " + (error?.message || JSON.stringify(error))
