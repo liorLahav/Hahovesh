@@ -55,7 +55,7 @@ A mobile application for managing Har Nof Emergency Medical Teams, enabling effi
 - npm or yarn
 - Expo CLI
 - Android Studio (for Android development)
-- Xcode (for iOS development)
+- Firebase project (firestore,database,auth,cloud functions)
 
 ### Project Setup
 
