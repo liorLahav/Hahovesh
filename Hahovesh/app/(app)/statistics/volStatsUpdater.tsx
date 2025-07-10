@@ -1,18 +1,27 @@
 // volStatsUpdater.tsx
 
-import { collection, getDocs, getDoc, doc, setDoc, Timestamp, writeBatch } from 'firebase/firestore';
-import { db } from '../../../FirebaseConfig';
+import pLimit from 'p-limit';
+import firestore from '@react-native-firebase/firestore';
 import { calculateFormQuality } from './calculations';
 
 interface VolunteerEvent {
   eventId: string;
-  eventDate: Timestamp;
+  eventDate: firestore.Timestamp;
 }
 
 type UpdateResult = { volunteersUpdated: number };
 
-async function updateVolunteerStatsFor(volId: string, summaries: any[], full: string) {
-  // Parse events
+// Firestore instance (namespaced API)
+const db = firestore();
+
+async function updateVolunteerStatsFor(
+  volId: string,
+  summaries: any[],
+  full: string
+) {
+  console.log(`🔄 Processing ${full} (${volId}) with ${summaries.length} summaries`);
+
+  // Parse and collect events
   const events: VolunteerEvent[] = summaries.map(s => {
     let date: Date;
     if (typeof s.event_date === 'string') {
@@ -23,20 +32,23 @@ async function updateVolunteerStatsFor(volId: string, summaries: any[], full: st
     } else {
       date = new Date();
     }
-    return { eventId: s.eventId, eventDate: Timestamp.fromDate(date) };
+    return { eventId: s.eventId, eventDate: firestore.Timestamp.fromDate(date) };
   });
 
-  // Calculate average formQuality
-  let totalQ = 0, count = 0;
+  // Compute average formQuality
+  let totalQ = 0;
+  let count = 0;
   summaries.forEach(s => {
     const q = calculateFormQuality(s);
-    if (q > 0) { totalQ += q; count++; }
+    if (q > 0) {
+      totalQ += q;
+      count++;
+    }
   });
   const formQuality = count > 0 ? Math.round((totalQ / count) * 10) / 10 : 0;
 
-  // Write back to volunteerStats
-  await setDoc(
-    doc(db, 'volunteerStats', volId),
+  // Upsert stats doc
+  await db.collection('volunteerStats').doc(volId).set(
     {
       volunteer_id: volId,
       v_full_name: full,
@@ -44,68 +56,90 @@ async function updateVolunteerStatsFor(volId: string, summaries: any[], full: st
       eventsCount: events.length,
       summariesCount: summaries.length,
       formQuality,
-      last_updated: Timestamp.now()
+      last_updated: firestore.Timestamp.now()
     },
     { merge: true }
   );
 
-  console.log(`Updated ${full} (${volId}) with ${summaries.length} summaries.`);
+  console.log(`✅ Stats updated for ${full} (${volId})`);
 }
 
 export async function updateVolunteerStatistics(): Promise<UpdateResult> {
-  console.log('Starting volunteer statistics update…');
+  console.log('🚀 Starting volunteer statistics update…');
 
+  // 1. Load volunteers
   const nameToId: Record<string, string> = {};
   const idToName: Record<string, string> = {};
-  const volSnap = await getDocs(collection(db, 'volunteers'));
-  volSnap.forEach(v => {
-    const d = v.data();
-    const full = `${d.first_name || ''} ${d.last_name || ''}`.trim();
+  const volSnap = await db.collection('volunteers').get();
+  volSnap.forEach(docSnap => {
+    const data = docSnap.data();
+    const full = `${data.first_name || ''} ${data.last_name || ''}`.trim();
     if (full) {
-      nameToId[full] = v.id;
-      idToName[v.id] = full;
+      nameToId[full] = docSnap.id;
+      idToName[docSnap.id] = full;
     }
   });
+  console.log(`🔍 ${Object.keys(nameToId).length} volunteers found`);
 
-  // Ensure each volunteerStats doc exists
-  const createPromises = Object.entries(nameToId).map(async ([full, id]) => {
-    const statsRef = doc(db, 'volunteerStats', id);
-    if (!(await getDoc(statsRef)).exists()) {
-      await setDoc(statsRef, {
+  // 2. Initialize missing stats docs in batches
+  const statsSnap = await db.collection('volunteerStats').get();
+  const existingIds = new Set(statsSnap.docs.map(d => d.id));
+  const missing = Object.entries(nameToId)
+    .filter(([_full, id]) => !existingIds.has(id))
+    .map(([full, id]) => ({ full, id }));
+  console.log(`🆕 Initializing ${missing.length} new stats docs`);
+
+  const BATCH_SIZE = 500;
+  for (let i = 0; i < missing.length; i += BATCH_SIZE) {
+    const batch = db.batch();
+    missing.slice(i, i + BATCH_SIZE).forEach(({ full, id }) => {
+      const ref = db.collection('volunteerStats').doc(id);
+      batch.set(ref, {
         volunteer_id: id,
         v_full_name: full,
         events: [] as VolunteerEvent[],
         eventsCount: 0,
         summariesCount: 0,
         formQuality: 0,
-        last_updated: Timestamp.now()
+        last_updated: firestore.Timestamp.now()
       });
-      console.log(`Initialized stats for ${full}`);
-    }
-  });
-  await Promise.all(createPromises);
+      console.log(`  📝 Queued init for ${full}`);
+    });
+    await batch.commit();
+    console.log(`  📦 Committed batch ${i + 1}-${Math.min(i + BATCH_SIZE, missing.length)}`);
+  }
+  console.log('✅ All missing stats initialized');
 
-  const sumSnap = await getDocs(collection(db, 'eventSummaries'));
+  // 3. Load summaries and group by volId
+  const sumSnap = await db.collection('eventSummaries').get();
   const grouped: Record<string, any[]> = {};
   sumSnap.forEach(snap => {
     const data = snap.data();
     const volId = data.volenteer_id || data.volunteer_id;
-    if (volId) grouped[volId] = grouped[volId] || [], grouped[volId].push(data);
-  });
-
-  const updatePromises = Object.entries(grouped).map(([volId, summaries]) => {
-    const full = idToName[volId];
-    if (!full) {
-      console.warn(`Unknown volunteer ID: ${volId}`);
-      return Promise.resolve();
+    if (volId) {
+      grouped[volId] = grouped[volId] || [];
+      grouped[volId].push(data);
     }
-    return updateVolunteerStatsFor(volId, summaries, full);
   });
+  console.log(`🔄 Summaries found for ${Object.keys(grouped).length} volunteers`);
 
-  await Promise.all(updatePromises);
+  // 4. Update stats with limited concurrency
+  const limit = pLimit(10);
+  await Promise.all(
+    Object.entries(grouped).map(([volId, summaries]) =>
+      limit(async () => {
+        const full = idToName[volId];
+        if (!full) {
+          console.warn(`⚠️ Unknown volunteer ID: ${volId}`);
+          return;
+        }
+        await updateVolunteerStatsFor(volId, summaries, full);
+      })
+    )
+  );
 
-  const updatedCount = updatePromises.length;
-  console.log(`✔️ Updated stats for ${updatedCount} volunteers.`);
+  const updatedCount = Object.keys(grouped).length;
+  console.log(`🎉 Finished updating ${updatedCount} volunteer stats`);
   return { volunteersUpdated: updatedCount };
 }
 
