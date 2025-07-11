@@ -1,17 +1,15 @@
-
-
-import { onValue, ref } from "firebase/database";
-import { realtimeDb } from "../FirebaseConfig";
+import database from '@react-native-firebase/database';
 
 export const listenToRTDBConnection = (
   callback: (isOnline: boolean) => void
 ) => {
-  const connectedRef = ref(realtimeDb, ".info/connected");
+  const connectedRef = database().ref('.info/connected');
 
-  const unsubscribe = onValue(connectedRef, (snapshot) => {
+  const listener = connectedRef.on('value', snapshot => {
     const isOnline = snapshot.val() === true;
     callback(isOnline);
   });
 
-  return unsubscribe; 
+  // Return unsubscribe function
+  return () => connectedRef.off('value', listener);
 };

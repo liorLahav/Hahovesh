@@ -56,6 +56,7 @@ export default function EditSummaryForm() {
     string
   > | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reaload, setReload] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -69,8 +70,9 @@ export default function EditSummaryForm() {
 
       setInitialValues(defaults);
       setLoading(false);
+      setReload(false);
     })();
-  }, [id]);
+  }, [id,reaload]);
 
   const onSubmit = useCallback(
     async (values: Record<string, string>) => {
@@ -78,6 +80,7 @@ export default function EditSummaryForm() {
       try {
         await updateEventSummary(id, values);
         Alert.alert("הצלחה", "הדוח עודכן בהצלחה");
+        setReload(true);
         router.replace("/summaryReports");
       } catch (err) {
         console.error(err);

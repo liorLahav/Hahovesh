@@ -1,21 +1,9 @@
-import {
-  collection,
-  doc,
-  addDoc,
-  getDoc,
-  getDocs,
-  updateDoc,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-} from "firebase/firestore";
-import { db } from "@/FirebaseConfig";
+import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 /* טיפוס בסיסי לדוח */
 export interface EventSummary {
   id: string;
-  createdAt?: Timestamp;
+  createdAt?: FirebaseFirestoreTypes.Timestamp;
   title?: string;
   [key: string]: any;
 }
@@ -24,7 +12,7 @@ export interface EventSummary {
 export const saveEventSummary = async (
   data: Omit<EventSummary, "id">
 ): Promise<string> => {
-  const ref = await addDoc(collection(db, "eventSummaries"), data);
+  const ref = await firestore().collection("eventSummaries").add(data);
   return ref.id;
 };
 
@@ -32,35 +20,39 @@ export const saveEventSummary = async (
 export const updateEventSummary = async (
   id: string,
   data: Partial<EventSummary>
-) => updateDoc(doc(db, "eventSummaries", id), data);
+) => {
+  await firestore().collection("eventSummaries").doc(id).update(data);
+};
 
 /** שליפת דוח יחיד (פעם אחת) */
 export const getEventSummary = async (
   id: string
 ): Promise<EventSummary | null> => {
-  const snap = await getDoc(doc(db, "eventSummaries", id));
-  return snap.exists()
-    ? ({ id: snap.id, ...snap.data() } as EventSummary)
-    : null;
+  const snap = await firestore().collection("eventSummaries").doc(id).get();
+  return snap.exists() ? ({ id: snap.id, ...snap.data() } as EventSummary) : null;
 };
 
 export const subscribeEventSummary = (
   id: string,
   cb: (d: EventSummary | null) => void
 ) =>
-  onSnapshot(doc(db, "eventSummaries", id), (snap) =>
-    cb(snap.exists() ? ({ id: snap.id, ...snap.data() } as EventSummary) : null)
-  );
+  firestore()
+    .collection("eventSummaries")
+    .doc(id)
+    .onSnapshot((snap) => {
+      cb(snap.exists() ? ({ id: snap.id, ...snap.data() } as EventSummary) : null);
+    });
 
 export const fetchEventSummaries = async (): Promise<EventSummary[]> => {
-  const col = collection(db, "eventSummaries");
+  const col = firestore().collection("eventSummaries");
   try {
-    const ordered = await getDocs(query(col, orderBy("createdAt", "desc")));
+    const ordered = await col.orderBy("createdAt", "desc").get();
     if (!ordered.empty)
       return ordered.docs.map(
         (d) => ({ id: d.id, ...d.data() } as EventSummary)
       );
   } catch {}
-  const snap = await getDocs(col);
+  // fallback if orderBy failed
+  const snap = await col.get();
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as EventSummary));
 };

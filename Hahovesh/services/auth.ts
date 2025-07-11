@@ -1,16 +1,7 @@
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { app, auth, db } from "@/FirebaseConfig";
-import { 
-  PhoneAuthProvider, 
-  signInWithCredential, 
-  RecaptchaVerifier,
-  sendSignInLinkToEmail, 
-  signInWithPhoneNumber,
-  UserCredential
-} from 'firebase/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getAllUsers } from "./users";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
+import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 type ValidateResponse = {
   valid: boolean;
@@ -23,36 +14,39 @@ export type LoginResult = {
   error?: string;
   data?: any;
 };
+
 export type VerificationResult = {
   success: boolean;
-  user?: UserCredential;
+  user?: FirebaseAuthTypes.UserCredential;
 };
 
-let recaptchaVerifier: RecaptchaVerifier | null = null;
-
-export const sendVerificationCode = async (phoneNumber: string,recaptchaVerifier : any): Promise<LoginResult> => {
+export const sendVerificationCode = async (phoneNumber: string): Promise<LoginResult> => {
   try {
     console.log("Verification code sent to:", phoneNumber);
 
-    const confirmationResult = await signInWithPhoneNumber(
-      auth,
-      phoneNumber,
-      recaptchaVerifier
-    );
+    const confirmationResult = await auth().signInWithPhoneNumber(phoneNumber);
+
     return {
       success: true,
-      verificationCallback: async (code : string) => {
+      verificationCallback: async (code: string) => {
         try {
-          const result : UserCredential = await confirmationResult.confirm(code);
+          const result = await confirmationResult.confirm(code);
+          if (!result || !result.user) {
+            return {
+              success: false,
+              error: "Invalid verification code or user not found."
+            };
+          }
           return {
             success: true,
             user: result,
           };
-        }
-        catch (error) {
+        } catch (error) {
+          console.error("Error confirming code:", error);
           return {
             success: false,
-          }
+            error: "Invalid code or network issue."
+          };
         }
       }
     };
@@ -66,15 +60,15 @@ export const sendVerificationCode = async (phoneNumber: string,recaptchaVerifier
 };
 
 export async function loginWithPhoneAndId(phone: string, identifier: string): Promise<LoginResult> {
-  const functions = getFunctions(app);
   console.log("Attempting login with phone:", phone, "and ID:", identifier);
-  const validateUser = httpsCallable<{ phoneNumber: string, id: string }, ValidateResponse>(functions, 'validateUser');
-  
+
+  const validateUser = functions().httpsCallable('validateUser');
+
   try {
     const result = await validateUser({ phoneNumber: phone, id: identifier });
-    const data = result.data;
+    const data = result.data as ValidateResponse;
     console.log("Validation result:", data);
-    
+
     if (data.valid) {
       return { success: true };
     } else {
@@ -88,13 +82,12 @@ export async function loginWithPhoneAndId(phone: string, identifier: string): Pr
 
 export const signOutUser = async (): Promise<void> => {
   try {
-    await auth.signOut();
+    await auth().signOut();
     console.log("User signed out successfully");
     await AsyncStorage.removeItem('user');
-    
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("Error signing out:", error);
-    const message = error instanceof Error ? error.message : String(JSON.stringify(error));
+    const message = error instanceof Error ? error.message : JSON.stringify(error);
     throw new Error(message);
   }
-}
+};

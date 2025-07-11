@@ -1,4 +1,3 @@
-import "global.css";
 import { Slot, useRouter } from "expo-router";
 import { UserProvider } from "@/hooks/UserContext";
 import { OnlineProvider } from "@/hooks/OnlineContext";

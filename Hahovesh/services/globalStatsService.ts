@@ -1,7 +1,4 @@
-// services/globalStatsService.ts
-
-import { collection, getDocs, Timestamp, doc, updateDoc, getDoc } from "firebase/firestore";
-import { db } from "../FirebaseConfig";
+import firestore from '@react-native-firebase/firestore';
 import { StatsPeriod } from "./volunteerAnalyticsService";
 import {
   calculateDateRange,
@@ -43,17 +40,15 @@ export async function getTotalEvents(
   customEnd?: Date
 ): Promise<number> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const snap = await getDocs(collection(db, "eventSummaries"));
+  const snap = await firestore().collection("eventSummaries").get();
   let total = 0;
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
     const include = period === "all"
       ? true
-      : (
-          (!start || evDate.getTime() >= start.getTime()) &&
-          (!end   || evDate.getTime() <= end.getTime())
-        );
+      : ((!start || evDate.getTime() >= start.getTime()) &&
+         (!end || evDate.getTime() <= end.getTime()));
     if (include) total++;
   });
   return total;
@@ -66,15 +61,13 @@ export async function getTransportCounts(
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const snap = await getDocs(collection(db, "eventSummaries"));
+  const snap = await firestore().collection("eventSummaries").get();
   const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-    if (
-      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
-      (period === "all" || evDate.getTime() <= end.getTime())
-    ) {
+    if ((period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+        (period === "all" || evDate.getTime() <= end.getTime())) {
       const key = (d.transport as string || "").trim() || "ללא הובלה";
       counts[key] = (counts[key] || 0) + 1;
     }
@@ -89,15 +82,13 @@ export async function getReceiverCounts(
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const snap = await getDocs(collection(db, "eventSummaries"));
+  const snap = await firestore().collection("eventSummaries").get();
   const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-    if (
-      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
-      (period === "all" || evDate.getTime() <= end.getTime())
-    ) {
+    if ((period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+        (period === "all" || evDate.getTime() <= end.getTime())) {
       const key = ((d.receiver as string) || "").trim() || "לא ידוע";
       counts[key] = (counts[key] || 0) + 1;
     }
@@ -112,17 +103,15 @@ export async function getAddressCounts(
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const snap = await getDocs(collection(db, "eventSummaries"));
+  const snap = await firestore().collection("eventSummaries").get();
   const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
     const include = period === "all"
       ? true
-      : (
-          (!start || evDate.getTime() >= start.getTime()) &&
-          (!end   || evDate.getTime() <= end.getTime())
-        );
+      : ((!start || evDate.getTime() >= start.getTime()) &&
+         (!end || evDate.getTime() <= end.getTime()));
     if (include) {
       const key = ((d.address as string) || "").trim() || "לא ידוע";
       counts[key] = (counts[key] || 0) + 1;
@@ -131,22 +120,20 @@ export async function getAddressCounts(
   return counts;
 }
 
-/** 5. Count cases with empty summary (no report) */
+/** 5. Count cases with empty summary */
 export async function getNoReportCount(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<number> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const snap = await getDocs(collection(db, "eventSummaries"));
+  const snap = await firestore().collection("eventSummaries").get();
   let countNoReport = 0;
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-    if (
-      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
-      (period === "all" || evDate.getTime() <= end.getTime())
-    ) {
+    if ((period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+        (period === "all" || evDate.getTime() <= end.getTime())) {
       if (((d.summary as string) || "").trim() === "") {
         countNoReport++;
       }
@@ -155,22 +142,20 @@ export async function getNoReportCount(
   return countNoReport;
 }
 
-/** 6. Breakdown by weekday (Hebrew) */
+/** 6. Breakdown by weekday */
 export async function getCountsByWeekday(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const snap = await getDocs(collection(db, "eventSummaries"));
+  const snap = await firestore().collection("eventSummaries").get();
   const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-    if (
-      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
-      (period === "all" || evDate.getTime() <= end.getTime())
-    ) {
+    if ((period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+        (period === "all" || evDate.getTime() <= end.getTime())) {
       const day = formatWeekday(evDate);
       counts[day] = (counts[day] || 0) + 1;
     }
@@ -185,38 +170,34 @@ export async function getCountsByHour(
   customEnd?: Date
 ): Promise<Record<number, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const snap = await getDocs(collection(db, "eventSummaries"));
+  const snap = await firestore().collection("eventSummaries").get();
   const counts: Record<number, number> = {};
   for (let h = 0; h < 24; h++) counts[h] = 0;
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-    if (
-      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
-      (period === "all" || evDate.getTime() <= end.getTime())
-    ) {
+    if ((period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+        (period === "all" || evDate.getTime() <= end.getTime())) {
       counts[evDate.getHours()]++;
     }
   });
   return counts;
 }
 
-/** 8. Breakdown by month key “YYYY-MM” */
+/** 8. Breakdown by month */
 export async function getCountsByMonth(
   period: StatsPeriod,
   customStart?: Date,
   customEnd?: Date
 ): Promise<Record<string, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const snap = await getDocs(collection(db, "eventSummaries"));
+  const snap = await firestore().collection("eventSummaries").get();
   const counts: Record<string, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-    if (
-      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
-      (period === "all" || evDate.getTime() <= end.getTime())
-    ) {
+    if ((period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+        (period === "all" || evDate.getTime() <= end.getTime())) {
       const key = formatMonthKey(evDate);
       counts[key] = (counts[key] || 0) + 1;
     }
@@ -231,15 +212,13 @@ export async function getCountsByYear(
   customEnd?: Date
 ): Promise<Record<number, number>> {
   const { start, end } = calculateDateRange(period, customStart, customEnd);
-  const snap = await getDocs(collection(db, "eventSummaries"));
+  const snap = await firestore().collection("eventSummaries").get();
   const counts: Record<number, number> = {};
   snap.forEach(docSnap => {
     const d = docSnap.data();
     const evDate = parseEventDate(d.event_date);
-    if (
-      (period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
-      (period === "all" || evDate.getTime() <= end.getTime())
-    ) {
+    if ((period === "all" || evDate.getTime() >= (start?.getTime() ?? 0)) &&
+        (period === "all" || evDate.getTime() <= end.getTime())) {
       const year = formatYear(evDate);
       counts[year] = (counts[year] || 0) + 1;
     }
@@ -247,11 +226,9 @@ export async function getCountsByYear(
   return counts;
 }
 
-/**
- * NEW: Count how many volunteers in volunteerStats have at least one event
- */
+/** Count how many volunteers in volunteerStats have at least one event */
 export async function getActiveVolunteersCount(): Promise<number> {
-  const snap = await getDocs(collection(db, "volunteerStats"));
+  const snap = await firestore().collection("volunteerStats").get();
   let count = 0;
   snap.forEach(docSnap => {
     const d = docSnap.data();
@@ -260,21 +237,19 @@ export async function getActiveVolunteersCount(): Promise<number> {
   return count;
 }
 
-/**
- * (Unchanged) Incremental update when a single event finishes
- */
+/** Incrementally update volunteer stats when a single event finishes */
 export const updateFinishedEventsCount = async (
   userId: string,
   filledForm: boolean
 ) => {
-  const statsRef = doc(db, "volunteerStats", userId);
-  const statsSnap = await getDoc(statsRef);
+  const statsRef = firestore().collection("volunteerStats").doc(userId);
+  const statsSnap = await statsRef.get();
   if (statsSnap.exists()) {
-    const d = statsSnap.data();
-    await updateDoc(statsRef, {
+    const d = statsSnap.data()!;
+    await statsRef.update({
       eventsCount:    (d.eventsCount || 0) + 1,
       summariesCount: (d.summariesCount || 0) + (filledForm ? 1 : 0),
-      last_updated:   Timestamp.now()
+      last_updated:   firestore.FieldValue.serverTimestamp()
     });
-  }
+  }  
 };

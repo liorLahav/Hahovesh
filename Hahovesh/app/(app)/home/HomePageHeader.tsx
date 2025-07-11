@@ -13,8 +13,9 @@ type Props = {
 
 export default function HomePageHeader({ messages }: Props) {
   const { user, userHasRoles } = useUserContext();
-  const userRoles = user.permissions || [];
+  const userRoles = user?.permissions || [];
   const userId = user.id;
+  console.log("messages",messages);
   const countUnreadMessages = messages.filter(
     (msg) =>
       (msg.distribution_by_role === "All" ||

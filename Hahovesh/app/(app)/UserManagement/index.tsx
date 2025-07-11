@@ -12,11 +12,13 @@ import { useNavigation } from "@react-navigation/native";
 import { useState, useEffect } from "react";
 import type { DrawerNavigationProp } from "@react-navigation/drawer";
 import type { ParamListBase } from "@react-navigation/native";
+import tw from "twrnc";
 import UsersArea from "./UsersArea";
-import { DocumentData, doc as firestoreDoc } from "firebase/firestore";
+import { DocumentData } from "firebase/firestore";
 import { getAllUsers } from "../../../services/users";
 import ManagementHeader from "./ManagementHeader";
 import { StatusBar } from "expo-status-bar";
+
 const UserManagementScreen = () => {
   const [activeUsers, setactiveUsers] = useState<DocumentData[] | null>(null);
   const [pendingUsers, setpendingUsers] = useState<DocumentData[] | null>(null);
@@ -28,15 +30,12 @@ const UserManagementScreen = () => {
       setIsLoading(true);
       try {
         let usersData: DocumentData[] = await getAllUsers();
-        console.log(usersData);
         const tempActiveUsers = usersData.filter(
-          (user) => user.permissions.includes("Pending") === false
+          (user) => !user.permissions.includes("Pending")
         );
         const tempPendingUsers = usersData.filter(
-          (user) => user.permissions.includes("Pending") === true
+          (user) => user.permissions.includes("Pending")
         );
-        console.log("Active users: ", tempActiveUsers);
-        console.log("Pending users: ", tempPendingUsers);
         setactiveUsers(tempActiveUsers);
         setpendingUsers(tempPendingUsers);
         setDataChanged(false);
@@ -69,32 +68,32 @@ const UserManagementScreen = () => {
           <Pressable
             onPress={updateDataChange}
             disabled={isLoading}
-            className="bg-blue-500 rounded-lg px-4 py-2 items-center justify-center mb-4 flex-row-reverse"
+            style={tw`bg-blue-500 rounded-lg px-4 py-2 items-center justify-center mb-4 flex-row-reverse`}
           >
             {isLoading ? (
-              <Text className="text-white font-bold">טוען...</Text>
+              <Text style={tw`text-white font-bold`}>טוען...</Text>
             ) : (
-              <View className="flex flex-row items-center">
+              <View style={tw`flex flex-row items-center`}>  
                 <Ionicons
                   name="refresh"
                   size={20}
                   color="white"
-                  className="mr-2"
+                  style={tw`mr-2`}
                 />
-                <Text className="text-white font-bold">רענן נתונים</Text>
+                <Text style={tw`text-white font-bold`}>רענן נתונים</Text>
               </View>
             )}
           </Pressable>
         </SafeAreaView>
 
         <ScrollView
-          className="flex-1 bg-gray-100 w-full pb-[120px] grow"
           showsVerticalScrollIndicator={true}
           alwaysBounceVertical={true}
           scrollEventThrottle={16}
           overScrollMode="always"
+          style={tw`flex-1 bg-gray-100 w-full pb-[120px] grow`}
         >
-          <SafeAreaView className="flex-1 p-4">
+          <SafeAreaView style={tw`flex-1 p-4`}>  
             {pendingUsers && (
               <UsersArea
                 type="ממתינים לאישור"
@@ -111,8 +110,7 @@ const UserManagementScreen = () => {
               />
             )}
 
-            {/* Add extra padding at the bottom for better scrolling */}
-            <View className="h-20" />
+            <View style={tw`h-20`} />
           </SafeAreaView>
         </ScrollView>
       </KeyboardAvoidingView>

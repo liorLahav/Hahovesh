@@ -5,23 +5,22 @@ import Loading from "@/components/Loading";
 import { useEffect } from "react";
 import { usePushNotifications } from "@/hooks/NotificationsHook";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { I18nManager, Platform } from 'react-native';
+import * as Updates from 'expo-updates';
 
 
 export default function Index() {
   const {isAuthenticated,userLoading} = useUserContext();
 
-  // useEffect(() => {
-  //   const clearAsyncStorage = async () => {
-  //     try {
-  //       await AsyncStorage.clear();
-  //       console.log('✅ AsyncStorage cleared successfully');
-  //     } catch (e) {
-  //       console.error('❌ Failed to clear AsyncStorage:', e);
-  //     }
-  //   };
-
-  //   clearAsyncStorage();
-  // }, []);
+  useEffect(() =>{
+    if (I18nManager.isRTL) {
+      I18nManager.allowRTL(false);
+      I18nManager.forceRTL(false);  
+      if (Platform.OS !== 'web') {
+        Updates.reloadAsync();      
+      }
+    }
+  },[])
 
   if (userLoading) 
     return <Loading/>
